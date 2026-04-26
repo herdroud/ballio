@@ -1,4 +1,4 @@
-import { PlayerStats, MatchTier } from './match';
+import { PlayerStats, MatchTier } from '@/app/types/match';
 
 export function calculateTier(ovr: number): MatchTier {
     if (ovr >= 93) return 'legend';
