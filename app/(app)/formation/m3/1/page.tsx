@@ -1,7 +1,7 @@
 import React from "react";
 import { LessonSection, LessonHeader } from "@/components/formation/ui/Lesson";
 import { ChocQuote, ChocText } from "@/components/formation/ui/ChocQuote";
-import { ScienceBox } from "@/components/formation/ui/Highlights";
+import { RuleBox, ScienceBox } from "@/components/formation/ui/Highlights";
 
 export default function Module3Lesson1Page() {
     return (
