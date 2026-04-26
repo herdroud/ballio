@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Module 2 — Le Protocole Jour de Match | Loopio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rouge:      #C0392B;
+      --rouge-vif:  #E74C3C;
+      --rouge-pale: #FDF0F0;
+      --noir:       #0D0D0D;
+      --noir-2:     #141414;
+      --noir-3:     #1C1C1C;
+      --gris-m:     #888888;
+      --blanc:      #FFFFFF;
+      --vert:       #1A7A34;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--noir); color: var(--blanc);
+      font-size: 18px; line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── PROGRESS ── */
+    #progress {
+      position: fixed; top: 0; left: 0; height: 3px;
+      background: var(--rouge); width: 0%; z-index: 1000;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 48px;
+      background: rgba(13,13,13,0.93); backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .nav-left { display: flex; align-items: center; gap: 24px; }
+    .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 3px; color: var(--rouge); text-decoration: none; }
+    .nav-sep { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+    .nav-module { font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--gris-m); }
+    .nav-cta { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; background: var(--rouge); color: var(--blanc); padding: 10px 24px; text-decoration: none; transition: background .2s; }
+    .nav-cta:hover { background: var(--rouge-vif); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      justify-content: flex-end; padding: 0 48px 80px;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg-num {
+      position: absolute; top: 50%; right: -60px; transform: translateY(-50%);
+      font-family: 'Bebas Neue', sans-serif; font-size: clamp(280px,38vw,560px);
+      color: rgba(192,57,43,0.05); line-height: 1;
+      pointer-events: none; user-select: none; letter-spacing: -10px;
+    }
+    .hero-module-tag { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+    .hero-module-num { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 4px; color: var(--blanc); background: var(--rouge); padding: 6px 14px; }
+    .hero-module-label { font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--gris-m); font-weight: 600; }
+    .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(60px,9vw,128px); line-height: 0.88; letter-spacing: 2px; margin-bottom: 36px; }
+    .hero-title .sub { display: block; color: var(--rouge); font-size: clamp(32px,4.5vw,60px); }
+    .hero-lead { font-family: 'DM Serif Display', serif; font-size: clamp(19px,2.2vw,26px); font-style: italic; color: rgba(255,255,255,0.6); max-width: 620px; line-height: 1.55; margin-bottom: 56px; }
+    .hero-timeline {
+      display: flex; gap: 0; overflow: hidden; max-width: 640px;
+    }
+    .hero-tl-item {
+      flex: 1; padding: 20px 22px; background: var(--noir-3);
+      border-right: 1px solid rgba(255,255,255,0.05); position: relative;
+    }
+    .hero-tl-item:last-child { border-right: none; }
+    .hero-tl-item.active { background: rgba(192,57,43,0.15); border-top: 2px solid var(--rouge); }
+    .hero-tl-day { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gris-m); margin-bottom: 8px; }
+    .hero-tl-item.active .hero-tl-day { color: var(--rouge); }
+    .hero-tl-label { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.7); line-height: 1.3; }
+    .hero-tl-item.active .hero-tl-label { color: var(--blanc); }
+    .scroll-cue {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gris-m);
+      animation: breathe 2.5s ease-in-out infinite;
+    }
+    .scroll-cue::after { content: ''; width: 1px; height: 44px; background: linear-gradient(to bottom, var(--rouge), transparent); }
+    @keyframes breathe { 0%,100%{opacity:.3} 50%{opacity:.9} }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 780px; margin: 0 auto; padding: 0 32px; }
+    section { padding: 110px 0; }
+    section + section { border-top: 1px solid rgba(255,255,255,0.05); }
+
+    /* ── TYPOGRAPHIE ── */
+    .lead { font-family: 'DM Serif Display', serif; font-size: clamp(21px,2.8vw,28px); font-style: italic; line-height: 1.55; color: rgba(255,255,255,0.82); margin-bottom: 44px; }
+    p { font-size: 18px; line-height: 1.85; color: rgba(255,255,255,0.68); margin-bottom: 26px; font-weight: 300; }
+    p strong { color: var(--blanc); font-weight: 600; }
+    p em { color: rgba(255,255,255,0.75); }
+
+    .choc { font-family: 'DM Serif Display', serif; font-size: clamp(24px,3.5vw,40px); font-style: italic; line-height: 1.3; color: var(--blanc); padding: 44px 0; border-top: 2px solid var(--rouge); border-bottom: 2px solid var(--rouge); margin: 60px 0; }
+    .choc span { color: var(--rouge); }
+
+    /* ── LESSON ── */
+    .lesson-wrap { position: relative; }
+    .lesson-num-bg { position: absolute; top: -20px; right: 0; font-family: 'Bebas Neue', sans-serif; font-size: clamp(100px,16vw,200px); color: rgba(192,57,43,0.04); line-height: 1; pointer-events: none; user-select: none; }
+    .lesson-tag { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .lesson-tag-num { font-family: 'Bebas Neue', sans-serif; font-size: 12px; letter-spacing: 4px; color: var(--blanc); background: var(--rouge); padding: 5px 12px; }
+    .lesson-tag-line { flex: 0 0 48px; height: 1px; background: var(--rouge); }
+    .lesson-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(44px,7vw,84px); line-height: 0.92; margin-bottom: 12px; letter-spacing: 1px; }
+    .lesson-hook { font-size: 15px; color: var(--gris-m); font-weight: 300; margin-bottom: 56px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+
+    /* ── RÈGLE D'OR ── */
+    .regle { background: var(--rouge); padding: 44px 56px; margin: 56px 0; position: relative; overflow: hidden; }
+    .regle::after { content: '⚡'; position: absolute; right: 24px; bottom: -20px; font-size: 140px; opacity: .07; line-height: 1; }
+    .regle-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 14px; }
+    .regle-text { font-family: 'Bebas Neue', sans-serif; font-size: clamp(22px,3.5vw,36px); line-height: 1.1; color: var(--blanc); letter-spacing: 1px; }
+
+    /* ── SCIENCE ── */
+    .science { border-left: 3px solid var(--vert); padding: 28px 36px; background: rgba(26,122,52,0.06); margin: 44px 0; }
+    .science-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--vert); margin-bottom: 10px; }
+    .science-text { font-size: 15px; color: rgba(255,255,255,.55); line-height: 1.75; font-style: italic; font-weight: 300; margin: 0; }
+    .science-text strong { color: rgba(255,255,255,.75); font-weight: 500; }
+
+    /* ── PROTOCOLE ── */
+    .protocole { margin: 52px 0; }
+    .protocole-header { background: var(--rouge); padding: 20px 36px; display: flex; align-items: center; gap: 14px; }
+    .protocole-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--blanc); }
+    .protocole-steps { background: var(--noir-3); }
+    .protocole-step { display: grid; grid-template-columns: 52px 1fr; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .protocole-step:last-child { border-bottom: none; }
+    .protocole-step-num { display: flex; align-items: center; justify-content: center; background: rgba(192,57,43,0.12); font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--rouge); border-right: 1px solid rgba(255,255,255,0.05); }
+    .protocole-step-text { padding: 20px 28px; font-size: 16px; color: rgba(255,255,255,0.72); font-weight: 300; line-height: 1.6; }
+    .protocole-step-text strong { color: var(--blanc); font-weight: 600; }
+
+    /* ── TIMELINE VENDREDI-DIMANCHE ── */
+    .timeline-match { margin: 52px 0; }
+    .tl-day-header {
+      display: flex; align-items: center; gap: 20px;
+      padding: 22px 32px; margin-bottom: 3px;
+      background: var(--noir-3);
+    }
+    .tl-day-header.vendredi { border-left: 4px solid rgba(255,255,255,0.15); }
+    .tl-day-header.samedi   { border-left: 4px solid var(--rouge); }
+    .tl-day-header.dimanche { border-left: 4px solid var(--rouge); }
+    .tl-day-label { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; }
+    .tl-day-header.vendredi .tl-day-label { color: rgba(255,255,255,0.4); }
+    .tl-day-header.samedi   .tl-day-label { color: var(--blanc); }
+    .tl-day-header.dimanche .tl-day-label { color: var(--blanc); }
+    .tl-day-sub { font-size: 13px; color: var(--gris-m); font-weight: 300; }
+    .tl-events { margin-bottom: 16px; }
+    .tl-event {
+      display: grid; grid-template-columns: 80px 1fr;
+      gap: 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+      background: var(--noir-2);
+    }
+    .tl-event:last-child { border-bottom: none; margin-bottom: 3px; }
+    .tl-event-time {
+      padding: 18px 16px; text-align: right;
+      font-size: 12px; font-weight: 700; color: var(--rouge);
+      border-right: 1px solid rgba(255,255,255,0.05);
+      display: flex; align-items: flex-start; justify-content: flex-end;
+      padding-top: 22px;
+    }
+    .tl-event-content { padding: 18px 24px; }
+    .tl-event-title { font-size: 15px; font-weight: 600; color: var(--blanc); margin-bottom: 5px; }
+    .tl-event-desc { font-size: 14px; color: rgba(255,255,255,0.5); font-weight: 300; line-height: 1.5; }
+    .tl-event-desc strong { color: rgba(255,255,255,0.75); font-weight: 500; }
+    .tl-event.danger { background: rgba(192,57,43,0.06); }
+    .tl-event.ok { background: rgba(26,122,52,0.06); }
+
+    /* ── SCÉNARIO COMPARATIF ── */
+    .scenario { margin: 52px 0; }
+    .scenario-header {
+      padding: 24px 36px; font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px; letter-spacing: 2px;
+    }
+    .scenario-header.mauvais { background: rgba(192,57,43,0.12); color: var(--rouge); border-top: 3px solid var(--rouge); }
+    .scenario-header.bon { background: rgba(26,122,52,0.1); color: #4AE87A; border-top: 3px solid var(--vert); }
+    .scenario-body { background: var(--noir-3); padding: 36px 40px; margin-bottom: 3px; }
+    .scenario-moment {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--gris-m); margin-bottom: 8px;
+    }
+    .scenario-text { font-family: 'DM Serif Display', serif; font-style: italic; font-size: clamp(16px,2vw,20px); color: rgba(255,255,255,0.7); line-height: 1.7; margin-bottom: 16px; }
+    .scenario-text.forte { color: var(--blanc); }
+    .scenario-result { font-size: 14px; color: var(--gris-m); font-weight: 300; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px; margin-top: 8px; }
+    .scenario-result strong { color: var(--rouge); font-weight: 600; }
+    .scenario-result.vert strong { color: #4AE87A; }
+
+    /* ── VOITURE RETOUR VISUEL ── */
+    .silencio {
+      background: var(--noir-3); margin: 52px 0;
+      position: relative; overflow: hidden;
+    }
+    .silencio::before {
+      content: '30';
+      position: absolute; right: -20px; top: -30px;
+      font-family: 'Bebas Neue', sans-serif; font-size: 240px;
+      color: rgba(192,57,43,0.06); line-height: 1;
+      pointer-events: none;
+    }
+    .silencio-inner { padding: 52px 56px; position: relative; z-index: 1; }
+    .silencio-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--rouge); margin-bottom: 20px; }
+    .silencio-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px,5.5vw,64px); line-height: 0.95; color: var(--blanc); margin-bottom: 20px; letter-spacing: 1px; }
+    .silencio-text { font-size: 16px; color: rgba(255,255,255,0.6); line-height: 1.7; font-weight: 300; max-width: 520px; }
+    .silencio-text strong { color: var(--blanc); font-weight: 500; }
+    .silencio-timer {
+      display: flex; align-items: baseline; gap: 12px;
+      margin-top: 32px; padding-top: 32px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .silencio-timer-num { font-family: 'Bebas Neue', sans-serif; font-size: 80px; color: var(--rouge); line-height: 1; }
+    .silencio-timer-label { font-size: 16px; color: rgba(255,255,255,0.5); font-weight: 300; line-height: 1.4; }
+    .silencio-timer-label strong { color: var(--blanc); display: block; margin-bottom: 4px; }
+
+    /* ── TABLE APPLAUDIR ── */
+    .applaudir-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin: 52px 0; }
+    .applaudir-col { background: var(--noir-3); }
+    .applaudir-header { padding: 20px 28px; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
+    .applaudir-col.non .applaudir-header { color: var(--rouge); border-top: 3px solid var(--rouge); }
+    .applaudir-col.oui .applaudir-header { color: var(--vert); border-top: 3px solid var(--vert); }
+    .applaudir-item { padding: 14px 28px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 15px; color: rgba(255,255,255,0.65); font-weight: 300; line-height: 1.4; }
+    .applaudir-item:last-child { border-bottom: none; }
+    .applaudir-col.oui .applaudir-item { color: rgba(255,255,255,0.8); }
+
+    /* ── DÉBRIEF ── */
+    .debrief-card { background: var(--noir-3); margin: 52px 0; overflow: hidden; }
+    .debrief-top { padding: 36px 40px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .debrief-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gris-m); margin-bottom: 14px; }
+    .debrief-rule { font-family: 'DM Serif Display', serif; font-size: clamp(18px,2.4vw,24px); font-style: italic; color: rgba(255,255,255,0.8); line-height: 1.5; }
+    .debrief-rule strong { color: var(--blanc); }
+    .debrief-steps { }
+    .debrief-step { display: grid; grid-template-columns: 56px 1fr; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .debrief-step:last-child { border-bottom: none; }
+    .debrief-step-num { display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.02); border-right: 1px solid rgba(255,255,255,0.05); font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--rouge); }
+    .debrief-step-text { padding: 20px 28px; font-size: 15px; color: rgba(255,255,255,0.65); font-weight: 300; line-height: 1.6; }
+    .debrief-step-text strong { color: var(--blanc); font-weight: 600; }
+    .debrief-step-text em { color: rgba(255,255,255,0.5); font-style: italic; }
+
+    /* ── CTA ── */
+    .cta-section { padding: 150px 0; text-align: center; position: relative; overflow: hidden; }
+    .cta-section::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, rgba(192,57,43,0.1) 0%, transparent 65%); pointer-events: none; }
+    .cta-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--rouge); margin-bottom: 44px; }
+    .cta-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(48px,7.5vw,96px); line-height: 0.9; letter-spacing: 2px; margin-bottom: 44px; }
+    .cta-title span { color: var(--rouge); display: block; }
+    .cta-body { font-size: 18px; color: rgba(255,255,255,.6); max-width: 580px; margin: 0 auto 56px; line-height: 1.8; font-weight: 300; }
+    .cta-body strong { color: var(--blanc); font-weight: 500; }
+    .cta-question { font-family: 'DM Serif Display', serif; font-size: clamp(20px,2.8vw,30px); font-style: italic; color: var(--blanc); max-width: 680px; margin: 0 auto 56px; line-height: 1.5; }
+    .cta-question span { color: var(--rouge); }
+    .btn-primary { display: inline-block; background: var(--rouge); color: var(--blanc); text-decoration: none; padding: 22px 56px; font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; transition: all .25s; }
+    .btn-primary:hover { background: var(--rouge-vif); transform: translateY(-2px); }
+    .btn-primary::after { content: ' →'; }
+    .cta-note { display: block; margin-top: 18px; font-size: 13px; color: var(--gris-m); }
+
+    /* ── NEXT MODULE ── */
+    .next-module { border-top: 1px solid rgba(255,255,255,0.05); padding: 64px 0; text-align: center; }
+    .next-label { font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gris-m); margin-bottom: 20px; }
+    .next-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px,5.5vw,64px); color: var(--blanc); margin-bottom: 12px; letter-spacing: 1px; }
+    .next-sub { font-size: 16px; color: var(--gris-m); margin-bottom: 32px; font-weight: 300; }
+    .next-sub em { color: var(--rouge); font-style: normal; font-weight: 600; }
+    .btn-ghost { display: inline-block; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,.6); text-decoration: none; padding: 16px 40px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 3px; transition: all .25s; }
+    .btn-ghost:hover { border-color: var(--rouge); color: var(--blanc); }
+
+    /* ── FOOTER ── */
+    footer { padding: 40px 48px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
+    .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; color: var(--rouge); }
+    .footer-tagline { font-size: 13px; color: var(--gris-m); }
+
+    /* ── REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .65s ease, transform .65s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .nav-cta { display: none; }
+      .hero { padding: 0 24px 64px; }
+      .hero-bg-num { display: none; }
+      .hero-timeline { flex-direction: column; gap: 3px; }
+      section { padding: 72px 0; }
+      .container { padding: 0 24px; }
+      .applaudir-grid { grid-template-columns: 1fr; }
+      .scenario-body { padding: 28px 24px; }
+      .silencio-inner { padding: 36px 28px; }
+      .regle { padding: 36px 28px; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+      .next-module { padding: 48px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav>
+  <div class="nav-left">
+    <a class="nav-logo" href="#">LOOPIO</a>
+    <div class="nav-sep"></div>
+    <span class="nav-module">Module 2 — Payant</span>
+  </div>
+  <a class="nav-cta" href="#formation">Accéder à la formation</a>
+</nav>
+
+<!-- ═══════════════════════════════════
+     HERO
+════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-bg-num">02</div>
+  <div class="hero-module-tag">
+    <div class="hero-module-num">MODULE 2</div>
+    <div class="hero-module-label">Le Protocole Jour de Match</div>
+  </div>
+  <h1 class="hero-title">
+    Du vendredi<br>au dimanche.
+    <span class="sub">Heure par heure.</span>
+  </h1>
+  <p class="hero-lead">
+    Le Module 1 vous a appris les règles de fond.<br>
+    Ce module vous dit quoi faire exactement — chaque heure, chaque décision, chaque mot.
+  </p>
+  <div class="hero-timeline">
+    <div class="hero-tl-item">
+      <div class="hero-tl-day">Vendredi soir</div>
+      <div class="hero-tl-label">Préparer le bon état mental</div>
+    </div>
+    <div class="hero-tl-item active">
+      <div class="hero-tl-day">Samedi matin</div>
+      <div class="hero-tl-label">Le script de la voiture aller</div>
+    </div>
+    <div class="hero-tl-item active">
+      <div class="hero-tl-day">Pendant le match</div>
+      <div class="hero-tl-label">Le silence actif</div>
+    </div>
+    <div class="hero-tl-item active">
+      <div class="hero-tl-day">Voiture retour</div>
+      <div class="hero-tl-label">La règle des 30 minutes</div>
+    </div>
+  </div>
+  <div class="scroll-cue">Lire</div>
+</div>
+
+<!-- ═══════════════════════════════════
+     INTRO
+════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="choc reveal">
+      Le moment le plus dangereux<br>
+      de la semaine de votre enfant,<br>
+      <span>c'est le trajet retour dans votre voiture.</span>
+    </div>
+    <p class="reveal">Pas l'opposition la plus difficile. Pas la fatigue physique. Pas le regard du recruteur. <strong>Le trajet retour dans votre voiture.</strong></p>
+    <p class="reveal">Ce module ne vous donne pas des principes généraux. Il vous donne un protocole. Du vendredi soir au dimanche soir. Avec les mots exacts. Les silences exacts. Et les moments où vous ne faites rien — qui sont souvent les plus importants.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     LEÇON 2.1 — VENDREDI SOIR
+════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="lesson-wrap">
+      <div class="lesson-num-bg">2.1</div>
+      <div class="lesson-tag reveal">
+        <div class="lesson-tag-num">LEÇON 2.1</div>
+        <div class="lesson-tag-line"></div>
+      </div>
+      <h2 class="lesson-title reveal">Le Vendredi Soir</h2>
+      <p class="lesson-hook reveal">Installer la sérénité 12 heures avant le match. Pas la veille sur le terrain — la veille dans votre tête.</p>
+    </div>
+
+    <p class="lead reveal">Le vendredi soir, vous ne préparez pas votre enfant. Vous vous préparez vous.</p>
+
+    <p class="reveal">Le match commence dans vos comportements bien avant le coup d'envoi. La veille, votre enfant observe votre état. Il capte si vous cherchez les résultats de l'adversaire. Il entend si vous parlez du match avec votre conjoint après le dîner. Il ressent si le silence à la maison est lourd.</p>
+
+    <div class="timeline-match reveal">
+      <div class="tl-day-header vendredi">
+        <div class="tl-day-label">Vendredi Soir</div>
+        <div class="tl-day-sub">Ce que vous faites — et ce que vous ne faites pas</div>
+      </div>
+      <div class="tl-events">
+        <div class="tl-event ok">
+          <div class="tl-event-time">Repas</div>
+          <div class="tl-event-content">
+            <div class="tl-event-title">Repas normal</div>
+            <div class="tl-event-desc">Pas de <strong>« chargement »</strong> spécial qui signale que demain est important. Un repas comme les autres. Le rituel de table du Module 1 s'applique.</div>
+          </div>
+        </div>
+        <div class="tl-event ok">
+          <div class="tl-event-time">20h00</div>
+          <div class="tl-event-content">
+            <div class="tl-event-title">Groupes WhatsApp du club : silencieux</div>
+            <div class="tl-event-desc">Pas de classements, pas de stats adverses. <strong>Vous n'êtes pas le staff.</strong> Cette information ne vous appartient pas.</div>
+          </div>
+        </div>
+        <div class="tl-event danger">
+          <div class="tl-event-time">Interdit</div>
+          <div class="tl-event-content">
+            <div class="tl-event-title">Regarder les vidéos de l'adversaire ensemble</div>
+            <div class="tl-event-desc">Vous n'êtes pas le staff. Cette préparation n'est pas votre rôle — elle crée de la pression supplémentaire, pas de la confiance.</div>
+          </div>
+        </div>
+        <div class="tl-event ok">
+          <div class="tl-event-time">Coucher</div>
+          <div class="tl-event-content">
+            <div class="tl-event-title">Coucher habituel + 30 minutes</div>
+            <div class="tl-event-desc">Si votre enfant parle du match : validez l'émotion brièvement. <em>« Tu es prêt. »</em> Point. <strong>Pas de développement. Pas de briefing de dernière minute.</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="regle reveal">
+      <div class="regle-label">⚡ Règle d'or Loopio — Leçon 2.1</div>
+      <div class="regle-text">Le vendredi soir, vous installez le calme.<br>Pas l'excitation. Pas la préparation.<br>Le calme.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     LEÇON 2.2 — LA VOITURE ALLER
+════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="lesson-wrap">
+      <div class="lesson-num-bg">2.2</div>
+      <div class="lesson-tag reveal">
+        <div class="lesson-tag-num">LEÇON 2.2</div>
+        <div class="lesson-tag-line"></div>
+      </div>
+      <h2 class="lesson-title reveal">Le Script<br>de la Voiture<br>Aller</h2>
+      <p class="lesson-hook reveal">Une seule phrase. Rien d'autre. Ce n'est pas de la paresse — c'est de la précision.</p>
+    </div>
+
+    <p class="lead reveal">Voici la phrase exacte.</p>
+
+    <div class="silencio reveal" style="background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.3);">
+      <div class="silencio-inner">
+        <div class="silencio-label">Le script — Mot pour mot</div>
+        <div class="silencio-title" style="color:var(--blanc);font-size:clamp(24px,4vw,44px);">« Amuse-toi.<br>Prends des risques.<br>Je suis là pour te regarder jouer. »</div>
+        <div class="silencio-text" style="margin-top:28px;">
+          Et rien d'autre. Pas <em>« tu te rappelles ce qu'on a travaillé »</em>. Pas <em>« le coach t'a mis titulaire, profites-en »</em>. Pas <em>« les recruteurs seront là »</em>. <strong>Rien d'autre.</strong>
+        </div>
+      </div>
+    </div>
+
+    <p class="reveal">Cette phrase fait trois choses simultanément — et aucune n'est anodine.</p>
+
+    <div class="protocole reveal">
+      <div class="protocole-header">
+        <span style="font-size:18px">🎯</span>
+        <span class="protocole-title">Ce que chaque mot accomplit</span>
+      </div>
+      <div class="protocole-steps">
+        <div class="protocole-step">
+          <div class="protocole-step-num">1</div>
+          <div class="protocole-step-text"><strong>« Amuse-toi »</strong> — recentre sur le plaisir, pas le résultat. Votre enfant retrouve la raison pour laquelle il a commencé ce sport.</div>
+        </div>
+        <div class="protocole-step">
+          <div class="protocole-step-num">2</div>
+          <div class="protocole-step-text"><strong>« Prends des risques »</strong> — lui donne explicitement la permission d'échouer. C'est un cadeau. Un enfant autorisé à échouer prend les dribbles, tente les passes difficiles, exprime son jeu.</div>
+        </div>
+        <div class="protocole-step">
+          <div class="protocole-step-num">3</div>
+          <div class="protocole-step-text"><strong>« Je suis là pour te regarder jouer »</strong> — retire le regard évaluatif. Ce n'est plus une audition. C'est un match. Vous êtes spectateur, pas juge.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="choc reveal">
+      Trois phrases. Zéro attente.<br>
+      <span>Maximum de liberté.</span>
+    </div>
+
+    <div class="science reveal">
+      <div class="science-label">🧠 Pourquoi le silence après est aussi important que les mots</div>
+      <p class="science-text">Après la phrase, <strong>vous ne prolongez pas.</strong> Le cerveau de votre enfant a besoin des 10 à 20 minutes de trajet pour intégrer son état mental de match — sans nouvelle information à traiter. Chaque phrase supplémentaire que vous ajoutez est une charge cognitive qui s'installe avant le coup d'envoi.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     LEÇON 2.3 — AU BORD DU TERRAIN
+════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="lesson-wrap">
+      <div class="lesson-num-bg">2.3</div>
+      <div class="lesson-tag reveal">
+        <div class="lesson-tag-num">LEÇON 2.3</div>
+        <div class="lesson-tag-line"></div>
+      </div>
+      <h2 class="lesson-title reveal">Le Silence<br>Actif</h2>
+      <p class="lesson-hook reveal">Apprendre à soutenir sans parasiter. Être présent sans intervenir. C'est une compétence.</p>
+    </div>
+
+    <p class="lead reveal">Quand vous criez « Tire ! » depuis la touche — votre enfant vous entend.</p>
+
+    <p class="reveal">Et à ce moment précis, son cerveau traite votre instruction. Il compare ce que vous avez dit avec ce qu'il voit sur le terrain. Il évalue. Il décide quoi écouter. Pendant ce traitement — <strong>il n'est plus dans le jeu.</strong> Il a raté la passe intérieure. Il n'a pas vu le démarquage. Tout ça en une demi-seconde.</p>
+
+    <p class="reveal"><strong>Votre cri lui a coûté le bon choix.</strong></p>
+
+    <div class="choc reveal">
+      Le silence actif, ce n'est pas l'indifférence.<br>
+      <span>C'est la présence sans le bruit.</span>
+    </div>
+
+    <p class="reveal">Vous êtes là. Il le sait. Il le sent. Mais votre silence lui dit quelque chose d'essentiel : <em>« Le terrain t'appartient. Pas à moi. »</em></p>
+
+    <div class="applaudir-grid reveal">
+      <div class="applaudir-col non">
+        <div class="applaudir-header">❌ Ce qu'on n'applaudit pas</div>
+        <div class="applaudir-item">Le but sur penalty raté par le gardien</div>
+        <div class="applaudir-item">La frappe spectaculaire sur une erreur adverse</div>
+        <div class="applaudir-item">Le coup de chance</div>
+        <div class="applaudir-item">Les instructions criées depuis la touche</div>
+        <div class="applaudir-item">Le résultat final uniquement</div>
+      </div>
+      <div class="applaudir-col oui">
+        <div class="applaudir-header">✓ Ce qu'on applaudit</div>
+        <div class="applaudir-item">La prise de risque — même si elle échoue</div>
+        <div class="applaudir-item">Le sprint sans ballon pour se démarquer</div>
+        <div class="applaudir-item">La communication avec un coéquipier</div>
+        <div class="applaudir-item">Le replacement défensif rapide</div>
+        <div class="applaudir-item">L'attitude après une erreur</div>
+      </div>
+    </div>
+
+    <div class="science reveal">
+      <div class="science-label">🧠 Ce que vous entraînez sans le savoir</div>
+      <p class="science-text">En applaudissant uniquement les buts et les résultats visibles, vous entraînez votre enfant à <strong>jouer pour le spectaculaire plutôt que pour le collectif.</strong> Les recruteurs de centres de formation observent exactement l'inverse : le comportement hors du ballon, le replacement, la communication. Ce sont ces automatismes qui distinguent les joueurs formables de ceux qui plafonnent.</p>
+    </div>
+
+    <div class="regle reveal">
+      <div class="regle-label">⚡ Règle d'or Loopio — Leçon 2.3</div>
+      <div class="regle-text">Sur la touche : zéro consigne.<br>Applaudissez l'effort et l'intention.<br>Jamais uniquement le résultat.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     LEÇON 2.4 — VOITURE RETOUR
+════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="lesson-wrap">
+      <div class="lesson-num-bg">2.4</div>
+      <div class="lesson-tag reveal">
+        <div class="lesson-tag-num">LEÇON 2.4</div>
+        <div class="lesson-tag-line"></div>
+      </div>
+      <h2 class="lesson-title reveal">La Règle<br>des 30 Minutes</h2>
+      <p class="lesson-hook reveal">Le moment où tout se gagne ou tout se perd. Le plus difficile à tenir. Le plus décisif.</p>
+    </div>
+
+    <p class="lead reveal">Défaite deux buts à zéro. Votre enfant monte en silence dans la voiture. Il pose son sac. Il fixe la vitre.</p>
+
+    <p class="reveal">Son cerveau est en état de stress post-match. Le cortisol est au maximum. Son système nerveux est encore en mode combat. Il retraite chaque moment du match. Chaque erreur. Chaque occasion ratée.</p>
+
+    <p class="reveal"><strong>Tout ce que vous direz dans les trente prochaines minutes — il ne l'entendra pas comme un conseil.</strong></p>
+
+    <div class="choc reveal">
+      Il l'entendra<br>
+      <span>comme un coup.</span>
+    </div>
+
+    <div class="scenario reveal">
+      <div class="scenario-header mauvais">Version A — Ce que font 90% des parents</div>
+      <div class="scenario-body">
+        <div class="scenario-moment">Dans la voiture — 5 minutes après le match</div>
+        <p class="scenario-text">Le parent commence à analyser le match. « Tu aurais dû tirer en première mi-temps. » « Pourquoi t'as pas joué plus simple ? » « Le coach avait raison de te changer. »</p>
+        <p class="scenario-text forte">L'enfant se ferme. Il répond par monosyllabes ou ne répond plus. Il regarde par la fenêtre.</p>
+        <div class="scenario-result">
+          Ce que l'enfant retient de ce match : <strong>J'ai déçu mon père.</strong> Pas les leçons tactiques. Pas les axes de progression. La déception parentale.
+        </div>
+      </div>
+    </div>
+
+    <div class="scenario reveal">
+      <div class="scenario-header bon">Version B — Ce que vous faites maintenant</div>
+      <div class="scenario-body">
+        <div class="scenario-moment">Dans la voiture — Le même match, la même défaite</div>
+        <p class="scenario-text">Vous mettez de la musique. Ou vous roulez en silence. Vous ne dites rien sur le match. Vingt minutes passent. Les épaules de votre enfant descendent légèrement. Son souffle ralentit.</p>
+        <p class="scenario-text forte">Vous demandez juste : « On mange quoi ce soir ? »</p>
+        <div class="scenario-result vert">
+          Ce qui se passe sans que vous l'ayez demandé : il commence à analyser lui-même. <strong>C'est ça que vous voulez. Pas votre analyse. La sienne.</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="silencio reveal">
+      <div class="silencio-inner">
+        <div class="silencio-label">La règle — Non négociable</div>
+        <div class="silencio-title">30 minutes<br>de silence<br>sur le match.</div>
+        <div class="silencio-text">Si votre enfant n'en parle pas spontanément — <strong>vous n'en parlez pas.</strong> Jamais. Ce n'est pas de la froideur. C'est lui laisser l'espace pour traiter lui-même.</div>
+        <div class="silencio-timer">
+          <div class="silencio-timer-num">30</div>
+          <div class="silencio-timer-label">
+            <strong>minutes minimum</strong>
+            avant tout commentaire sur le match.<br>Si l'enfant n'initie pas — zéro commentaire.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="reveal">Et le débrief, s'il a lieu — il se fait le lendemain. À froid. Et selon des règles précises.</p>
+
+    <div class="debrief-card reveal">
+      <div class="debrief-top">
+        <div class="debrief-label">Le débrief à froid — Le lendemain seulement</div>
+        <p class="debrief-rule">Il est <strong>initié par l'enfant</strong>, pas par vous. S'il n'en parle pas, vous n'initiez pas. S'il n'a pas envie d'en parler, vous respectez le non.</p>
+      </div>
+      <div class="debrief-steps">
+        <div class="debrief-step">
+          <div class="debrief-step-num">1</div>
+          <div class="debrief-step-text">Si vous initiez : <strong>« Est-ce que t'as envie d'en parler ? »</strong> Une seule fois. Respectez le non sans commentaire.</div>
+        </div>
+        <div class="debrief-step">
+          <div class="debrief-step-num">2</div>
+          <div class="debrief-step-text"><strong>Méthode Sandwich :</strong> positif sincère → un seul axe d'amélioration précis → positif de clôture. Pas trois axes. Un seul.</div>
+        </div>
+        <div class="debrief-step">
+          <div class="debrief-step-num">3</div>
+          <div class="debrief-step-text">Règle absolue : <strong>critiquer le geste, jamais la personne.</strong> <em>Pas « tu n'es pas assez rapide »</em> → <em>« Sur cette action, le déclenchement était tardif. »</em></div>
+        </div>
+        <div class="debrief-step">
+          <div class="debrief-step-num">4</div>
+          <div class="debrief-step-text">La question la plus puissante : <strong>« Qu'est-ce que tu ferais différemment si tu pouvais rejouer cette action ? »</strong> Vous écoutez. Vous ne corrigez pas.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="regle reveal">
+      <div class="regle-label">⚡ Règle d'or Loopio — Leçon 2.4</div>
+      <div class="regle-text">30 minutes de silence sur le match dans la voiture.<br>Si l'enfant n'en parle pas — on n'en parle pas.<br>Jamais.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     CTA
+════════════════════════════════════ -->
+<div class="cta-section" id="formation">
+  <div class="container">
+    <div class="cta-eyebrow">Quatre leçons. Un weekend transformé.</div>
+    <h2 class="cta-title">
+      Vous n'improvisez
+      <span>plus jamais.</span>
+    </h2>
+    <p class="cta-body">
+      Le vendredi soir, vous préparez le calme. Le samedi matin, une phrase. Pendant le match, le silence actif. Dans la voiture retour, trente minutes.<br><br>
+      <strong>Ce protocole change ce qui se passe dans la tête de votre enfant dès le prochain match.</strong>
+    </p>
+    <p class="cta-question">
+      Mais que se passe-t-il quand le match dérape ?<br>
+      Quand il a <span>coûté le match.</span> Quand il veut arrêter.<br>
+      Quand la blessure arrive.
+    </p>
+    <a href="#" class="btn-primary">Accéder au Module 3</a>
+    <span class="cta-note">La Trousse de Secours — Protocoles de crise exacts</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     NEXT MODULE
+════════════════════════════════════ -->
+<div class="next-module">
+  <div class="container">
+    <div class="next-label">La suite de la formation</div>
+    <div class="next-title">Module 3 — La Trousse de Secours</div>
+    <p class="next-sub">Il a coûté le match. Il veut arrêter. Il est blessé depuis 3 semaines. <em>Les protocoles exacts</em> pour chaque situation de crise.</p>
+    <a href="#" class="btn-ghost">Voir le Module 3</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">LOOPIO</div>
+  <div class="footer-tagline">Le talent, c'est l'enfant. Le mental, c'est vous. Loopio forme les pilotes.</div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const p = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100;
+    document.getElementById('progress').style.width = p + '%';
+  });
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 55);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

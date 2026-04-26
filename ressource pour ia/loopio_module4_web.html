@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Module 4 — Le Manuel par Âge | Loopio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rouge:      #C0392B;
+      --rouge-vif:  #E74C3C;
+      --noir:       #0D0D0D;
+      --noir-2:     #141414;
+      --noir-3:     #1C1C1C;
+      --gris-m:     #888888;
+      --blanc:      #FFFFFF;
+      --vert:       #1A7A34;
+      --vert-pale:  #EAF6EC;
+
+      /* Couleur par tranche */
+      --u6:   #2980B9;
+      --u10:  #8E44AD;
+      --u14:  #27AE60;
+      --u17:  #C0392B;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--noir); color: var(--blanc);
+      font-size: 18px; line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── PROGRESS ── */
+    #progress {
+      position: fixed; top: 0; left: 0; height: 3px;
+      background: var(--rouge); width: 0%; z-index: 1000;
+      transition: width .15s linear;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 48px;
+      background: rgba(13,13,13,0.93); backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .nav-left { display: flex; align-items: center; gap: 24px; }
+    .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 3px; color: var(--rouge); text-decoration: none; }
+    .nav-sep { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+    .nav-module { font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--gris-m); }
+    .nav-cta { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; background: var(--rouge); color: var(--blanc); padding: 10px 24px; text-decoration: none; transition: background .2s; }
+    .nav-cta:hover { background: var(--rouge-vif); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      justify-content: flex-end; padding: 0 48px 80px;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg-num {
+      position: absolute; top: 50%; right: -60px; transform: translateY(-50%);
+      font-family: 'Bebas Neue', sans-serif; font-size: clamp(280px,38vw,560px);
+      color: rgba(192,57,43,0.04); line-height: 1;
+      pointer-events: none; user-select: none; letter-spacing: -10px;
+    }
+    .hero-module-tag { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+    .hero-module-num { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 4px; color: var(--blanc); background: var(--rouge); padding: 6px 14px; }
+    .hero-module-label { font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--gris-m); font-weight: 600; }
+    .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(60px,9.5vw,136px); line-height: 0.88; letter-spacing: 2px; margin-bottom: 36px; }
+    .hero-title .sub { display: block; color: var(--rouge); font-size: clamp(28px,4vw,54px); }
+    .hero-lead { font-family: 'DM Serif Display', serif; font-size: clamp(18px,2vw,24px); font-style: italic; color: rgba(255,255,255,0.6); max-width: 600px; line-height: 1.6; margin-bottom: 56px; }
+
+    /* Ligne d'âge hero */
+    .hero-ages {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 3px; max-width: 800px;
+    }
+    .hero-age {
+      padding: 24px 22px;
+      position: relative; overflow: hidden;
+      background: var(--noir-3);
+    }
+    .hero-age::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .hero-age.u6::before  { background: var(--u6); }
+    .hero-age.u10::before { background: var(--u10); }
+    .hero-age.u14::before { background: var(--u14); }
+    .hero-age.u17::before { background: var(--u17); }
+    .hero-age-tranche {
+      font-family: 'Bebas Neue', sans-serif; font-size: 26px;
+      letter-spacing: 1px; display: block; margin-bottom: 6px;
+    }
+    .hero-age.u6  .hero-age-tranche { color: var(--u6); }
+    .hero-age.u10 .hero-age-tranche { color: var(--u10); }
+    .hero-age.u14 .hero-age-tranche { color: var(--u14); }
+    .hero-age.u17 .hero-age-tranche { color: var(--u17); }
+    .hero-age-role { font-size: 13px; color: rgba(255,255,255,0.55); font-weight: 300; line-height: 1.3; }
+
+    .scroll-cue {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gris-m);
+      animation: breathe 2.5s ease-in-out infinite;
+    }
+    .scroll-cue::after { content: ''; width: 1px; height: 44px; background: linear-gradient(to bottom, var(--rouge), transparent); }
+    @keyframes breathe { 0%,100%{opacity:.3} 50%{opacity:.9} }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 780px; margin: 0 auto; padding: 0 32px; }
+    section { padding: 110px 0; }
+    section + section { border-top: 1px solid rgba(255,255,255,0.05); }
+
+    /* ── TYPO ── */
+    .lead { font-family: 'DM Serif Display', serif; font-size: clamp(20px,2.6vw,27px); font-style: italic; line-height: 1.55; color: rgba(255,255,255,0.82); margin-bottom: 44px; }
+    p { font-size: 18px; line-height: 1.85; color: rgba(255,255,255,0.65); margin-bottom: 26px; font-weight: 300; }
+    p strong { color: var(--blanc); font-weight: 600; }
+    p em { color: rgba(255,255,255,0.75); }
+
+    .choc { font-family: 'DM Serif Display', serif; font-size: clamp(22px,3.2vw,38px); font-style: italic; line-height: 1.3; color: var(--blanc); padding: 44px 0; border-top: 2px solid var(--rouge); border-bottom: 2px solid var(--rouge); margin: 60px 0; }
+    .choc span { color: var(--rouge); }
+
+    /* ── LESSON ── */
+    .lesson-wrap { position: relative; }
+    .lesson-num-bg { position: absolute; top: -20px; right: 0; font-family: 'Bebas Neue', sans-serif; font-size: clamp(100px,16vw,200px); color: rgba(192,57,43,0.04); line-height: 1; pointer-events: none; user-select: none; }
+    .lesson-tag { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .lesson-tag-num { font-family: 'Bebas Neue', sans-serif; font-size: 12px; letter-spacing: 4px; color: var(--blanc); padding: 5px 12px; }
+    .lesson-tag-line { flex: 0 0 48px; height: 1px; }
+    .lesson-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(40px,6.5vw,80px); line-height: 0.92; margin-bottom: 12px; letter-spacing: 1px; }
+    .lesson-hook { font-size: 15px; color: var(--gris-m); font-weight: 300; margin-bottom: 56px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+
+    /* ── Couleurs par tranche ── */
+    section.age-u6  { --accent: var(--u6);  }
+    section.age-u10 { --accent: var(--u10); }
+    section.age-u14 { --accent: var(--u14); }
+    section.age-u17 { --accent: var(--u17); }
+
+    .lesson-tag-num  { background: var(--accent, var(--rouge)); }
+    .lesson-tag-line { background: var(--accent, var(--rouge)); }
+    .choc .accent    { color: var(--accent, var(--rouge)); }
+
+    /* ── RÈGLE D'OR ── */
+    .regle { background: var(--rouge); padding: 44px 56px; margin: 56px 0; position: relative; overflow: hidden; }
+    .regle::after { content: '⚡'; position: absolute; right: 24px; bottom: -20px; font-size: 140px; opacity:.07; line-height:1; }
+    .regle-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 14px; }
+    .regle-text { font-family: 'Bebas Neue', sans-serif; font-size: clamp(20px,3.2vw,34px); line-height: 1.15; color: var(--blanc); letter-spacing: 1px; }
+
+    /* Règle colorée par tranche */
+    .regle.colored { background: var(--accent, var(--rouge)); }
+
+    /* ── SCIENCE ── */
+    .science { border-left: 3px solid var(--vert); padding: 28px 36px; background: rgba(26,122,52,0.06); margin: 44px 0; }
+    .science-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--vert); margin-bottom: 10px; }
+    .science-text { font-size: 15px; color: rgba(255,255,255,.52); line-height: 1.75; font-style: italic; font-weight: 300; margin: 0; }
+    .science-text strong { color: rgba(255,255,255,.75); font-weight: 500; }
+
+    /* ── PROTOCOLE ── */
+    .protocole { margin: 52px 0; }
+    .protocole-header { background: var(--accent, var(--rouge)); padding: 20px 36px; display: flex; align-items: center; gap: 14px; }
+    .protocole-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--blanc); }
+    .protocole-steps { background: var(--noir-3); }
+    .protocole-step { display: grid; grid-template-columns: 52px 1fr; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .protocole-step:last-child { border-bottom: none; }
+    .protocole-step-num { display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--accent, var(--rouge)); border-right: 1px solid rgba(255,255,255,0.05); }
+    .protocole-step-text { padding: 20px 28px; font-size: 16px; color: rgba(255,255,255,0.72); font-weight: 300; line-height: 1.6; }
+    .protocole-step-text strong { color: var(--blanc); font-weight: 600; }
+    .protocole-step-text em { color: rgba(255,255,255,0.5); }
+
+    /* ── TABLEAU DICO ── */
+    .t2col { margin: 52px 0; border-collapse: collapse; width: 100%; }
+    .t2col th { padding: 14px 20px; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+    .t2col th:first-child { background: var(--noir-3); color: rgba(255,255,255,.5); text-align: left; }
+    .t2col th:last-child  { background: var(--accent, var(--rouge)); color: rgba(255,255,255,.8); text-align: left; }
+    .t2col td { padding: 14px 20px; font-size: 15px; font-weight: 300; line-height: 1.5; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .t2col tr:last-child td { border-bottom: none; }
+    .t2col td:first-child { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.5); }
+    .t2col td:last-child  { background: var(--noir-2); color: rgba(255,255,255,0.75); }
+
+    /* ── MIROIR — bloc central U10 ── */
+    .miroir {
+      background: var(--noir-3); padding: 56px;
+      margin: 52px 0; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .miroir::before {
+      content: '◈';
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      font-size: 320px; color: rgba(142,68,173,0.04);
+      pointer-events: none; line-height: 1;
+    }
+    .miroir-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--u10); margin-bottom: 24px; position: relative; }
+    .miroir-phrase {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(20px,3vw,32px); font-style: italic;
+      color: var(--blanc); line-height: 1.55; position: relative;
+      max-width: 560px; margin: 0 auto 28px;
+    }
+    .miroir-note { font-size: 15px; color: rgba(255,255,255,0.45); font-weight: 300; position: relative; max-width: 480px; margin: 0 auto; }
+
+    /* ── PRÉSENCE DISPONIBLE — U14 ── */
+    .presence-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 3px; margin: 52px 0;
+    }
+    .presence-col { background: var(--noir-3); padding: 36px 32px; }
+    .presence-col-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; display: block; }
+    .presence-col.disponible .presence-col-label { color: var(--u14); }
+    .presence-col.absente .presence-col-label { color: var(--rouge); }
+    .presence-col-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--blanc); margin-bottom: 20px; }
+    .presence-col-text { font-size: 15px; color: rgba(255,255,255,0.6); font-weight: 300; line-height: 1.7; }
+    .presence-col-text strong { color: var(--blanc); font-weight: 600; }
+
+    /* ── QUESTIONS DIFFÉRENTES — U14 ── */
+    .questions-grid { margin: 52px 0; }
+    .questions-header {
+      background: var(--noir-3); padding: 18px 32px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
+    }
+    .questions-header span { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+    .questions-header span:first-child { color: rgba(255,255,255,0.3); }
+    .questions-header span:last-child  { color: var(--u14); }
+    .question-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .question-row:last-child { border-bottom: none; }
+    .question-cell { padding: 18px 24px; font-size: 15px; font-weight: 300; line-height: 1.5; }
+    .question-cell.avant { background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.4); font-style: italic; }
+    .question-cell.apres { background: var(--noir-2); color: rgba(255,255,255,0.8); }
+    .question-cell.apres strong { color: var(--blanc); font-weight: 600; }
+
+    /* ── MIROIR HONNÊTE — U17 ── */
+    .trois-roles { margin: 52px 0; }
+    .role-item { display: grid; grid-template-columns: 64px 1fr; border-bottom: 1px solid rgba(255,255,255,0.05); background: var(--noir-2); }
+    .role-item:last-child { border-bottom: none; }
+    .role-num { display: flex; align-items: center; justify-content: center; background: rgba(192,57,43,0.08); font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--rouge); border-right: 1px solid rgba(255,255,255,0.05); }
+    .role-content { padding: 24px 28px; }
+    .role-title { font-size: 15px; font-weight: 600; color: var(--blanc); margin-bottom: 6px; }
+    .role-desc { font-size: 14px; color: rgba(255,255,255,0.55); font-weight: 300; line-height: 1.6; }
+    .role-desc strong { color: rgba(255,255,255,0.8); font-weight: 500; }
+
+    /* ── CLÔTURE ARCHITECTE ── */
+    .architecte {
+      padding: 120px 0; text-align: center;
+      position: relative; overflow: hidden;
+      background: var(--noir-2);
+    }
+    .architecte::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, rgba(192,57,43,0.07) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .architecte-container { max-width: 680px; margin: 0 auto; padding: 0 32px; position: relative; }
+    .architecte-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--rouge); margin-bottom: 48px; }
+    .architecte-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(20px,2.8vw,30px); font-style: italic;
+      color: rgba(255,255,255,0.7); line-height: 1.7;
+      margin-bottom: 48px;
+    }
+    .architecte-text strong { color: var(--blanc); font-style: normal; }
+    .architecte-titre {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(52px,8vw,104px);
+      line-height: 0.9; letter-spacing: 2px;
+      color: var(--blanc); margin-bottom: 16px;
+    }
+    .architecte-titre span { color: var(--rouge); display: block; }
+    .architecte-sous { font-size: 16px; color: var(--gris-m); font-weight: 300; }
+
+    /* ── CTA ── */
+    .cta-section { padding: 110px 0; text-align: center; position: relative; overflow: hidden; }
+    .cta-section::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, rgba(192,57,43,0.08) 0%, transparent 65%); pointer-events: none; }
+    .cta-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--rouge); margin-bottom: 44px; }
+    .cta-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(44px,7vw,90px); line-height: 0.9; letter-spacing: 2px; margin-bottom: 36px; }
+    .cta-title span { color: var(--rouge); display: block; }
+    .cta-body { font-size: 18px; color: rgba(255,255,255,.6); max-width: 560px; margin: 0 auto 48px; line-height: 1.8; font-weight: 300; }
+    .cta-body strong { color: var(--blanc); font-weight: 500; }
+    .btn-primary { display: inline-block; background: var(--rouge); color: var(--blanc); text-decoration: none; padding: 22px 56px; font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; transition: all .25s; }
+    .btn-primary:hover { background: var(--rouge-vif); transform: translateY(-2px); }
+    .btn-primary::after { content: ' →'; }
+    .cta-note { display: block; margin-top: 18px; font-size: 13px; color: var(--gris-m); }
+
+    /* ── FOOTER ── */
+    footer { padding: 40px 48px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
+    .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; color: var(--rouge); }
+    .footer-tagline { font-size: 13px; color: var(--gris-m); }
+
+    /* ── REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .nav-cta { display: none; }
+      .hero { padding: 0 24px 64px; }
+      .hero-bg-num { display: none; }
+      .hero-ages { grid-template-columns: 1fr 1fr; }
+      section { padding: 72px 0; }
+      .container { padding: 0 24px; }
+      .presence-grid { grid-template-columns: 1fr; }
+      .questions-header, .question-row { grid-template-columns: 1fr; }
+      .questions-header span:first-child { display: none; }
+      .question-cell.avant { display: none; }
+      .miroir { padding: 40px 28px; }
+      .regle { padding: 36px 28px; }
+      .architecte-titre { font-size: clamp(44px,10vw,80px); }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav>
+  <div class="nav-left">
+    <a class="nav-logo" href="#">LOOPIO</a>
+    <div class="nav-sep"></div>
+    <span class="nav-module">Module 4 — Payant</span>
+  </div>
+  <a class="nav-cta" href="#formation">Accéder à la formation</a>
+</nav>
+
+<!-- ═══════════════════════════
+     HERO
+════════════════════════════ -->
+<div class="hero">
+  <div class="hero-bg-num">04</div>
+  <div class="hero-module-tag">
+    <div class="hero-module-num">MODULE 4</div>
+    <div class="hero-module-label">Le Manuel par Âge</div>
+  </div>
+  <h1 class="hero-title">
+    Votre enfant
+    <span class="sub">a changé. Et vous ?</span>
+  </h1>
+  <p class="hero-lead">
+    La plupart des parents évoluent chez eux.<br>
+    Sur le terrain du football — ils restent le même parent.<br>
+    Ce module est la carte de votre propre évolution.
+  </p>
+  <div class="hero-ages">
+    <div class="hero-age u6">
+      <span class="hero-age-tranche">U6 – U9</span>
+      <span class="hero-age-role">Protéger la flamme</span>
+    </div>
+    <div class="hero-age u10">
+      <span class="hero-age-tranche">U10 – U13</span>
+      <span class="hero-age-role">Être son miroir</span>
+    </div>
+    <div class="hero-age u14">
+      <span class="hero-age-tranche">U14 – U16</span>
+      <span class="hero-age-role">Présence disponible</span>
+    </div>
+    <div class="hero-age u17">
+      <span class="hero-age-tranche">U17 – U18</span>
+      <span class="hero-age-role">Miroir honnête &amp; filet</span>
+    </div>
+  </div>
+  <div class="scroll-cue">Lire</div>
+</div>
+
+<!-- ═══════════════════════════
+     INTRO
+════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="choc reveal">
+      Ce dont votre enfant avait besoin<br>
+      de vous à 7 ans — c'est presque<br>
+      <span>le contraire de ce dont il a besoin à 16.</span>
+    </div>
+    <p class="reveal">Les Modules 1, 2 et 3 vous ont donné des outils pour des situations. Ce module vous donne quelque chose de différent : une carte du territoire entier. Quatre tranches d'âge. Pour chacune — ce qui aide, ce qui freine, et le moment précis où votre rôle change.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════
+     4.1 — U6-U9
+════════════════════════════ -->
+<section class="age-u6">
+  <div class="container">
+    <div class="lesson-wrap">
+      <div class="lesson-num-bg">4.1</div>
+      <div class="lesson-tag reveal">
+        <div class="lesson-tag-num">U6 – U9</div>
+        <div class="lesson-tag-line"></div>
+      </div>
+      <h2 class="lesson-title reveal">L'Âge du<br>Jeu Pur</h2>
+      <p class="lesson-hook reveal">Protéger la flamme. Le plaisir est le seul indicateur qui compte.</p>
+    </div>
+
+    <p class="lead reveal">Il court après le ballon dans tous les sens. Il rit quand il tombe. Il ne sait pas quel score il y a. Il joue. C'est l'image la plus saine du football que vous verrez jamais.</p>
+
+    <p class="reveal">Entre 6 et 9 ans, le cerveau d'un enfant n'est pas câblé pour la compétition structurée. Il est câblé pour l'exploration, le mouvement, le jeu. <strong>Ce qu'il développe à cet âge — c'est son amour du ballon. Et cet amour, une fois cassé, est très difficile à reconstruire.</strong></p>
+
+    <p class="reveal">L'erreur la plus fréquente à cet âge — bien intentionnée — c'est la spécialisation précoce. Un club spécialisé à cinq ans. Des entraînements tous les soirs à six. Des commentaires techniques à sept. <em>« Tu dois travailler ton pied faible. »</em> À sept ans, votre enfant ne devrait même pas savoir ce qu'est un corner. Il devrait être en train de jouer.</p>
+
+    <div class="science reveal">
+      <div class="science-label">🧠 Ce que les études longitudinales montrent</div>
+      <p class="science-text">Entre 6 et 9 ans, la <strong>motivation intrinsèque</strong> — jouer pour le plaisir du jeu lui-même — est le meilleur prédicteur de la longévité sportive. Les enfants spécialisés avant 10 ans présentent un taux d'abandon deux fois supérieur à ceux qui ont eu une exposition multisports ou un environnement de jeu non-structuré. La flamme s'allume dans la liberté.</p>
+    </div>
+
+    <div class="choc reveal">
+      Une seule question compte à cet âge.<br>
+      <span class="accent">Est-ce qu'il a envie d'y retourner ?</span>
+    </div>
+
+    <p class="reveal">Pas « a-t-il bien joué ? » Pas « a-t-il progressé cette semaine ? » <strong>L'envie de revenir — c'est le seul indicateur.</strong> Si votre enfant sort de l'entraînement en demandant « quand est-ce qu'on y retourne ? » — vous faites tout juste. S'il traîne les pieds — quelque chose s'est cassé.</p>
+
+    <table class="t2col reveal">
+      <thead>
+        <tr>
+          <th>Ce que vous ne dites pas</th>
+          <th>Ce que vous dites</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="avant">« Tu as bien joué ? »</td>
+          <td class="apres"><strong>« Tu t'es amusé ? »</strong></td>
+        </tr>
+        <tr>
+          <td class="avant">« Ton pied gauche est moins bon »</td>
+          <td class="apres"><strong>« Super le geste que t'as tenté ! »</strong></td>
+        </tr>
+        <tr>
+          <td class="avant">« Tu dois travailler plus »</td>
+          <td class="apres"><strong>« Quand est-ce qu'on y retourne ? »</strong></td>
+        </tr>
+        <tr>
+          <td class="avant">« Le coach ne t'a pas assez mis en avant »</td>
+          <td class="apres"><strong>[Silence heureux dans la voiture]</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="regle colored reveal">
+      <div class="regle-label">⚡ Règle d'or Loopio — U6-U9</div>
+      <div class="regle-text">L'indicateur unique est l'envie de revenir.<br>Si elle est là — vous avez réussi votre rôle.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════
+     4.2 — U10-U13
+════════════════════════════ -->
+<section class="age-u10">
+  <div class="container">
+    <div class="lesson-wrap">
+      <div class="lesson-num-bg">4.2</div>
+      <div class="lesson-tag reveal">
+        <div class="lesson-tag-num">U10 – U13</div>
+        <div class="lesson-tag-line"></div>
+      </div>
+      <h2 class="lesson-title reveal">L'Âge de la<br>Structuration</h2>
+      <p class="lesson-hook reveal">L'identité de footballeur se construit. Votre regard devient un miroir.</p>
+    </div>
+
+    <p class="lead reveal">À dix ans, quelque chose change. Votre enfant commence à se définir comme footballeur. Ce n'est plus juste quelque chose qu'il fait. C'est quelque chose qu'il est.</p>
+
+    <p class="reveal">Et c'est précisément à ce moment que votre regard sur lui devient quelque chose de très puissant. Un enfant de cet âge cherche constamment une réponse à la question : <em>« Est-ce que je suis bon ? »</em> Il ne peut pas encore y répondre seul. Alors il cherche cette réponse dans les yeux de ceux qui comptent.</p>
+
+    <div class="miroir reveal">
+      <div class="miroir-label">Le concept central de cette tranche</div>
+      <p class="miroir-phrase">« Ce qu'il voit dans vos yeux après un match — il l'intègre comme une vérité sur lui-même. »</p>
+      <p class="miroir-note">Si vous êtes déçu — il se voit comme décevant. Si vous êtes fier — il se voit comme capable. Vous ne pouvez pas ne pas envoyer un signal. La question — c'est lequel.</p>
+    </div>
+
+    <p class="reveal">L'erreur typique entre 10 et 13 ans, c'est le parent-coach. Celui qui suit les entraînements de trop près, qui compare avec les autres, qui parle de « potentiel » et de « niveau ». Ce parent est là parce qu'il aime son enfant. Mais il transforme le football en terrain d'évaluation permanente. Et un enfant qui se sent évalué en permanence développe une chose très précise : <strong>la peur de décevoir.</strong></p>
+
+    <p class="reveal">La peur de décevoir parasite tout. Le plaisir. La prise de risque. La créativité. Tout ce qui fait les bons joueurs.</p>
+
+    <div class="science reveal">
+      <div class="science-label">🧠 Le reflected appraisal</div>
+      <p class="science-text">Entre 10 et 13 ans, le concept de soi sportif se consolide. Ce processus est fortement influencé par ce que les chercheurs appellent le <strong>reflected appraisal</strong> : l'enfant intègre l'évaluation de ses figures d'attachement comme une réalité sur lui-même. Un parent qui exprime systématiquement de la déception ne commente pas une performance — il contribue à l'image que l'enfant construit de ses capacités.</p>
+    </div>
+
+    <div class="choc reveal">
+      Ce que vous construisez à cet âge :<br>
+      la confiance qui dit — quoi qu'il arrive —<br>
+      <span class="accent">« tu rentres à la maison et tu es mon enfant. Pas mon joueur. »</span>
+    </div>
+
+    <div class="protocole reveal">
+      <div class="protocole-header">
+        <span class="protocole-title">Ce que vous faites — U10-U13</span>
+      </div>
+      <div class="protocole-steps">
+        <div class="protocole-step">
+          <div class="protocole-step-num">1</div>
+          <div class="protocole-step-text">Après un bon match comme après un mauvais match : <strong>même température émotionnelle</strong>. Votre humeur n'est pas indexée sur ses performances.</div>
+        </div>
+        <div class="protocole-step">
+          <div class="protocole-step-num">2</div>
+          <div class="protocole-step-text">Vous ne comparez pas avec les autres enfants de l'équipe — ni positivement, ni négativement.</div>
+        </div>
+        <div class="protocole-step">
+          <div class="protocole-step-num">3</div>
+          <div class="protocole-step-text">Si vous avez un avis sur le coaching : <strong>vous l'exprimez en privé</strong>. Jamais devant l'enfant.</div>
+        </div>
+        <div class="protocole-step">
+          <div class="protocole-step-num">4</div>
+          <div class="protocole-step-text">Votre phrase après chaque match — bonne ou mauvaise : <strong>« Je t'ai regardé jouer. C'est tout ce que je voulais. »</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="regle colored reveal">
+      <div class="regle-label">⚡ Règle d'or Loopio — U10-U13</div>
+      <div class="regle-text">Votre humeur après le match<br>n'est pas son bulletin de notes.<br>Même température. Toujours.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════
+     4.3 — U14-U16
+════════════════════════════ -->
+<section class="age-u14">
+  <div class="container">
+    <div class="lesson-wrap">
+      <div class="lesson-num-bg">4.3</div>
+      <div class="lesson-tag reveal">
+        <div class="lesson-tag-num">U14 – U16</div>
+        <div class="lesson-tag-line"></div>
+      </div>
+      <h2 class="lesson-title reveal">L'Âge de la<br>Séparation</h2>
+      <p class="lesson-hook reveal">Il prend de l'autonomie. Votre rôle change radicalement — et c'est une bonne nouvelle.</p>
+    </div>
+
+    <p class="lead reveal">Il ne vous raconte plus tout. Après les matchs, il préfère parler avec ses coéquipiers. Il a des avis que vous ne partagez pas toujours. Il commence à gérer certaines choses seul.</p>
+
+    <div class="choc reveal">
+      Ce n'est pas une porte<br>
+      qui se ferme.<br>
+      <span class="accent">C'est lui qui apprend à tenir debout.</span>
+    </div>
+
+    <p class="reveal">Entre 14 et 16 ans, la séparation progressive est un processus neurologique normal. Son cerveau construit son autonomie. Il teste ses propres jugements. <strong>Et votre rôle — à ce moment précis — est de le laisser le faire. Pas de disparaître. Mais de reculer d'un pas.</strong></p>
+
+    <p class="reveal">La tentation à cet âge est forte. Parce que les enjeux montent — les sélections, les détections, les premières discussions. Et plus les enjeux montent, plus l'instinct parental veut reprendre le contrôle. Mais un adolescent qui sent son parent reprendre le contrôle se ferme. Il gère seul — bien ou mal — parce qu'il préfère ça à être géré.</p>
+
+    <div class="science reveal">
+      <div class="science-label">🧠 Autonomie et plafonnement</div>
+      <p class="science-text">Les études sur le développement sportif montrent que les athlètes qui atteignent le meilleur niveau adulte sont ceux qui ont eu, entre 14 et 16 ans, une <strong>progressivité d'autonomie dans leurs décisions sportives</strong>. Le contrôle parental excessif à cet âge est corrélé à un plafonnement précoce.</p>
+    </div>
+
+    <div class="presence-grid reveal">
+      <div class="presence-col disponible">
+        <span class="presence-col-label">La présence disponible ✓</span>
+        <div class="presence-col-title">Quand il vient — vous êtes là</div>
+        <p class="presence-col-text">Pleinement. Sans téléphone. Sans l'autre chose que vous étiez en train de faire. <strong>Quand il vient — vous êtes là.</strong> Vous continuez de venir aux matchs. Vous posez des questions — mais des questions différentes.</p>
+      </div>
+      <div class="presence-col absente">
+        <span class="presence-col-label">Ce que vous évitez ✗</span>
+        <div class="presence-col-title">Reprendre le contrôle</div>
+        <p class="presence-col-text">Revenir sur les décisions du coach. Imposer le rythme des conversations. Créer de l'urgence autour des enjeux sportifs. <strong>Un adolescent sous pression parentale se ferme ou reste dépendant — les deux l'empêchent de progresser.</strong></p>
+      </div>
+    </div>
+
+    <div class="questions-grid reveal">
+      <div class="questions-header">
+        <span>Avant</span>
+        <span>Maintenant</span>
+      </div>
+      <div class="question-row">
+        <div class="question-cell avant">« Comment tu as joué ? »</div>
+        <div class="question-cell apres"><strong>« Comment tu te sens dans le groupe en ce moment ? »</strong></div>
+      </div>
+      <div class="question-row">
+        <div class="question-cell avant">« Le coach t'a mis à quel poste ? »</div>
+        <div class="question-cell apres"><strong>« Est-ce que tu aimes encore autant jouer qu'avant ? »</strong></div>
+      </div>
+      <div class="question-row">
+        <div class="question-cell avant">« T'aurais dû faire ça différemment »</div>
+        <div class="question-cell apres"><strong>« Tu veux en parler ou tu préfères décompresser ? »</strong></div>
+      </div>
+      <div class="question-row">
+        <div class="question-cell avant">« Le recruteur t'a vu ? »</div>
+        <div class="question-cell apres"><strong>« Qu'est-ce qui te fait plaisir en ce moment dans le foot ? »</strong></div>
+      </div>
+    </div>
+
+    <p class="reveal" style="text-align:center;font-size:16px;color:rgba(255,255,255,0.45);margin-top:8px;">Ces questions lui signalent que vous vous intéressez à lui — pas à sa carrière.</p>
+
+    <div class="regle colored reveal">
+      <div class="regle-label">⚡ Règle d'or Loopio — U14-U16</div>
+      <div class="regle-text">Devenez une présence disponible.<br>Il vient — vous êtes là.<br>Il ne vient pas — vous restez visible sans insister.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════
+     4.4 — U17-U18
+════════════════════════════ -->
+<section class="age-u17">
+  <div class="container">
+    <div class="lesson-wrap">
+      <div class="lesson-num-bg">4.4</div>
+      <div class="lesson-tag reveal">
+        <div class="lesson-tag-num">U17 – U18</div>
+        <div class="lesson-tag-line"></div>
+      </div>
+      <h2 class="lesson-title reveal">L'Âge de la<br>Décision</h2>
+      <p class="lesson-hook reveal">Le carrefour. Votre rôle final : conseiller, pas moteur.</p>
+    </div>
+
+    <p class="lead reveal">Cette saison, tout est plus sérieux. Les matchs ont du public. Il y a peut-être un club qui a montré de l'intérêt. Ou peut-être pas encore — et l'absence de contact pèse.</p>
+
+    <p class="reveal">Et vous regardez votre enfant. Vous le voyez jouer. Et vous avez une question que vous n'osez peut-être pas formuler : <strong>est-ce qu'il peut vraiment ?</strong></p>
+
+    <p class="reveal">Il y a deux erreurs opposées à cet âge. La première — pousser vers le pro quand le chemin n'est pas tracé. La deuxième — couper le rêve par excès de réalisme. Ces deux erreurs font la même chose : <strong>elles remplacent le jugement de votre enfant par le vôtre.</strong> À 17 ans — votre enfant doit être l'auteur de sa décision. Pas vous.</p>
+
+    <div class="science reveal">
+      <div class="science-label">🧠 Autonomie décisionnelle et résilience</div>
+      <p class="science-text">Les études sur la transition sport-études montrent que les deux variables les plus importantes dans la résilience post-carrière sont : la qualité du cadre scolaire maintenu pendant la période sportive, et <strong>l'autonomie décisionnelle perçue par le jeune</strong>. Les sportifs qui ont le sentiment que leur trajectoire a été choisie par leurs parents présentent davantage de difficultés d'adaptation lors des transitions.</p>
+    </div>
+
+    <div class="trois-roles reveal">
+      <div class="role-item">
+        <div class="role-num">1</div>
+        <div class="role-content">
+          <div class="role-title">Maintenez le filet de sécurité</div>
+          <div class="role-desc">L'école. Les études. L'orientation. <strong>Pas comme une alternative honteuse au football — comme ce qui lui permet de prendre des risques.</strong> Un enfant qui sait qu'il a un filet ose sauter plus haut.</div>
+        </div>
+      </div>
+      <div class="role-item">
+        <div class="role-num">2</div>
+        <div class="role-content">
+          <div class="role-title">Si on vous demande votre avis — soyez honnête</div>
+          <div class="role-desc">Pas ce qu'il veut entendre. Pas ce que vous voudriez qu'il fasse. <strong>Ce que vous voyez vraiment.</strong> Avec bienveillance. Mais sans mentir.</div>
+        </div>
+      </div>
+      <div class="role-item">
+        <div class="role-num">3</div>
+        <div class="role-content">
+          <div class="role-title">Respectez sa décision finale</div>
+          <div class="role-desc">Même si elle est différente de ce que vous auriez choisi. S'il tente le pro contre votre avis — vous l'accompagnez. S'il arrête pour les études contre votre avis — vous l'accompagnez. <strong>À 17 ans — c'est sa vie.</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="regle reveal">
+      <div class="regle-label">⚡ Règle d'or Loopio — U17-U18</div>
+      <div class="regle-text">Votre rôle final :<br>miroir honnête et filet de sécurité.<br>Pas moteur. Pas frein. Miroir.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════
+     CLÔTURE — L'ARCHITECTE
+════════════════════════════ -->
+<div class="architecte">
+  <div class="architecte-container">
+    <div class="architecte-eyebrow reveal">La dernière image de la formation</div>
+    <p class="architecte-text reveal">
+      Les meilleurs parents de footballeurs — ceux dont les enfants se souviennent avec gratitude — <strong>ils ne sont presque jamais dans les histoires de carrière.</strong>
+      <br><br>
+      Les histoires parlent du coach. Du premier but. Du vestiaire. Des coéquipiers.
+      <br><br>
+      Le parent — il est dans les histoires <strong>d'avant et d'après.</strong> Dans la voiture. Dans la cuisine. Dans le silence du retour.
+    </p>
+    <div class="architecte-titre reveal">
+      L'architecte
+      <span>invisible.</span>
+    </div>
+    <p class="architecte-sous reveal">Vous n'êtes pas dans le film. Vous êtes ce qui permet au film d'exister.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     CTA
+════════════════════════════ -->
+<div class="cta-section" id="formation">
+  <div class="container">
+    <div class="cta-eyebrow reveal">Formation complète — 5 modules</div>
+    <h2 class="cta-title reveal">
+      Vous avez
+      <span>la formation complète.</span>
+    </h2>
+    <p class="cta-body reveal">
+      Les règles de fond. Le protocole jour de match. La trousse de secours. Et la carte de votre évolution de 6 à 18 ans.<br><br>
+      <strong>Vous n'improvisez plus. Vous êtes prêt.</strong>
+    </p>
+    <a href="#" class="btn-primary reveal">Revoir la formation depuis le début</a>
+    <span class="cta-note reveal">Module 0 → Module 4 · Accès illimité</span>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">LOOPIO</div>
+  <div class="footer-tagline">Le talent, c'est l'enfant. Le mental, c'est vous. Loopio forme les pilotes.</div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const p = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100;
+    document.getElementById('progress').style.width = p + '%';
+  });
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 55);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>

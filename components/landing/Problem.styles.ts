@@ -1,0 +1,18 @@
+export const styles = {
+    section: "py-32 px-4 bg-slate-950",
+    container: "max-w-5xl mx-auto",
+    header: "text-center mb-20",
+    title: "text-3xl md:text-5xl font-bold mb-6 tracking-tight",
+    subtitle: "text-slate-400 text-lg",
+    grid: "grid md:grid-cols-3 gap-8",
+    card: "bg-gradient-to-b from-slate-900 to-slate-950 p-8 rounded-3xl border border-slate-800 hover:border-slate-500/50 transition duration-500 group hover:-translate-y-2",
+    cardRed: "hover:border-red-500/50",
+    cardBlue: "hover:border-blue-500/50",
+    cardYellow: "hover:border-yellow-500/50",
+    iconWrapper: "w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition shadow-lg",
+    iconRed: "text-red-500",
+    iconBlue: "text-blue-500",
+    iconYellow: "text-yellow-500",
+    cardTitle: "text-2xl font-bold text-white mb-4",
+    cardText: "text-slate-400 leading-relaxed",
+};

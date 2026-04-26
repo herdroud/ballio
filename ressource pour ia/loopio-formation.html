@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loopio — Ma Formation</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─────────────────────────────────── */
+:root {
+  --g9:  #0B2518;
+  --g8:  #12391F;
+  --g7:  #174D2B;
+  --g6:  #1D6335;
+  --g5:  #268046;
+  --g4:  #32A35B;
+  --g3:  #52C97A;
+  --g1:  #C6F4D6;
+  --gold: #F4C430;
+  --goldb: #FEF3C7;
+  --red: #E53E3E;
+  --redb: #FFF5F5;
+  --w: #FFFFFF;
+  --s50: #F7F8FA;
+  --s100: #EEF0F4;
+  --s200: #DDE0E8;
+  --s300: #BCC1CC;
+  --s400: #8B91A0;
+  --s500: #5E6473;
+  --s700: #2D3142;
+  --s800: #1A1F2E;
+  --s900: #111827;
+  --r: 14px;
+  --rl: 20px;
+  --sh: 0 2px 16px rgba(0,0,0,.07);
+  --shm: 0 6px 32px rgba(0,0,0,.12);
+  --sidebar-w: 248px;
+  --topbar-h: 60px;
+  --bottom-h: 64px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--s50);
+  color: var(--s900);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── SHELL ──────────────────────────────────── */
+.shell { display: flex; min-height: 100vh; }
+
+/* ─── SIDEBAR ────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--g9);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 200;
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+}
+
+.sb-logo {
+  padding: 26px 22px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+}
+
+.logo { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 900; color: var(--w); letter-spacing: -1px; }
+.logo em { color: var(--gold); font-style: normal; }
+.logo-sub { font-size: 9.5px; color: rgba(255,255,255,.28); margin-top: 3px; text-transform: uppercase; letter-spacing: 1.2px; }
+
+.sb-nav { flex: 1; padding: 14px 10px; overflow-y: auto; }
+
+.nav-lbl { font-size: 9px; font-weight: 700; color: rgba(255,255,255,.2); text-transform: uppercase; letter-spacing: 1.2px; padding: 10px 12px 5px; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px;
+  color: rgba(255,255,255,.5);
+  font-size: 13.5px; font-weight: 500;
+  cursor: pointer; transition: all .18s;
+  margin-bottom: 1px;
+  border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover { background: rgba(255,255,255,.07); color: var(--w); }
+.nav-item.active { background: rgba(50,163,91,.16); color: var(--g3); font-weight: 700; }
+.nav-item .ico { font-size: 17px; width: 20px; text-align: center; flex-shrink: 0; }
+
+.nb {
+  margin-left: auto; background: var(--red); color: white;
+  font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 20px;
+}
+
+.sb-foot {
+  padding: 12px;
+  border-top: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+}
+
+.player-pill {
+  background: rgba(255,255,255,.06); border-radius: 12px; padding: 11px 13px;
+  display: flex; align-items: center; gap: 10px; cursor: pointer; transition: background .18s;
+}
+.player-pill:hover { background: rgba(255,255,255,.09); }
+.pl-av {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--g5), var(--g7));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; color: var(--w); flex-shrink: 0;
+}
+.pl-name { font-size: 13px; font-weight: 700; color: var(--w); }
+.pl-meta { font-size: 11px; color: rgba(255,255,255,.38); margin-top: 1px; }
+.pl-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--g3); box-shadow: 0 0 5px var(--g3); flex-shrink: 0; animation: pulse 2s infinite; }
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ─── MAIN ───────────────────────────────────── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ─── TOPBAR ─────────────────────────────────── */
+.topbar {
+  height: var(--topbar-h);
+  background: var(--w);
+  border-bottom: 1px solid var(--s200);
+  padding: 0 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  flex-shrink: 0;
+}
+
+.tb-left { display: flex; align-items: center; gap: 10px; }
+
+.burger {
+  display: none; width: 36px; height: 36px; border-radius: 9px;
+  background: var(--s100); border: none; cursor: pointer;
+  align-items: center; justify-content: center; font-size: 17px;
+}
+
+.tb-right { display: flex; align-items: center; gap: 10px; }
+
+.icon-btn {
+  width: 36px; height: 36px; border-radius: 9px; background: var(--s100);
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; position: relative; transition: background .18s;
+}
+.icon-btn:hover { background: var(--s200); }
+.notif-dot { position: absolute; top: 6px; right: 6px; width: 6px; height: 6px; border-radius: 50%; background: var(--red); border: 1.5px solid var(--w); }
+
+.user-chip {
+  display: flex; align-items: center; gap: 7px;
+  padding: 3px 11px 3px 4px; background: var(--s100); border-radius: 30px;
+  cursor: pointer; transition: background .18s;
+}
+.user-chip:hover { background: var(--s200); }
+.u-av { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg,var(--g5),var(--g7)); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: var(--w); font-family: 'Syne', sans-serif; }
+.u-name { font-size: 12.5px; font-weight: 600; color: var(--s700); }
+
+/* ─── OVERLAY ────────────────────────────────── */
+.overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.5); z-index: 190;
+  opacity: 0; pointer-events: none; transition: opacity .28s;
+}
+
+/* ─── SCROLL AREA ────────────────────────────── */
+.scroll-area {
+  padding: 24px 28px;
+  flex: 1;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ─── FORMATION HERO ─────────────────────────── */
+.f-hero {
+  background: linear-gradient(135deg, var(--g8) 0%, var(--g9) 100%);
+  border-radius: var(--rl);
+  padding: 26px;
+  margin-bottom: 22px;
+  position: relative; overflow: hidden;
+}
+
+.f-hero::before {
+  content: '';
+  position: absolute; top: -60px; right: -60px;
+  width: 240px; height: 240px;
+  background: radial-gradient(circle, rgba(244,196,48,.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.f-hero::after {
+  content: '';
+  position: absolute; bottom: -80px; left: -40px;
+  width: 260px; height: 260px;
+  background: radial-gradient(circle, rgba(50,163,91,.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.fh-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 20px; }
+
+.fh-lbl { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(255,255,255,.35); margin-bottom: 6px; }
+.fh-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 900; color: var(--w); line-height: 1.2; letter-spacing: -.5px; }
+.fh-desc { font-size: 13px; color: rgba(255,255,255,.5); margin-top: 6px; line-height: 1.5; }
+
+.fh-badge {
+  background: rgba(244,196,48,.15);
+  border: 1px solid rgba(244,196,48,.3);
+  color: var(--gold);
+  font-size: 13px; font-weight: 700;
+  padding: 6px 13px; border-radius: 20px;
+  white-space: nowrap; flex-shrink: 0;
+}
+
+.fh-prog-wrap { margin-bottom: 20px; }
+.fh-prog-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.fh-prog-lbl { font-size: 12px; color: rgba(255,255,255,.45); font-weight: 500; }
+.fh-prog-val { font-size: 13px; font-weight: 700; color: var(--g3); }
+.fh-prog-track { background: rgba(255,255,255,.12); border-radius: 20px; height: 7px; overflow: hidden; }
+.fh-prog-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--g3), var(--g4)); width: 0; transition: width 1.2s ease; }
+
+.fh-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+.fh-st { background: rgba(255,255,255,.07); border-radius: 10px; padding: 12px 10px; text-align: center; }
+.fh-st-val { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 900; color: var(--w); margin-bottom: 3px; }
+.fh-st-lbl { font-size: 9.5px; color: rgba(255,255,255,.32); text-transform: uppercase; letter-spacing: .5px; }
+
+/* ─── SECTION HEADER ─────────────────────────── */
+.sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.sec-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; color: var(--s900); letter-spacing: -.3px; }
+.sec-link { font-size: 13px; font-weight: 600; color: var(--g5); cursor: pointer; }
+.sec-link:hover { color: var(--g6); }
+
+/* ─── SPOTLIGHT ──────────────────────────────── */
+.spotlight {
+  background: linear-gradient(140deg, var(--g7) 0%, var(--g5) 100%);
+  border-radius: var(--rl);
+  padding: 22px;
+  margin-bottom: 22px;
+  position: relative; overflow: hidden;
+}
+
+.spotlight::after {
+  content: '▶';
+  position: absolute; right: -14px; bottom: -10px;
+  font-size: 130px; color: rgba(255,255,255,.04); line-height: 1; pointer-events: none;
+}
+
+.sp-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.sp-tags { display: flex; flex-direction: column; gap: 5px; }
+
+.sp-live {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(255,255,255,.18); color: var(--w);
+  font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: .5px; width: fit-content;
+}
+.sp-live-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--w); animation: pulse 1.5s infinite; }
+.sp-mod-ref { font-size: 11px; color: rgba(255,255,255,.45); font-weight: 600; }
+
+.sp-play {
+  width: 50px; height: 50px; border-radius: 50%;
+  background: rgba(255,255,255,.2); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; transition: background .18s; flex-shrink: 0;
+}
+.sp-play:hover { background: rgba(255,255,255,.3); }
+
+.sp-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 900; color: var(--w); line-height: 1.2; margin-bottom: 6px; letter-spacing: -.3px; }
+.sp-desc { font-size: 13px; color: rgba(255,255,255,.62); line-height: 1.5; margin-bottom: 16px; }
+
+.sp-chips { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+.sp-chip { font-size: 12px; color: rgba(255,255,255,.6); font-weight: 500; display: flex; align-items: center; gap: 4px; }
+
+.sp-lessons { background: rgba(255,255,255,.1); border-radius: 11px; padding: 14px; margin-bottom: 16px; }
+
+.sp-lesson { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.07); }
+.sp-lesson:last-child { border-bottom: none; padding-bottom: 0; }
+
+.sp-l-badge {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: rgba(255,255,255,.8); flex-shrink: 0;
+}
+.sp-l-first { background: rgba(255,255,255,.25); color: var(--w); }
+
+.sp-l-title { flex: 1; font-size: 12.5px; font-weight: 500; color: rgba(255,255,255,.82); }
+.sp-l-dur { font-size: 11px; color: rgba(255,255,255,.42); white-space: nowrap; }
+
+.sp-cta {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--w); color: var(--g7);
+  font-size: 14.5px; font-weight: 800;
+  padding: 14px; border-radius: 12px; border: none; cursor: pointer;
+  transition: all .18s; font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.sp-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(0,0,0,.25); }
+.sp-cta:active { transform: translateY(0); }
+
+/* ─── MODULE ACCORDION ───────────────────────── */
+.mod-list { display: flex; flex-direction: column; gap: 9px; margin-bottom: 24px; }
+
+.mod-card {
+  background: var(--w);
+  border-radius: var(--r);
+  border: 1.5px solid var(--s200);
+  overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.mod-card:not(.locked):hover { border-color: var(--g4); box-shadow: var(--sh); }
+.mod-card.is-done { border-color: #BBF7D0; }
+.mod-card.is-active { border-color: var(--g4); box-shadow: 0 0 0 3px rgba(50,163,91,.1); }
+.mod-card.locked { opacity: .48; }
+.mod-card.open .mod-chevron { transform: rotate(180deg); }
+
+.mod-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 15px 16px;
+  cursor: pointer; user-select: none;
+}
+.locked .mod-header { cursor: not-allowed; }
+
+.mod-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 900;
+  flex-shrink: 0;
+}
+.mi-done { background: var(--g5); color: var(--w); font-size: 17px; }
+.mi-active { background: var(--g7); color: var(--w); }
+.mi-free { background: var(--goldb); color: #92400E; }
+.mi-locked { background: var(--s100); color: var(--s400); }
+.mi-premium { background: linear-gradient(135deg,#F4C430,#F59E0B); color: #78350F; }
+
+.mod-text { flex: 1; min-width: 0; }
+.mod-title { font-size: 13.5px; font-weight: 700; color: var(--s900); margin-bottom: 2px; }
+.mod-sub { font-size: 11.5px; color: var(--s400); }
+
+.mod-right { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+
+.mod-badge { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+.mb-done { background: var(--g1); color: #065F46; }
+.mb-free { background: var(--goldb); color: #92400E; }
+.mb-active { background: var(--g8); color: var(--w); }
+.mb-lock { background: var(--s100); color: var(--s400); }
+.mb-premium { background: var(--goldb); color: #92400E; }
+
+.mod-chevron { font-size: 15px; color: var(--s300); transition: transform .22s ease; flex-shrink: 0; }
+
+/* ─── EXPAND BODY ────────────────────────────── */
+.mod-body {
+  display: none;
+  border-top: 1px solid var(--s100);
+  padding: 18px 16px;
+  animation: fadeSlide .2s ease;
+}
+.mod-card.open .mod-body { display: block; }
+
+@keyframes fadeSlide { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+
+.mb-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; margin-bottom: 16px; }
+.mb-stat { background: var(--s50); border-radius: 9px; padding: 10px; text-align: center; }
+.mb-stat-val { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; color: var(--s900); margin-bottom: 2px; }
+.mb-stat-lbl { font-size: 10px; color: var(--s400); text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
+
+.mb-objective { background: var(--s50); border-radius: 10px; padding: 13px; margin-bottom: 14px; }
+.mb-obj-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--s400); margin-bottom: 6px; }
+.mb-obj-txt { font-size: 13px; font-style: italic; color: var(--s700); line-height: 1.55; }
+
+.mb-section-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--s400); margin-bottom: 9px; }
+
+.mb-lessons { margin-bottom: 14px; }
+.mb-lesson {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 9px;
+  background: var(--s50); margin-bottom: 6px;
+  cursor: pointer; transition: background .18s;
+}
+.mb-lesson:hover { background: var(--s100); }
+.mb-lesson.lesson-next { background: #ECFDF5; border: 1.5px solid var(--g4); }
+
+.mb-l-dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; flex-shrink: 0;
+}
+.ld-done { background: var(--g1); color: var(--g6); }
+.ld-next { background: var(--g7); color: var(--w); }
+.ld-todo { background: var(--s200); color: var(--s500); }
+
+.mb-l-info { flex: 1; }
+.mb-l-name { font-size: 12.5px; font-weight: 600; color: var(--s800); }
+.mb-l-dur { font-size: 11px; color: var(--s400); margin-top: 1px; }
+.mb-l-play { font-size: 14px; color: var(--g5); flex-shrink: 0; }
+
+.mb-tools { margin-bottom: 14px; }
+.mb-tool {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 9px;
+  background: var(--s50); margin-bottom: 6px;
+  cursor: pointer; transition: background .18s;
+}
+.mb-tool:hover { background: var(--s100); }
+.mb-tool-ico { font-size: 20px; flex-shrink: 0; }
+.mb-tool-name { flex: 1; font-size: 13px; font-weight: 500; color: var(--s700); }
+.mb-tool-btn {
+  font-size: 10.5px; font-weight: 700;
+  padding: 4px 10px; background: var(--g1); color: var(--g6);
+  border-radius: 7px; border: none; cursor: pointer; white-space: nowrap;
+}
+.mb-tool-btn:hover { background: var(--g3); color: var(--g8); }
+
+.mb-action {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px; border-radius: 11px; border: none; cursor: pointer;
+  font-size: 14px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: all .18s;
+}
+.mb-action:hover { transform: translateY(-1px); }
+
+.mb-action-green { background: linear-gradient(90deg, var(--g6), var(--g5)); color: var(--w); }
+.mb-action-green:hover { box-shadow: 0 5px 18px rgba(22,100,52,.35); }
+
+.mb-action-muted { background: var(--g1); color: var(--g7); }
+
+/* ─── LOCKED MESSAGE ─────────────────────────── */
+.locked-block {
+  background: var(--s50); border-radius: 10px;
+  padding: 16px; display: flex; align-items: center; gap: 12px;
+  margin-top: 4px;
+}
+.locked-icon { font-size: 26px; flex-shrink: 0; }
+.locked-text { flex: 1; font-size: 13px; color: var(--s500); line-height: 1.5; }
+.unlock-btn {
+  background: var(--g5); color: var(--w);
+  border: none; padding: 9px 15px; border-radius: 9px;
+  font-size: 12.5px; font-weight: 700; cursor: pointer;
+  white-space: nowrap; flex-shrink: 0; transition: background .18s;
+}
+.unlock-btn:hover { background: var(--g6); }
+.unlock-btn.gold { background: var(--gold); color: #78350F; }
+.unlock-btn.gold:hover { background: #EAB308; }
+
+/* ─── TOOLS GRID ─────────────────────────────── */
+.tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+.tool-card {
+  background: var(--w); border-radius: var(--r);
+  padding: 15px; box-shadow: var(--sh);
+  display: flex; align-items: center; gap: 11px;
+  cursor: pointer; transition: all .18s;
+  border: 1.5px solid transparent;
+}
+.tool-card:hover { border-color: var(--g4); transform: translateY(-1px); }
+.tc-ico { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.tc-name { font-size: 12.5px; font-weight: 700; color: var(--s900); margin-bottom: 2px; }
+.tc-meta { font-size: 11px; color: var(--s400); }
+.tc-arrow { font-size: 15px; color: var(--s300); margin-left: auto; flex-shrink: 0; }
+
+/* ─── BOTTOM NAV ─────────────────────────────── */
+.bottom-nav {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: var(--bottom-h);
+  background: var(--w);
+  border-top: 1px solid var(--s200);
+  z-index: 150;
+  padding: 0 6px;
+  justify-content: space-around; align-items: center;
+}
+
+.bn {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 5px 12px; border-radius: 9px;
+  cursor: pointer; border: none; background: none; min-width: 58px;
+}
+.bn-ico { font-size: 20px; }
+.bn-lbl { font-size: 10px; font-weight: 600; color: var(--s400); }
+.bn.active .bn-lbl { color: var(--g5); }
+
+/* ─── RESPONSIVE ─────────────────────────────── */
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(calc(-1 * var(--sidebar-w))); }
+  .sidebar.open { transform: translateX(0); }
+  .overlay { display: block; }
+  .overlay.open { opacity: 1; pointer-events: all; }
+  .burger { display: flex; }
+  .u-name { display: none; }
+  .main { margin-left: 0; }
+  .bottom-nav { display: flex; }
+  .scroll-area { padding: 16px; padding-bottom: calc(var(--bottom-h) + 16px); }
+  .topbar { padding: 0 16px; }
+}
+
+@media (max-width: 600px) {
+  .fh-stats { grid-template-columns: repeat(2,1fr); }
+  .fh-top { flex-direction: column; gap: 10px; }
+  .fh-badge { align-self: flex-start; }
+  .mb-stats { grid-template-columns: repeat(2,1fr); }
+}
+
+@media (max-width: 420px) {
+  .tools-grid { grid-template-columns: 1fr; }
+  .sp-title { font-size: 18px; }
+  .fh-title { font-size: 19px; }
+  .mod-right { flex-direction: column; align-items: flex-end; gap: 4px; }
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--s200); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ═══ SIDEBAR ══════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="logo">LOOP<em>IO</em></div>
+    <div class="logo-sub">Manager de Talent</div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="nav-lbl">Principal</div>
+    <button class="nav-item"><span class="ico">🏠</span>Dashboard</button>
+    <button class="nav-item active"><span class="ico">🎓</span>Ma Formation</button>
+    <button class="nav-item"><span class="ico">⚡</span>Check-in Léon <span class="nb">!</span></button>
+    <button class="nav-item"><span class="ico">📅</span>Calendrier</button>
+
+    <div class="nav-lbl" style="margin-top:14px">Outils</div>
+    <button class="nav-item"><span class="ico">📋</span>Protocoles Match</button>
+    <button class="nav-item"><span class="ico">📊</span>Évolution</button>
+    <button class="nav-item"><span class="ico">🧠</span>Bibliothèque</button>
+    <button class="nav-item"><span class="ico">⚙️</span>Paramètres</button>
+  </nav>
+
+  <div class="sb-foot">
+    <div class="player-pill">
+      <div class="pl-av">L</div>
+      <div>
+        <div class="pl-name">Léon Dupont</div>
+        <div class="pl-meta">U12 · FC Bordeaux Préfo</div>
+      </div>
+      <div class="pl-dot"></div>
+    </div>
+  </div>
+</aside>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- ═══ MAIN ══════════════════════════════════════════ -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="tb-left">
+      <button class="burger" onclick="openSidebar()">☰</button>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--s900);letter-spacing:-.3px">Ma Formation</div>
+        <div style="font-size:11.5px;color:var(--s400);margin-top:1px">Devenir le Manager de Talent de mon Enfant</div>
+      </div>
+    </div>
+    <div class="tb-right">
+      <button class="icon-btn">🔔<span class="notif-dot"></span></button>
+      <div class="user-chip">
+        <div class="u-av">CD</div>
+        <span class="u-name">Christophe D.</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="scroll-area">
+
+    <!-- ── HERO ── -->
+    <div class="f-hero">
+      <div class="fh-top">
+        <div>
+          <div class="fh-lbl">Loopio · Formation Parent</div>
+          <div class="fh-title">Devenir le Manager<br>de Talent de mon Enfant</div>
+          <div class="fh-desc">7 modules · U6–U18 · De la prise de conscience à l'écosystème pro</div>
+        </div>
+        <div class="fh-badge">★ 4.9 / 5</div>
+      </div>
+
+      <div class="fh-prog-wrap">
+        <div class="fh-prog-top">
+          <span class="fh-prog-lbl">Progression globale</span>
+          <span class="fh-prog-val">14% — Module 2 en cours</span>
+        </div>
+        <div class="fh-prog-track">
+          <div class="fh-prog-fill" id="heroProg"></div>
+        </div>
+      </div>
+
+      <div class="fh-stats">
+        <div class="fh-st"><div class="fh-st-val">2</div><div class="fh-st-lbl">Modules faits</div></div>
+        <div class="fh-st"><div class="fh-st-val">400</div><div class="fh-st-lbl">Min de contenu</div></div>
+        <div class="fh-st"><div class="fh-st-val">18</div><div class="fh-st-lbl">Outils PDF</div></div>
+        <div class="fh-st"><div class="fh-st-val">U6–18</div><div class="fh-st-lbl">Tous les âges</div></div>
+      </div>
+    </div>
+
+    <!-- ── MODULE EN COURS (SPOTLIGHT) ── -->
+    <div class="sec-head">
+      <div class="sec-title">Module en cours</div>
+    </div>
+
+    <div class="spotlight" style="margin-bottom:24px">
+      <div class="sp-head">
+        <div class="sp-tags">
+          <div class="sp-live"><span class="sp-live-dot"></span>En cours</div>
+          <div class="sp-mod-ref">Module 2 · Payant · 60 min</div>
+        </div>
+        <button class="sp-play">▶</button>
+      </div>
+
+      <div class="sp-title">Le Protocole Jour de Match</div>
+      <div class="sp-desc">Du vendredi soir au dimanche : ce que vous faites et dites, heure par heure. Le moment le plus dangereux de la semaine, enfin maîtrisé.</div>
+
+      <div class="sp-chips">
+        <div class="sp-chip">⏱ 60 min</div>
+        <div class="sp-chip">📹 5 leçons</div>
+        <div class="sp-chip">🛠 3 outils</div>
+        <div class="sp-chip">⭐ 4.9</div>
+      </div>
+
+      <div class="sp-lessons">
+        <div class="sp-lesson">
+          <div class="sp-l-badge sp-l-first">▶</div>
+          <div class="sp-l-title">2.1 · Le vendredi soir : la mise en bulle</div>
+          <div class="sp-l-dur">10 min</div>
+        </div>
+        <div class="sp-lesson">
+          <div class="sp-l-badge">2</div>
+          <div class="sp-l-title">2.2 · Le trajet aller : les 3 phrases autorisées</div>
+          <div class="sp-l-dur">8 min</div>
+        </div>
+        <div class="sp-lesson">
+          <div class="sp-l-badge">3</div>
+          <div class="sp-l-title">2.3 · Bord du terrain : le silence actif</div>
+          <div class="sp-l-dur">12 min</div>
+        </div>
+        <div class="sp-lesson">
+          <div class="sp-l-badge">4</div>
+          <div class="sp-l-title">2.4 · Après le match : 30 min de silence</div>
+          <div class="sp-l-dur">15 min</div>
+        </div>
+        <div class="sp-lesson">
+          <div class="sp-l-badge">5</div>
+          <div class="sp-l-title">2.5 · Le debriefing juste : méthode sandwich</div>
+          <div class="sp-l-dur">15 min</div>
+        </div>
+      </div>
+
+      <button class="sp-cta">▶ &nbsp;Reprendre — Leçon 2.1</button>
+    </div>
+
+    <!-- ── TOUS LES MODULES ── -->
+    <div class="sec-head">
+      <div class="sec-title">Tous les modules</div>
+      <span style="font-size:12px;color:var(--s400);font-weight:500">2 / 7 complétés</span>
+    </div>
+
+    <div class="mod-list">
+
+      <!-- MODULE 0 — TERMINÉ (Gratuit) -->
+      <div class="mod-card is-done" id="m0">
+        <div class="mod-header" onclick="toggle('m0')">
+          <div class="mod-icon mi-done">✓</div>
+          <div class="mod-text">
+            <div class="mod-title">Module 0 · L'Électrochoc</div>
+            <div class="mod-sub">L'ennemi invisible, c'est vous ? · 40 min · 4 leçons</div>
+          </div>
+          <div class="mod-right">
+            <span class="mod-badge mb-free">🆓 Gratuit</span>
+            <span class="mod-badge mb-done">✓ Terminé</span>
+            <span class="mod-chevron">⌄</span>
+          </div>
+        </div>
+        <div class="mod-body">
+          <div class="mb-stats">
+            <div class="mb-stat"><div class="mb-stat-val">40 min</div><div class="mb-stat-lbl">Durée</div></div>
+            <div class="mb-stat"><div class="mb-stat-val">4 leçons</div><div class="mb-stat-lbl">Contenu</div></div>
+            <div class="mb-stat"><div class="mb-stat-val">100%</div><div class="mb-stat-lbl">Complété</div></div>
+          </div>
+          <div class="mb-objective">
+            <div class="mb-obj-lbl">Objectif du module</div>
+            <div class="mb-obj-txt">« Créer un doute profond et immédiat. Le parent doit penser : "Je fais ça chaque week-end. Il me faut la méthode." »</div>
+          </div>
+          <div class="mb-lessons">
+            <div class="mb-section-lbl">Leçons</div>
+            <div class="mb-lesson"><div class="mb-l-dot ld-done">✓</div><div class="mb-l-info"><div class="mb-l-name">0.1 · Les 3 phrases "positives" qui paralysent secrètement</div><div class="mb-l-dur">8 min</div></div></div>
+            <div class="mb-lesson"><div class="mb-l-dot ld-done">✓</div><div class="mb-l-info"><div class="mb-l-name">0.2 · Le test du regard : observer sans intervenir</div><div class="mb-l-dur">7 min</div></div></div>
+            <div class="mb-lesson"><div class="mb-l-dot ld-done">✓</div><div class="mb-l-info"><div class="mb-l-name">0.3 · Auto-diagnostic : quel parent êtes-vous ?</div><div class="mb-l-dur">10 min</div></div></div>
+            <div class="mb-lesson"><div class="mb-l-dot ld-done">✓</div><div class="mb-l-info"><div class="mb-l-name">0.4 · La Lettre — le choc de conscience final</div><div class="mb-l-dur">15 min</div></div></div>
+          </div>
+          <div class="mb-tools">
+            <div class="mb-section-lbl">Outils inclus</div>
+            <div class="mb-tool"><span class="mb-tool-ico">📄</span><span class="mb-tool-name">Les 3 phrases à bannir + les 3 qui libèrent</span><button class="mb-tool-btn">PDF</button></div>
+            <div class="mb-tool"><span class="mb-tool-ico">🎧</span><span class="mb-tool-name">Audio-guide 15 min — Le match sans voix</span><button class="mb-tool-btn">Audio</button></div>
+            <div class="mb-tool"><span class="mb-tool-ico">📋</span><span class="mb-tool-name">Charte du Parent Manager Loopio</span><button class="mb-tool-btn">PDF</button></div>
+            <div class="mb-tool"><span class="mb-tool-ico">🔬</span><span class="mb-tool-name">Fiche — Le Test du Regard</span><button class="mb-tool-btn">PDF</button></div>
+          </div>
+          <button class="mb-action mb-action-muted">↩ Revoir les leçons du Module 0</button>
+        </div>
+      </div>
+
+      <!-- MODULE 1 — TERMINÉ -->
+      <div class="mod-card is-done" id="m1">
+        <div class="mod-header" onclick="toggle('m1')">
+          <div class="mod-icon mi-done">✓</div>
+          <div class="mod-text">
+            <div class="mod-title">Module 1 · Les Fondations</div>
+            <div class="mod-sub">Reprendre sa juste place · 55 min · 5 leçons</div>
+          </div>
+          <div class="mod-right">
+            <span class="mod-badge mb-done">✓ Terminé</span>
+            <span class="mod-chevron">⌄</span>
+          </div>
+        </div>
+        <div class="mod-body">
+          <div class="mb-stats">
+            <div class="mb-stat"><div class="mb-stat-val">55 min</div><div class="mb-stat-lbl">Durée</div></div>
+            <div class="mb-stat"><div class="mb-stat-val">5 leçons</div><div class="mb-stat-lbl">Contenu</div></div>
+            <div class="mb-stat"><div class="mb-stat-val">100%</div><div class="mb-stat-lbl">Complété</div></div>
+          </div>
+          <div class="mb-objective">
+            <div class="mb-obj-lbl">Objectif du module</div>
+            <div class="mb-obj-txt">« Installer des règles de vie concrètes — pas des concepts. Le parent sait exactement ce qu'il fait et ne fait pas chaque jour. »</div>
+          </div>
+          <div class="mb-lessons">
+            <div class="mb-section-lbl">Leçons</div>
+            <div class="mb-lesson"><div class="mb-l-dot ld-done">✓</div><div class="mb-l-info"><div class="mb-l-name">1.1 · La règle des territoires : coach vs parent</div><div class="mb-l-dur">10 min</div></div></div>
+            <div class="mb-lesson"><div class="mb-l-dot ld-done">✓</div><div class="mb-l-info"><div class="mb-l-name">1.2 · Le rituel de table : 7 sujets hors-football</div><div class="mb-l-dur">12 min</div></div></div>
+            <div class="mb-lesson"><div class="mb-l-dot ld-done">✓</div><div class="mb-l-info"><div class="mb-l-name">1.3 · L'avant-match : une phrase, puis silence</div><div class="mb-l-dur">11 min</div></div></div>
+            <div class="mb-lesson"><div class="mb-l-dot ld-done">✓</div><div class="mb-l-info"><div class="mb-l-name">1.4 · Respiration pré-match pour le parent</div><div class="mb-l-dur">10 min</div></div></div>
+            <div class="mb-lesson"><div class="mb-l-dot ld-done">✓</div><div class="mb-l-info"><div class="mb-l-name">1.5 · Récap & plan d'action semaine 1</div><div class="mb-l-dur">12 min</div></div></div>
+          </div>
+          <div class="mb-tools">
+            <div class="mb-section-lbl">Outils inclus</div>
+            <div class="mb-tool"><span class="mb-tool-ico">📄</span><span class="mb-tool-name">Fiche — La Règle des Territoires</span><button class="mb-tool-btn">PDF</button></div>
+            <div class="mb-tool"><span class="mb-tool-ico">📄</span><span class="mb-tool-name">Protocole — Le Rituel de Table</span><button class="mb-tool-btn">PDF</button></div>
+            <div class="mb-tool"><span class="mb-tool-ico">🎧</span><span class="mb-tool-name">Audio 10 min — Respiration pré-match parent</span><button class="mb-tool-btn">Audio</button></div>
+          </div>
+          <button class="mb-action mb-action-muted">↩ Revoir les leçons du Module 1</button>
+        </div>
+      </div>
+
+      <!-- MODULE 2 — ACTIF (ouvert par défaut) -->
+      <div class="mod-card is-active open" id="m2">
+        <div class="mod-header" onclick="toggle('m2')">
+          <div class="mod-icon mi-active">2</div>
+          <div class="mod-text">
+            <div class="mod-title">Module 2 · Le Protocole Jour de Match</div>
+            <div class="mod-sub">Du vendredi soir au dimanche · 60 min · 5 leçons</div>
+          </div>
+          <div class="mod-right">
+            <span class="mod-badge mb-active">► En cours</span>
+            <span class="mod-chevron">⌄</span>
+          </div>
+        </div>
+        <div class="mod-body">
+          <div class="mb-stats">
+            <div class="mb-stat"><div class="mb-stat-val">60 min</div><div class="mb-stat-lbl">Durée</div></div>
+            <div class="mb-stat"><div class="mb-stat-val">0 / 5</div><div class="mb-stat-lbl">Leçons vues</div></div>
+            <div class="mb-stat"><div class="mb-stat-val">3</div><div class="mb-stat-lbl">Outils</div></div>
+          </div>
+          <div class="mb-objective">
+            <div class="mb-obj-lbl">Objectif du module</div>
+            <div class="mb-obj-txt">« Ce que vous faites et dites, heure par heure. Zéro improvisation. Le moment le plus dangereux de la semaine de votre enfant, enfin maîtrisé. »</div>
+          </div>
+          <div class="mb-lessons">
+            <div class="mb-section-lbl">Leçons</div>
+            <div class="mb-lesson lesson-next"><div class="mb-l-dot ld-next">▶</div><div class="mb-l-info"><div class="mb-l-name">2.1 · Le vendredi soir : la mise en bulle</div><div class="mb-l-dur">10 min</div></div><span class="mb-l-play">▶</span></div>
+            <div class="mb-lesson"><div class="mb-l-dot ld-todo">2</div><div class="mb-l-info"><div class="mb-l-name">2.2 · Le trajet aller : les 3 phrases autorisées</div><div class="mb-l-dur">8 min</div></div></div>
+            <div class="mb-lesson"><div class="mb-l-dot ld-todo">3</div><div class="mb-l-info"><div class="mb-l-name">2.3 · Bord du terrain : le silence actif</div><div class="mb-l-dur">12 min</div></div></div>
+            <div class="mb-lesson"><div class="mb-l-dot ld-todo">4</div><div class="mb-l-info"><div class="mb-l-name">2.4 · Après le match : 30 minutes de silence obligatoires</div><div class="mb-l-dur">15 min</div></div></div>
+            <div class="mb-lesson"><div class="mb-l-dot ld-todo">5</div><div class="mb-l-info"><div class="mb-l-name">2.5 · Le debriefing juste : la méthode sandwich</div><div class="mb-l-dur">15 min</div></div></div>
+          </div>
+          <div class="mb-tools">
+            <div class="mb-section-lbl">Outils inclus</div>
+            <div class="mb-tool"><span class="mb-tool-ico">🃏</span><span class="mb-tool-name">Carte plastifiée "Script du match" (voiture)</span><button class="mb-tool-btn">PDF</button></div>
+            <div class="mb-tool"><span class="mb-tool-ico">📄</span><span class="mb-tool-name">Le Silence Actif : ce qu'on applaudit et ce qu'on ne dit pas</span><button class="mb-tool-btn">PDF</button></div>
+            <div class="mb-tool"><span class="mb-tool-ico">🎧</span><span class="mb-tool-name">Audio 8 min — Les 30 minutes de silence</span><button class="mb-tool-btn">Audio</button></div>
+          </div>
+          <button class="mb-action mb-action-green">▶ &nbsp;Commencer la leçon 2.1</button>
+        </div>
+      </div>
+
+      <!-- MODULE 3 — VERROUILLÉ -->
+      <div class="mod-card locked" id="m3">
+        <div class="mod-header" onclick="toggle('m3')">
+          <div class="mod-icon mi-locked">3</div>
+          <div class="mod-text">
+            <div class="mod-title">Module 3 · La Trousse de Secours</div>
+            <div class="mod-sub">Gérer crise, échec et injustice · 55 min · 5 leçons</div>
+          </div>
+          <div class="mod-right">
+            <span class="mod-badge mb-lock">🔒 Verrouillé</span>
+            <span class="mod-chevron">⌄</span>
+          </div>
+        </div>
+        <div class="mod-body">
+          <div class="mb-objective">
+            <div class="mb-obj-lbl">Objectif du module</div>
+            <div class="mb-obj-txt">« Des plans d'action immédiats pour les situations qui brisent le mental des jeunes. Pas si elles arrivent. Quand elles arrivent. »</div>
+          </div>
+          <div class="locked-block">
+            <span class="locked-icon">🔒</span>
+            <span class="locked-text">Terminez le Module 2 pour débloquer ce module, ou passez en Premium pour accéder à tout immédiatement.</span>
+            <button class="unlock-btn">Passer Premium</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODULE 4 — VERROUILLÉ -->
+      <div class="mod-card locked" id="m4">
+        <div class="mod-header" onclick="toggle('m4')">
+          <div class="mod-icon mi-locked">4</div>
+          <div class="mod-text">
+            <div class="mod-title">Module 4 · Le Manuel par Âge</div>
+            <div class="mod-sub">KPIs spécifiques U6–U18 · 50 min · 4 leçons</div>
+          </div>
+          <div class="mod-right">
+            <span class="mod-badge mb-lock">🔒 Verrouillé</span>
+            <span class="mod-chevron">⌄</span>
+          </div>
+        </div>
+        <div class="mod-body">
+          <div class="mb-objective">
+            <div class="mb-obj-lbl">Objectif du module</div>
+            <div class="mb-obj-txt">« Adapter son rôle à l'âge. On ne parle pas à un U8 (plaisir pur) comme à un U16 (performance & détection). »</div>
+          </div>
+          <div class="locked-block">
+            <span class="locked-icon">🔒</span>
+            <span class="locked-text">Accessible après le Module 3 ou avec un accès Premium.</span>
+            <button class="unlock-btn">Passer Premium</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODULE 5 — VERROUILLÉ -->
+      <div class="mod-card locked" id="m5">
+        <div class="mod-header" onclick="toggle('m5')">
+          <div class="mod-icon mi-locked">5</div>
+          <div class="mod-text">
+            <div class="mod-title">Module 5 · L'Ingénierie Invisible</div>
+            <div class="mod-sub">La performance se construit hors terrain · 50 min</div>
+          </div>
+          <div class="mod-right">
+            <span class="mod-badge mb-lock">🔒 Verrouillé</span>
+            <span class="mod-chevron">⌄</span>
+          </div>
+        </div>
+        <div class="mod-body">
+          <div class="mb-objective">
+            <div class="mb-obj-lbl">Objectif du module</div>
+            <div class="mb-obj-txt">« Nutrition, sommeil, récupération : le parent devient directeur des conditions optimales. Pas entraîneur adjoint. »</div>
+          </div>
+          <div class="locked-block">
+            <span class="locked-icon">🔒</span>
+            <span class="locked-text">Disponible avec un accès Premium.</span>
+            <button class="unlock-btn">Passer Premium</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODULE 6 — VERROUILLÉ -->
+      <div class="mod-card locked" id="m6">
+        <div class="mod-header" onclick="toggle('m6')">
+          <div class="mod-icon mi-locked">6</div>
+          <div class="mod-text">
+            <div class="mod-title">Module 6 · L'Écosystème Pro</div>
+            <div class="mod-sub">Clubs, détection, agents — sans se faire avoir · 60 min · 6 leçons</div>
+          </div>
+          <div class="mod-right">
+            <span class="mod-badge mb-lock">🔒 Verrouillé</span>
+            <span class="mod-chevron">⌄</span>
+          </div>
+        </div>
+        <div class="mod-body">
+          <div class="mb-objective">
+            <div class="mb-obj-lbl">Objectif du module</div>
+            <div class="mb-obj-txt">« Comprendre la machine pour protéger votre enfant. Les vrais critères de détection des centres de formation, sans filtres. »</div>
+          </div>
+          <div class="locked-block">
+            <span class="locked-icon">🔒</span>
+            <span class="locked-text">Module avancé disponible avec un accès Premium.</span>
+            <button class="unlock-btn">Passer Premium</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODULE 7 — PREMIUM EXCLUSIF -->
+      <div class="mod-card locked" id="m7">
+        <div class="mod-header" onclick="toggle('m7')">
+          <div class="mod-icon mi-premium">★</div>
+          <div class="mod-text">
+            <div class="mod-title">Module 7 · Suivi Loopio Personnalisé</div>
+            <div class="mod-sub">Accompagnement individuel · Premium exclusif</div>
+          </div>
+          <div class="mod-right">
+            <span class="mod-badge mb-premium">★ Premium</span>
+            <span class="mod-chevron">⌄</span>
+          </div>
+        </div>
+        <div class="mod-body">
+          <div class="mb-objective">
+            <div class="mb-obj-lbl">Objectif du module</div>
+            <div class="mb-obj-txt">« Séances individuelles avec un expert Loopio certifié. Plan d'action 100% personnalisé pour la trajectoire de votre enfant. »</div>
+          </div>
+          <div class="locked-block">
+            <span class="locked-icon">⭐</span>
+            <span class="locked-text">Module exclusif Premium+. Accompagnement sur mesure, 1-to-1 avec un expert Loopio.</span>
+            <button class="unlock-btn gold">Découvrir</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end mod-list -->
+
+    <!-- ── OUTILS DISPONIBLES ── -->
+    <div class="sec-head">
+      <div class="sec-title">Outils disponibles</div>
+      <span class="sec-link">Tous les outils →</span>
+    </div>
+
+    <div class="tools-grid">
+      <div class="tool-card">
+        <div class="tc-ico" style="background:#EFF6FF">🃏</div>
+        <div><div class="tc-name">Script du Match</div><div class="tc-meta">Carte voiture · M2</div></div>
+        <span class="tc-arrow">→</span>
+      </div>
+      <div class="tool-card">
+        <div class="tc-ico" style="background:#F0FDF4">🎧</div>
+        <div><div class="tc-name">Respiration Pré-Match</div><div class="tc-meta">Audio 10 min · M1</div></div>
+        <span class="tc-arrow">→</span>
+      </div>
+      <div class="tool-card">
+        <div class="tc-ico" style="background:var(--goldb)">📄</div>
+        <div><div class="tc-name">3 Phrases à Bannir</div><div class="tc-meta">PDF · M0 · Gratuit</div></div>
+        <span class="tc-arrow">→</span>
+      </div>
+      <div class="tool-card">
+        <div class="tc-ico" style="background:var(--redb)">🛡️</div>
+        <div><div class="tc-name">Charte Parent Manager</div><div class="tc-meta">À imprimer · M0</div></div>
+        <span class="tc-arrow">→</span>
+      </div>
+    </div>
+
+  </div><!-- end scroll-area -->
+</main>
+
+<!-- ═══ BOTTOM NAV ═══════════════════════════════════ -->
+<nav class="bottom-nav">
+  <button class="bn"><span class="bn-ico">🏠</span><span class="bn-lbl">Accueil</span></button>
+  <button class="bn active"><span class="bn-ico">🎓</span><span class="bn-lbl" style="color:var(--g5)">Formation</span></button>
+  <button class="bn"><span class="bn-ico">⚡</span><span class="bn-lbl">Check-in</span></button>
+  <button class="bn"><span class="bn-ico">📅</span><span class="bn-lbl">Agenda</span></button>
+  <button class="bn"><span class="bn-ico">⚙️</span><span class="bn-lbl">Profil</span></button>
+</nav>
+
+</div>
+
+<script>
+// Sidebar mobile
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  const o = document.getElementById('overlay');
+  o.style.display = 'block';
+  requestAnimationFrame(() => o.classList.add('open'));
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  const o = document.getElementById('overlay');
+  o.classList.remove('open');
+  o.addEventListener('transitionend', () => { o.style.display = ''; }, { once: true });
+}
+
+// Module accordion
+function toggle(id) {
+  const card = document.getElementById(id);
+  const isOpen = card.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.mod-card.open').forEach(c => {
+    if (c !== card) c.classList.remove('open');
+  });
+  card.classList.toggle('open', !isOpen);
+}
+
+// Animate hero progress bar
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const fill = document.getElementById('heroProg');
+    if (fill) fill.style.width = '14%';
+  }, 150);
+
+  // Scroll module 2 into view smoothly after a short delay
+  setTimeout(() => {
+    const m2 = document.getElementById('m2');
+    if (m2) m2.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 600);
+});
+</script>
+</body>
+</html>

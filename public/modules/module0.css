@@ -1,0 +1,566 @@
+
+
+
+    /* ── PROGRESS BAR ───────────────────────────────────── */
+    
+
+    /* ── NAV ────────────────────────────────────────────── */
+
+    /* removed: .nav-logo */ {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px; letter-spacing: 3px;
+      color: var(--rouge); text-decoration: none;
+    }
+    /* removed: .nav-badge */ {
+      font-size: 12px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--gris-m);
+    }
+
+    /* ── HERO ───────────────────────────────────────────── */
+    .module-viewer .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 48px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .module-viewer .hero::before {
+      content: '70%';
+      position: absolute; top: -20px; right: -40px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(300px, 40vw, 600px);
+      color: rgba(192,57,43,0.06);
+      line-height: 1; pointer-events: none;
+      user-select: none;
+    }
+    .module-viewer .hero-eyebrow {
+      font-size: 13px; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--rouge);
+      margin-bottom: 28px;
+    }
+    .module-viewer .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(72px, 10vw, 140px);
+      line-height: 0.9; letter-spacing: 2px;
+      margin-bottom: 40px;
+    }
+    .module-viewer .hero-title span { color: var(--rouge); display: block; }
+    .module-viewer .hero-lead {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(20px, 2.5vw, 28px);
+      font-style: italic;
+      color: rgba(255,255,255,0.65);
+      max-width: 680px;
+      line-height: 1.5;
+      margin-bottom: 56px;
+    }
+    .module-viewer .hero-stat {
+      display: inline-flex; align-items: baseline; gap: 16px;
+      padding: 24px 36px;
+      border: 1px solid rgba(192,57,43,0.4);
+      background: rgba(192,57,43,0.08);
+    }
+    .module-viewer .hero-stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 72px; line-height: 1; color: var(--rouge);
+    }
+    .module-viewer .hero-stat-text {
+      font-size: 15px; line-height: 1.4;
+      color: rgba(255,255,255,0.7);
+      max-width: 260px;
+    }
+    .module-viewer .hero-stat-text strong { color: var(--blanc); display: block; margin-bottom: 4px; }
+    .module-viewer .scroll-hint {
+      position: absolute; bottom: 40px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gris-m); animation: pulse 2s ease-in-out infinite;
+    }
+    .module-viewer .scroll-hint::after {
+      content: ''; display: block; width: 1px; height: 40px;
+      background: linear-gradient(to bottom, var(--rouge), transparent);
+    }
+    @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+
+    /* ── LAYOUT ─────────────────────────────────────────── */
+    .module-viewer .container {
+      max-width: 780px; margin: 0 auto;
+      padding: 0 32px;
+    }
+    .module-viewer .container-wide {
+      max-width: 1080px; margin: 0 auto;
+      padding: 0 48px;
+    }
+
+    /* ── SECTION ────────────────────────────────────────── */
+    .module-viewer section { padding: 120px 0; }
+    .module-viewer section + section { border-top: 1px solid rgba(255,255,255,0.05); }
+
+    /* ── LESSON HEADER ──────────────────────────────────── */
+    .module-viewer .lesson-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 13px; letter-spacing: 4px;
+      color: var(--rouge); margin-bottom: 20px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .module-viewer .lesson-number::after {
+      content: ''; flex: 0 0 60px; height: 1px; background: var(--rouge);
+    }
+    .module-viewer .lesson-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(40px, 6vw, 72px);
+      line-height: 0.95; margin-bottom: 16px;
+      letter-spacing: 1px;
+    }
+    .module-viewer .lesson-subtitle {
+      font-size: 16px; color: var(--gris-m);
+      font-weight: 300; margin-bottom: 64px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    /* ── TYPOGRAPHY ─────────────────────────────────────── */
+    .module-viewer .lead {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(22px, 3vw, 30px);
+      font-style: italic;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 48px;
+    }
+    .module-viewer p {
+      font-size: 18px; line-height: 1.85;
+      color: rgba(255,255,255,0.72);
+      margin-bottom: 28px;
+      font-weight: 300;
+    }
+    .module-viewer p strong {
+      color: var(--blanc);
+      font-weight: 600;
+    }
+    .module-viewer p.accent {
+      color: var(--blanc);
+      font-weight: 400;
+      font-size: 19px;
+    }
+
+    /* ── CHOC STATEMENT ─────────────────────────────────── */
+    .module-viewer .choc {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(26px, 4vw, 44px);
+      font-style: italic;
+      line-height: 1.3;
+      color: var(--blanc);
+      padding: 48px 0;
+      border-top: 2px solid var(--rouge);
+      border-bottom: 2px solid var(--rouge);
+      margin: 64px 0;
+    }
+    .module-viewer .choc span { color: var(--rouge); }
+
+    /* ── ROUGE HIGHLIGHT ────────────────────────────────── */
+    .module-viewer .highlight-rouge {
+      background: var(--rouge);
+      color: var(--blanc);
+      padding: 2px 8px;
+      font-style: normal;
+    }
+
+    /* ── PHRASE CARD ────────────────────────────────────── */
+    .module-viewer .phrase-grid {
+      display: grid; gap: 2px;
+      margin: 48px 0;
+    }
+    .module-viewer .phrase-card {
+      background: var(--noir-3);
+      padding: 40px 48px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+    }
+    .module-viewer .phrase-card:hover { background: #222; }
+    .module-viewer .phrase-card::before {
+      content: attr(data-num);
+      position: absolute; top: -10px; right: 24px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 100px; color: rgba(255,255,255,0.03);
+      line-height: 1;
+    }
+    .module-viewer .phrase-card-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--rouge);
+      margin-bottom: 16px;
+    }
+    .module-viewer .phrase-toxique {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(20px, 2.8vw, 28px);
+      font-style: italic;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 28px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      text-decoration: line-through;
+      text-decoration-color: var(--rouge);
+      text-decoration-thickness: 2px;
+    }
+    .module-viewer .phrase-why {
+      font-size: 16px; color: rgba(255,255,255,0.65);
+      line-height: 1.7; margin-bottom: 28px;
+      font-weight: 300;
+    }
+    .module-viewer .phrase-why strong { color: var(--blanc); font-weight: 600; }
+    .module-viewer .phrase-replace-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--vert);
+      margin-bottom: 12px;
+    }
+    .module-viewer .phrase-replace {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(18px, 2.2vw, 22px);
+      font-style: italic; color: var(--blanc);
+    }
+
+    /* ── SIGNAL BLOC ────────────────────────────────────── */
+    .module-viewer .signal-list { margin: 48px 0; }
+    .module-viewer .signal {
+      display: grid; grid-template-columns: 64px 1fr;
+      gap: 0 32px; padding: 40px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      align-items: start;
+    }
+    .module-viewer .signal:first-child { border-top: 1px solid rgba(255,255,255,0.06); }
+    .module-viewer .signal-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 52px; color: var(--rouge);
+      line-height: 1;
+    }
+    .module-viewer .signal-content {}
+    .module-viewer .signal-title {
+      font-size: 19px; font-weight: 600;
+      color: var(--blanc); margin-bottom: 12px;
+      line-height: 1.3;
+    }
+    .module-viewer .signal-desc {
+      font-size: 16px; color: rgba(255,255,255,0.6);
+      line-height: 1.7; font-weight: 300;
+      margin: 0;
+    }
+    .module-viewer .signal-desc strong { color: rgba(255,255,255,0.85); font-weight: 500; }
+
+    /* ── TEST DU REGARD ─────────────────────────────────── */
+    .module-viewer .test-box {
+      background: var(--rouge);
+      padding: 56px 64px;
+      margin: 64px 0;
+    }
+    .module-viewer .test-box-label {
+      font-size: 12px; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; color: rgba(255,255,255,0.6);
+      margin-bottom: 24px;
+    }
+    .module-viewer .test-box-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(32px, 5vw, 56px);
+      line-height: 0.95; color: var(--blanc);
+      margin-bottom: 24px;
+    }
+    .module-viewer .test-box-text {
+      font-size: 17px; color: rgba(255,255,255,0.85);
+      line-height: 1.7; font-weight: 300;
+    }
+    .module-viewer .test-box-text strong { color: var(--blanc); font-weight: 600; }
+
+    /* ── COMPARAISON 2 COL ──────────────────────────────── */
+    .module-viewer .compare-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2px; margin: 48px 0;
+    }
+    .module-viewer .compare-col {
+      padding: 40px 36px;
+      background: var(--noir-3);
+    }
+    .module-viewer .compare-col.bad { border-top: 3px solid var(--rouge); }
+    .module-viewer .compare-col.good { border-top: 3px solid var(--vert); }
+    .module-viewer .compare-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .module-viewer .compare-col.bad .compare-label { color: var(--rouge); }
+    .module-viewer .compare-col.good .compare-label { color: var(--vert); }
+    .module-viewer .compare-item {
+      font-size: 15px; color: rgba(255,255,255,0.65);
+      padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+      line-height: 1.5; font-weight: 300;
+    }
+    .module-viewer .compare-item:last-child { border-bottom: none; }
+    .module-viewer .compare-item strong { color: var(--blanc); font-weight: 500; }
+
+    /* ── PROFIL TABLE ───────────────────────────────────── */
+    .module-viewer .profil-grid { margin: 48px 0; display: flex; flex-direction: column; gap: 2px; }
+    .module-viewer .profil-card {
+      display: grid; grid-template-columns: 200px 1fr;
+      gap: 0; background: var(--noir-3);
+    }
+    .module-viewer .profil-icon-col {
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 36px 24px; background: rgba(255,255,255,0.03);
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    .module-viewer .profil-emoji { font-size: 36px; margin-bottom: 12px; }
+    .module-viewer .profil-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px; letter-spacing: 2px;
+      text-align: center; color: var(--blanc);
+    }
+    .module-viewer .profil-content { padding: 36px 40px; }
+    .module-viewer .profil-desc {
+      font-size: 16px; color: rgba(255,255,255,0.65);
+      line-height: 1.7; margin-bottom: 16px;
+      font-weight: 300;
+    }
+    .module-viewer .profil-cost {
+      font-size: 14px; font-weight: 600;
+      color: var(--rouge); line-height: 1.5;
+    }
+    .module-viewer .profil-card.manager .profil-name { color: #4AE87A; }
+    .module-viewer .profil-card.manager .profil-icon-col { background: rgba(26,122,52,0.08); }
+
+    /* ── LETTRE ─────────────────────────────────────────── */
+    .module-viewer .lettre-section {
+      background: var(--noir-2);
+      padding: 120px 0;
+    }
+    .module-viewer .lettre-wrapper {
+      max-width: 680px; margin: 0 auto; padding: 0 32px;
+    }
+    .module-viewer .lettre-eyebrow {
+      font-size: 12px; font-weight: 700; letter-spacing: 4px;
+      text-transform: uppercase; color: var(--rouge);
+      margin-bottom: 64px; text-align: center;
+    }
+    .module-viewer .lettre-intro {
+      font-size: 16px; color: var(--gris-m);
+      text-align: center; font-style: italic;
+      margin-bottom: 64px; line-height: 1.7;
+    }
+    .module-viewer .lettre-bloc {
+      border-left: 3px solid rgba(255,255,255,0.1);
+      padding: 0 0 0 40px;
+      margin-bottom: 56px;
+    }
+    .module-viewer .lettre-destinataire {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px; color: var(--rouge);
+      letter-spacing: 2px; margin-bottom: 28px;
+    }
+    .module-viewer .lettre-ligne {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(17px, 2.2vw, 21px);
+      font-style: italic;
+      line-height: 1.9;
+      color: rgba(255,255,255,0.75);
+      display: block;
+      margin-bottom: 4px;
+    }
+    .module-viewer .lettre-ligne.forte {
+      color: var(--blanc); font-weight: normal;
+    }
+    .module-viewer .lettre-question {
+      text-align: center;
+      padding: 80px 0 0;
+    }
+    .module-viewer .lettre-question-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(24px, 3.5vw, 38px);
+      font-style: italic;
+      color: var(--blanc);
+      line-height: 1.4;
+      margin-bottom: 16px;
+    }
+    .module-viewer .lettre-question-sub {
+      font-size: 15px; color: var(--gris-m); font-style: italic;
+    }
+
+    /* ── REGLE D'OR ─────────────────────────────────────── */
+    .module-viewer .regle {
+      background: var(--rouge);
+      padding: 48px 64px;
+      margin: 64px 0;
+      position: relative; overflow: hidden;
+    }
+    .module-viewer .regle::after {
+      content: '!';
+      position: absolute; right: 32px; top: -20px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 200px; color: rgba(255,255,255,0.06);
+      line-height: 1;
+    }
+    .module-viewer .regle-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; color: rgba(255,255,255,0.6);
+      margin-bottom: 16px;
+    }
+    .module-viewer .regle-text {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(24px, 4vw, 42px);
+      line-height: 1.05; color: var(--blanc);
+      letter-spacing: 1px;
+    }
+
+    /* ── ENCADRÉ SCIENCE ────────────────────────────────── */
+    .module-viewer .science {
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 36px 40px;
+      margin: 40px 0;
+      position: relative;
+    }
+    .module-viewer .science::before {
+      content: '🧠';
+      font-size: 14px;
+      display: block; margin-bottom: 12px;
+    }
+    .module-viewer .science-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; color: rgba(255,255,255,0.3);
+      margin-bottom: 12px;
+    }
+    .module-viewer .science-text {
+      font-size: 15px; color: rgba(255,255,255,0.5);
+      line-height: 1.7; font-style: italic;
+      font-weight: 300; margin: 0;
+    }
+    .module-viewer .science-text strong { color: rgba(255,255,255,0.7); font-weight: 500; }
+
+    /* ── CTA SECTION ────────────────────────────────────── */
+    .module-viewer .cta-section {
+      padding: 160px 0;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .module-viewer .cta-section::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(ellipse at center, rgba(192,57,43,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .module-viewer .cta-eyebrow {
+      font-size: 12px; font-weight: 700; letter-spacing: 4px;
+      text-transform: uppercase; color: var(--rouge);
+      margin-bottom: 48px;
+    }
+    .module-viewer .cta-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(52px, 8vw, 100px);
+      line-height: 0.9; letter-spacing: 2px;
+      margin-bottom: 48px;
+    }
+    .module-viewer .cta-title span { color: var(--rouge); display: block; }
+    .module-viewer .cta-text {
+      font-size: 18px; color: rgba(255,255,255,0.6);
+      line-height: 1.8; max-width: 600px;
+      margin: 0 auto 64px; font-weight: 300;
+    }
+    .module-viewer .cta-text strong { color: var(--blanc); font-weight: 500; }
+    .module-viewer .cta-choix {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2px; max-width: 900px;
+      margin: 0 auto 72px; text-align: left;
+    }
+    .module-viewer .cta-choix-col {
+      padding: 40px 40px 48px;
+      background: var(--noir-3);
+    }
+    .module-viewer .cta-choix-col.mauvais { border-top: 3px solid rgba(255,255,255,0.1); }
+    .module-viewer .cta-choix-col.bon { border-top: 3px solid var(--rouge); }
+    .module-viewer .cta-choix-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; margin-bottom: 20px; display: block;
+    }
+    .module-viewer .cta-choix-col.mauvais .cta-choix-label { color: rgba(255,255,255,0.25); }
+    .module-viewer .cta-choix-col.bon .cta-choix-label { color: var(--rouge); }
+    .module-viewer .cta-choix-text {
+      font-size: 15px; color: rgba(255,255,255,0.5);
+      line-height: 1.8; font-weight: 300;
+    }
+    .module-viewer .cta-choix-col.bon .cta-choix-text { color: rgba(255,255,255,0.75); }
+    .module-viewer .cta-question {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(22px, 3vw, 32px);
+      font-style: italic;
+      color: var(--blanc);
+      margin-bottom: 56px;
+      max-width: 700px; margin-left: auto; margin-right: auto;
+    }
+    .module-viewer .cta-question span { color: var(--rouge); }
+    .module-viewer .btn-cta {
+      display: inline-block;
+      background: var(--rouge);
+      color: var(--blanc);
+      text-decoration: none;
+      padding: 22px 56px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px; letter-spacing: 3px;
+      transition: all 0.25s;
+      position: relative; overflow: hidden;
+    }
+    .module-viewer .btn-cta:hover { background: var(--rouge-vif); transform: translateY(-2px); }
+    .module-viewer .btn-cta::after {
+      content: '→';
+      margin-left: 12px;
+      transition: transform 0.25s;
+      display: inline-block;
+    }
+    .module-viewer .btn-cta:hover::after { transform: translateX(6px); }
+    .module-viewer .cta-sous {
+      display: block; margin-top: 20px;
+      font-size: 13px; color: var(--gris-m);
+    }
+
+    /* ── MODULE SOMMAIRE ────────────────────────────────── */
+    .module-viewer .sommaire {
+      display: grid; gap: 2px;
+      max-width: 700px; margin: 48px auto 0;
+    }
+    .module-viewer .sommaire-item {
+      display: grid; grid-template-columns: 48px 1fr;
+      gap: 16px; align-items: center;
+      padding: 20px 32px; background: var(--noir-3);
+    }
+    .module-viewer .sommaire-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px; color: var(--rouge);
+    }
+    .module-viewer .sommaire-text {
+      font-size: 15px; color: rgba(255,255,255,0.6);
+      font-weight: 300;
+    }
+    .module-viewer .sommaire-text strong { color: var(--blanc); font-weight: 500; }
+
+    /* ── FOOTER ─────────────────────────────────────────── */
+
+    /* removed: .footer-logo */ {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px; letter-spacing: 3px; color: var(--rouge);
+    }
+    /* removed: .footer-copy */ {
+      font-size: 13px; color: var(--gris-m);
+    }
+
+    /* ── SEPARATEUR ─────────────────────────────────────── */
+    .module-viewer .sep {
+      width: 40px; height: 3px;
+      background: var(--rouge);
+      margin: 0 0 48px;
+    }
+
+    /* ── RESPONSIVE ─────────────────────────────────────── */
+    @media (max-width: 768px) {.module-viewer .hero { padding: 0 24px 64px; }.module-viewer .hero::before { font-size: 200px; right: -20px; top: 40px; }.module-viewer section { padding: 80px 0; }.module-viewer .container { padding: 0 24px; }.module-viewer .container-wide { padding: 0 24px; }.module-viewer .compare-grid { grid-template-columns: 1fr; }.module-viewer .cta-choix { grid-template-columns: 1fr; }.module-viewer .profil-card { grid-template-columns: 1fr; }.module-viewer .profil-icon-col {
+        flex-direction: row; gap: 16px; justify-content: flex-start;
+        border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06);
+        padding: 24px 32px;
+      }.module-viewer .test-box { padding: 40px 32px; }.module-viewer .regle { padding: 40px 32px; }.module-viewer .lettre-bloc { padding-left: 24px; }.module-viewer .cta-title { letter-spacing: 1px; }.module-viewer .hero-stat { flex-direction: column; gap: 8px; }.module-viewer .btn-cta { padding: 18px 36px; }
+
+    }

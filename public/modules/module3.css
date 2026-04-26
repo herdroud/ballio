@@ -1,0 +1,260 @@
+
+
+
+    /* ── PROGRESS ── */
+    
+
+    /* ── NAV ── */
+
+    /* removed: .nav-left */ { display: flex; align-items: center; gap: 24px; }
+    /* removed: .nav-logo */ { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 3px; color: var(--rouge); text-decoration: none; }
+    /* removed: .nav-sep */ { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+    /* removed: .nav-module */ { font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--gris-m); }
+    /* removed: .nav-cta */ { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; background: var(--rouge); color: var(--blanc); padding: 10px 24px; text-decoration: none; transition: background .2s; }
+    /* removed: .nav-cta:hover */ { background: var(--rouge-vif); }
+
+    /* ── HERO ── */
+    .module-viewer .hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      justify-content: flex-end; padding: 0 48px 80px;
+      position: relative; overflow: hidden;
+    }
+    .module-viewer .hero-bg-num {
+      position: absolute; top: 50%; right: -60px; transform: translateY(-50%);
+      font-family: 'Bebas Neue', sans-serif; font-size: clamp(280px,38vw,560px);
+      color: rgba(192,57,43,0.05); line-height: 1;
+      pointer-events: none; user-select: none; letter-spacing: -10px;
+    }
+    /* Croix médicale en filigrane */
+    .module-viewer .hero-cross {
+      position: absolute; top: 12%; left: 8%;
+      font-size: clamp(80px, 12vw, 180px);
+      color: rgba(192,57,43,0.04);
+      pointer-events: none; user-select: none; line-height: 1;
+    }
+    .module-viewer .hero-module-tag { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+    .module-viewer .hero-module-num { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 4px; color: var(--blanc); background: var(--rouge); padding: 6px 14px; }
+    .module-viewer .hero-module-label { font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--gris-m); font-weight: 600; }
+    .module-viewer .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(60px,9.5vw,136px); line-height: 0.88; letter-spacing: 2px; margin-bottom: 36px; }
+    .module-viewer .hero-title .sub { display: block; color: var(--rouge); font-size: clamp(30px,4vw,56px); }
+    .module-viewer .hero-lead { font-family: 'DM Serif Display', serif; font-size: clamp(18px,2vw,24px); font-style: italic; color: rgba(255,255,255,0.6); max-width: 600px; line-height: 1.6; margin-bottom: 56px; }
+
+    /* Situations 4 cards */
+    .module-viewer .hero-situations {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 3px; max-width: 860px;
+    }
+    .module-viewer .hero-sit {
+      background: var(--noir-3); padding: 22px 24px;
+      border-top: 2px solid rgba(255,255,255,0.06);
+      transition: border-color .2s;
+    }
+    .module-viewer .hero-sit:hover { border-color: var(--rouge); }
+    .module-viewer .hero-sit-num {
+      font-family: 'Bebas Neue', sans-serif; font-size: 11px;
+      letter-spacing: 3px; color: var(--rouge); display: block; margin-bottom: 8px;
+    }
+    .module-viewer .hero-sit-label { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.75); line-height: 1.35; }
+
+    .module-viewer .scroll-cue {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gris-m);
+      animation: breathe 2.5s ease-in-out infinite;
+    }
+    .module-viewer .scroll-cue::after { content: ''; width: 1px; height: 44px; background: linear-gradient(to bottom, var(--rouge), transparent); }
+    @keyframes breathe { 0%,100%{opacity:.3} 50%{opacity:.9} }
+
+    /* ── LAYOUT ── */
+    .module-viewer .container { max-width: 780px; margin: 0 auto; padding: 0 32px; }
+    .module-viewer section { padding: 110px 0; }
+    .module-viewer section + section { border-top: 1px solid rgba(255,255,255,0.05); }
+
+    /* ── TYPO ── */
+    .module-viewer .lead { font-family: 'DM Serif Display', serif; font-size: clamp(20px,2.6vw,27px); font-style: italic; line-height: 1.55; color: rgba(255,255,255,0.82); margin-bottom: 44px; }
+    .module-viewer p { font-size: 18px; line-height: 1.85; color: rgba(255,255,255,0.65); margin-bottom: 26px; font-weight: 300; }
+    .module-viewer p strong { color: var(--blanc); font-weight: 600; }
+    .module-viewer p em { color: rgba(255,255,255,0.75); }
+
+    .module-viewer .choc { font-family: 'DM Serif Display', serif; font-size: clamp(23px,3.2vw,38px); font-style: italic; line-height: 1.3; color: var(--blanc); padding: 44px 0; border-top: 2px solid var(--rouge); border-bottom: 2px solid var(--rouge); margin: 60px 0; }
+    .module-viewer .choc span { color: var(--rouge); }
+
+    /* ── LESSON ── */
+    .module-viewer .lesson-wrap { position: relative; }
+    .module-viewer .lesson-num-bg { position: absolute; top: -20px; right: 0; font-family: 'Bebas Neue', sans-serif; font-size: clamp(100px,16vw,200px); color: rgba(192,57,43,0.04); line-height: 1; pointer-events: none; user-select: none; }
+    .module-viewer .lesson-tag { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .module-viewer .lesson-tag-num { font-family: 'Bebas Neue', sans-serif; font-size: 12px; letter-spacing: 4px; color: var(--blanc); background: var(--rouge); padding: 5px 12px; }
+    .module-viewer .lesson-tag-line { flex: 0 0 48px; height: 1px; background: var(--rouge); }
+    .module-viewer .lesson-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(42px,6.5vw,80px); line-height: 0.92; margin-bottom: 12px; letter-spacing: 1px; }
+    .module-viewer .lesson-hook { font-size: 15px; color: var(--gris-m); font-weight: 300; margin-bottom: 56px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+
+    /* ── RÈGLE D'OR ── */
+    .module-viewer .regle { background: var(--rouge); padding: 44px 56px; margin: 56px 0; position: relative; overflow: hidden; }
+    .module-viewer .regle::after { content: '⚡'; position: absolute; right: 24px; bottom: -20px; font-size: 140px; opacity: .07; line-height: 1; }
+    .module-viewer .regle-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 14px; }
+    .module-viewer .regle-text { font-family: 'Bebas Neue', sans-serif; font-size: clamp(20px,3.2vw,34px); line-height: 1.15; color: var(--blanc); letter-spacing: 1px; }
+
+    /* ── SCIENCE ── */
+    .module-viewer .science { border-left: 3px solid var(--vert); padding: 28px 36px; background: rgba(26,122,52,0.06); margin: 44px 0; }
+    .module-viewer .science-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--vert); margin-bottom: 10px; }
+    .module-viewer .science-text { font-size: 15px; color: rgba(255,255,255,.52); line-height: 1.75; font-style: italic; font-weight: 300; margin: 0; }
+    .module-viewer .science-text strong { color: rgba(255,255,255,.75); font-weight: 500; }
+
+    /* ── SCRIPT EXACT ── */
+    .module-viewer .script-exact { margin: 52px 0; border: 1px solid rgba(230,126,34,0.3); background: rgba(230,126,34,0.05); }
+    .module-viewer .script-exact-header {
+      padding: 18px 32px;
+      background: rgba(230,126,34,0.12);
+      display: flex; align-items: center; gap: 14px;
+      border-bottom: 1px solid rgba(230,126,34,0.2);
+    }
+    .module-viewer .script-exact-icon { font-size: 16px; }
+    .module-viewer .script-exact-title { font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 2px; color: var(--orange); }
+    .module-viewer .script-exact-body { padding: 36px 40px; }
+    .module-viewer .script-exact-line {
+      font-family: 'DM Serif Display', serif; font-style: italic;
+      font-size: clamp(17px,2.2vw,22px);
+      color: rgba(255,255,255,0.88); line-height: 1.65;
+      margin-bottom: 16px;
+    }
+    .module-viewer .script-exact-line:last-child { margin-bottom: 0; }
+    .module-viewer .script-exact-sep { height: 1px; background: rgba(230,126,34,0.15); margin: 24px 0; }
+    .module-viewer .script-exact-note { font-size: 14px; color: rgba(255,255,255,0.45); font-weight: 300; line-height: 1.6; }
+    .module-viewer .script-exact-note strong { color: rgba(255,255,255,0.7); font-weight: 500; }
+
+    /* ── PROTOCOLE ── */
+    .module-viewer .protocole { margin: 52px 0; }
+    .module-viewer .protocole-header { background: var(--rouge); padding: 20px 36px; display: flex; align-items: center; gap: 14px; }
+    .module-viewer .protocole-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--blanc); }
+    .module-viewer .protocole-steps { background: var(--noir-3); }
+    .module-viewer .protocole-step { display: grid; grid-template-columns: 52px 1fr; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .module-viewer .protocole-step:last-child { border-bottom: none; }
+    .module-viewer .protocole-step-num { display: flex; align-items: center; justify-content: center; background: rgba(192,57,43,0.12); font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--rouge); border-right: 1px solid rgba(255,255,255,0.05); }
+    .module-viewer .protocole-step-text { padding: 20px 28px; font-size: 16px; color: rgba(255,255,255,0.72); font-weight: 300; line-height: 1.6; }
+    .module-viewer .protocole-step-text strong { color: var(--blanc); font-weight: 600; }
+    .module-viewer .protocole-step-text em { color: rgba(255,255,255,0.5); }
+
+    /* ── BIFURCATION (2 colonnes erreur) ── */
+    .module-viewer .bifurcation { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin: 52px 0; }
+    .module-viewer .bifurc-col { background: var(--noir-3); }
+    .module-viewer .bifurc-header { padding: 22px 28px; border-top: 3px solid; }
+    .module-viewer .bifurc-col.mauvais .bifurc-header { border-color: var(--rouge); }
+    .module-viewer .bifurc-col.bon     .bifurc-header { border-color: var(--vert); }
+    .module-viewer .bifurc-header-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+    .module-viewer .bifurc-col.mauvais .bifurc-header-label { color: var(--rouge); }
+    .module-viewer .bifurc-col.bon     .bifurc-header-label { color: var(--vert); }
+    .module-viewer .bifurc-header-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--blanc); }
+    .module-viewer .bifurc-body { padding: 28px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .module-viewer .bifurc-text { font-size: 15px; color: rgba(255,255,255,0.6); font-weight: 300; line-height: 1.65; margin-bottom: 20px; }
+    .module-viewer .bifurc-text em { font-style: italic; color: rgba(255,255,255,0.75); }
+    .module-viewer .bifurc-result { font-size: 13px; font-weight: 600; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .module-viewer .bifurc-col.mauvais .bifurc-result { color: var(--rouge); }
+    .module-viewer .bifurc-col.bon     .bifurc-result { color: var(--vert); }
+
+    /* ── 2 TYPES D'ARRÊT ── */
+    .module-viewer .types-arret { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin: 52px 0; }
+    .module-viewer .type-arret { background: var(--noir-3); padding: 36px 32px; }
+    .module-viewer .type-arret-num { font-family: 'Bebas Neue', sans-serif; font-size: 52px; color: rgba(192,57,43,0.2); line-height: 1; margin-bottom: 16px; }
+    .module-viewer .type-arret-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--blanc); margin-bottom: 12px; }
+    .module-viewer .type-arret-dit { font-size: 14px; color: var(--gris-m); margin-bottom: 8px; }
+    .module-viewer .type-arret-veut { font-size: 15px; color: rgba(255,255,255,0.75); font-style: italic; font-weight: 300; line-height: 1.5; }
+    .module-viewer .type-arret-veut strong { color: var(--blanc); font-weight: 600; }
+    .module-viewer .type-arret-sep { height: 1px; background: rgba(255,255,255,0.07); margin: 20px 0; }
+
+    /* ── 3 PHASES BLESSURE ── */
+    .module-viewer .phases { margin: 52px 0; }
+    .module-viewer .phase { margin-bottom: 3px; }
+    .module-viewer .phase-header {
+      display: grid; grid-template-columns: 64px 1fr;
+      background: var(--noir-3); cursor: pointer;
+    }
+    .module-viewer .phase-num {
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(192,57,43,0.1);
+      font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--rouge);
+      border-right: 1px solid rgba(255,255,255,0.05);
+    }
+    .module-viewer .phase-meta { padding: 20px 24px; }
+    .module-viewer .phase-period { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--rouge); margin-bottom: 6px; }
+    .module-viewer .phase-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; color: var(--blanc); }
+    .module-viewer .phase-body { padding: 28px 32px 28px 88px; background: var(--noir-2); border-top: 1px solid rgba(255,255,255,0.05); }
+    .module-viewer .phase-desc { font-size: 15px; color: rgba(255,255,255,0.6); font-weight: 300; line-height: 1.7; margin-bottom: 16px; }
+    .module-viewer .phase-action { font-size: 15px; color: rgba(255,255,255,0.82); line-height: 1.65; }
+    .module-viewer .phase-action strong { color: var(--blanc); font-weight: 600; }
+
+    /* ── 5 RÈGLES AGENT ── */
+    .module-viewer .regles-agent { margin: 52px 0; }
+    .module-viewer .regles-agent-header {
+      background: var(--noir-3); padding: 20px 32px;
+      border-top: 3px solid var(--rouge);
+      font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--blanc);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .module-viewer .regle-agent {
+      display: grid; grid-template-columns: 60px 1fr;
+      background: var(--noir-2); border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .module-viewer .regle-agent:last-child { border-bottom: none; }
+    .module-viewer .regle-agent-num {
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(192,57,43,0.08);
+      font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--rouge);
+      border-right: 1px solid rgba(255,255,255,0.05);
+    }
+    .module-viewer .regle-agent-content { padding: 22px 28px; }
+    .module-viewer .regle-agent-title { font-size: 15px; font-weight: 600; color: var(--blanc); margin-bottom: 5px; }
+    .module-viewer .regle-agent-desc { font-size: 14px; color: rgba(255,255,255,0.5); font-weight: 300; line-height: 1.55; }
+    .module-viewer .regle-agent-desc strong { color: rgba(255,255,255,0.75); font-weight: 500; }
+
+    /* ── ALERTE ── */
+    .module-viewer .alerte {
+      border: 1px solid rgba(192,57,43,0.4);
+      background: rgba(192,57,43,0.06);
+      padding: 36px 40px; margin: 52px 0;
+      position: relative;
+    }
+    .module-viewer .alerte::before {
+      content: '⚠';
+      position: absolute; top: 24px; right: 28px;
+      font-size: 28px; opacity: 0.3;
+    }
+    .module-viewer .alerte-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--rouge); margin-bottom: 14px; }
+    .module-viewer .alerte-text { font-family: 'DM Serif Display', serif; font-size: clamp(17px,2.2vw,22px); font-style: italic; color: rgba(255,255,255,0.82); line-height: 1.6; }
+    .module-viewer .alerte-text strong { color: var(--blanc); font-style: normal; }
+
+    /* ── CTA ── */
+    .module-viewer .cta-section { padding: 150px 0; text-align: center; position: relative; overflow: hidden; }
+    .module-viewer .cta-section::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, rgba(192,57,43,0.1) 0%, transparent 65%); pointer-events: none; }
+    .module-viewer .cta-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--rouge); margin-bottom: 44px; }
+    .module-viewer .cta-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(46px,7.5vw,96px); line-height: 0.9; letter-spacing: 2px; margin-bottom: 44px; }
+    .module-viewer .cta-title span { color: var(--rouge); display: block; }
+    .module-viewer .cta-body { font-size: 18px; color: rgba(255,255,255,.6); max-width: 580px; margin: 0 auto 56px; line-height: 1.8; font-weight: 300; }
+    .module-viewer .cta-body strong { color: var(--blanc); font-weight: 500; }
+    .module-viewer .cta-question { font-family: 'DM Serif Display', serif; font-size: clamp(19px,2.6vw,29px); font-style: italic; color: var(--blanc); max-width: 660px; margin: 0 auto 56px; line-height: 1.55; }
+    .module-viewer .cta-question span { color: var(--rouge); }
+    .module-viewer .btn-primary { display: inline-block; background: var(--rouge); color: var(--blanc); text-decoration: none; padding: 22px 56px; font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; transition: all .25s; }
+    .module-viewer .btn-primary:hover { background: var(--rouge-vif); transform: translateY(-2px); }
+    .module-viewer .btn-primary::after { content: ' →'; }
+    .module-viewer .cta-note { display: block; margin-top: 18px; font-size: 13px; color: var(--gris-m); }
+
+    /* ── NEXT ── */
+    .module-viewer .next-module { border-top: 1px solid rgba(255,255,255,0.05); padding: 64px 0; text-align: center; }
+    .module-viewer .next-label { font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gris-m); margin-bottom: 20px; }
+    .module-viewer .next-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(34px,5vw,62px); color: var(--blanc); margin-bottom: 12px; letter-spacing: 1px; }
+    .module-viewer .next-sub { font-size: 16px; color: var(--gris-m); margin-bottom: 32px; font-weight: 300; }
+    .module-viewer .next-sub em { color: var(--rouge); font-style: normal; font-weight: 600; }
+    .module-viewer .btn-ghost { display: inline-block; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,.6); text-decoration: none; padding: 16px 40px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 3px; transition: all .25s; }
+    .module-viewer .btn-ghost:hover { border-color: var(--rouge); color: var(--blanc); }
+
+    /* ── FOOTER ── */
+
+    /* removed: .footer-logo */ { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; color: var(--rouge); }
+    /* removed: .footer-tagline */ { font-size: 13px; color: var(--gris-m); }
+
+    /* ── REVEAL ── */
+    .module-viewer .reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s ease; }
+    .module-viewer .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {/* removed: .nav-cta */ { display: none; }.module-viewer .hero { padding: 0 24px 64px; }.module-viewer .hero-bg-num, .module-viewer .hero-cross { display: none; }.module-viewer .hero-situations { grid-template-columns: 1fr 1fr; }.module-viewer section { padding: 72px 0; }.module-viewer .container { padding: 0 24px; }.module-viewer .bifurcation, .module-viewer .types-arret { grid-template-columns: 1fr; }.module-viewer .phase-body { padding: 24px 24px; }.module-viewer .regle { padding: 36px 28px; }.module-viewer .script-exact-body { padding: 28px 24px; }.module-viewer .next-module { padding: 48px 24px; }
+    }

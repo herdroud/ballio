@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ScoutLive — Profil Joueur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0B0D10;
+  --s1:      #131619;
+  --s2:      #1A1D22;
+  --s3:      #22262D;
+  --bd:      #2A2F38;
+  --acc:     #00E87A;
+  --acc-d:   #00B85F;
+  --def:     #4A9EFF;
+  --red:     #FF3B3B;
+  --warn:    #FFCC00;
+  --txt:     #E8EAF0;
+  --muted:   #5A6070;
+  --dim:     #3A3F4A;
+  --r:       14px;
+  --rmd:     12px;
+  --rsm:     9px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Barlow Condensed',sans-serif;
+  background:var(--bg);color:var(--txt);
+  min-height:100vh;
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior-y:contain;
+}
+
+/* ── HEADER ── */
+.page-hdr{
+  position:sticky;top:0;z-index:20;
+  background:rgba(11,13,16,.92);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--bd);
+  padding:12px 16px;
+  display:flex;align-items:center;gap:12px;
+}
+.logo{display:flex;align-items:center;gap:8px;}
+.logo-mark{
+  width:30px;height:30px;border-radius:8px;
+  background:var(--acc);display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.logo-name{font-size:17px;font-weight:900;letter-spacing:-0.5px;}
+.logo-name em{color:var(--acc);font-style:normal;}
+.hdr-pill{
+  margin-left:auto;
+  background:var(--s2);border:1px solid var(--bd);border-radius:20px;
+  font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);padding:4px 10px;
+}
+
+/* ── PLAYER HERO ── */
+.player-hero{
+  background:linear-gradient(160deg,#0D2018 0%,#0B0D10 55%);
+  padding:20px 16px 0;
+  border-bottom:1px solid var(--bd);
+  position:relative;overflow:hidden;
+}
+.player-hero::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle,#00E87A0A 0%,transparent 70%);
+  pointer-events:none;
+}
+.ph-meta{
+  font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--acc);margin-bottom:4px;
+}
+.ph-name{font-size:28px;font-weight:900;line-height:1;margin-bottom:2px;}
+.ph-sub{font-size:14px;color:var(--muted);font-weight:500;margin-bottom:16px;}
+
+.ph-tags{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px;}
+.tag{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--s2);border:1px solid var(--bd);
+  border-radius:20px;padding:4px 10px;
+  font-size:12px;font-weight:700;color:var(--muted);
+}
+.tag.green{border-color:#00E87A44;color:var(--acc);}
+
+/* Reliability bar */
+.reliability{
+  background:var(--s2);border-top:1px solid var(--bd);
+  margin:0 -16px;padding:12px 16px;
+  display:flex;align-items:center;gap:12px;
+}
+.rel-icon{font-size:16px;flex-shrink:0;}
+.rel-info{flex:1;}
+.rel-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.rel-bar-wrap{margin-top:5px;height:4px;background:var(--s3);border-radius:2px;overflow:hidden;}
+.rel-bar{height:100%;border-radius:2px;background:linear-gradient(90deg,#00B85F,#00E87A);width:0%;transition:width 1.2s cubic-bezier(.4,0,.2,1);}
+.rel-val{font-family:'DM Mono',monospace;font-size:13px;color:var(--acc);flex-shrink:0;}
+
+/* ── CARD SECTION ── */
+.card-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  padding:28px 16px 8px;
+}
+
+.fc-card{
+  width:min(288px,86vw);
+  border-radius:20px;padding:24px 20px 20px;
+  position:relative;overflow:hidden;
+  box-shadow:0 24px 64px rgba(0,0,0,.8),0 4px 24px rgba(0,0,0,.5);
+  opacity:0;transform:translateY(24px) scale(.97);
+  transition:opacity .5s ease,transform .5s cubic-bezier(.4,0,.2,1);
+}
+.fc-card.revealed{opacity:1;transform:translateY(0) scale(1);}
+
+.fc-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.08) 0%,transparent 55%,rgba(255,255,255,.02) 100%);
+  pointer-events:none;border-radius:inherit;
+}
+.fc-card::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 20% 80%,rgba(0,0,0,.3) 0%,transparent 60%);
+  pointer-events:none;border-radius:inherit;
+}
+
+/* Tiers */
+.tier-common  {background:linear-gradient(145deg,#2e3138,#1c1e24);border:1px solid #3a3f4a;}
+.tier-uncommon{background:linear-gradient(145deg,#3a3d48,#22262e);border:1px solid #4a5060;}
+.tier-rare    {background:linear-gradient(145deg,#6B5420,#3D2E0A);border:1px solid #B8862A;}
+.tier-epic    {background:linear-gradient(145deg,#3D1F66,#1F0F3A);border:1px solid #7B3FCC;}
+.tier-legend  {background:linear-gradient(145deg,#1A4A2E,#091A10);border:1px solid #00E87A;}
+
+.fc-badge{
+  position:absolute;top:14px;right:16px;
+  font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;opacity:.65;
+}
+.tier-common   .fc-badge{color:#8A9AB0;}
+.tier-uncommon .fc-badge{color:#B0C0D8;}
+.tier-rare     .fc-badge{color:#F0C040;}
+.tier-epic     .fc-badge{color:#CC88FF;}
+.tier-legend   .fc-badge{color:var(--acc);}
+
+.fc-top{display:flex;align-items:flex-end;gap:12px;margin-bottom:18px;position:relative;z-index:1;}
+.fc-ovr{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:88px;line-height:.82;letter-spacing:-2px;
+}
+.tier-common   .fc-ovr{color:#C8D0DC;}
+.tier-uncommon .fc-ovr{color:#DCE8F8;}
+.tier-rare     .fc-ovr{color:#F8D060;}
+.tier-epic     .fc-ovr{color:#E0AAFF;}
+.tier-legend   .fc-ovr{color:var(--acc);}
+
+.fc-id{padding-bottom:10px;}
+.fc-pos{font-size:22px;font-weight:900;letter-spacing:1px;line-height:1;text-transform:uppercase;}
+.tier-common   .fc-pos{color:#8A9AB0;}
+.tier-uncommon .fc-pos{color:#B0C0D8;}
+.tier-rare     .fc-pos{color:#D4A030;}
+.tier-epic     .fc-pos{color:#CC88FF;}
+.tier-legend   .fc-pos{color:var(--acc);}
+
+.fc-matchcount{
+  font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  padding:3px 8px;border-radius:4px;margin-top:5px;display:inline-block;
+}
+.tier-common   .fc-matchcount{background:#2A2F38;color:#5A6070;}
+.tier-uncommon .fc-matchcount{background:#2E3448;color:#8090B0;}
+.tier-rare     .fc-matchcount{background:#5C3A00;color:#F0C040;}
+.tier-epic     .fc-matchcount{background:#3A1A60;color:#CC88FF;}
+.tier-legend   .fc-matchcount{background:#0D2A18;color:var(--acc);}
+
+.fc-divider{height:1px;margin:0 -20px 16px;opacity:.15;position:relative;z-index:1;}
+.tier-common   .fc-divider{background:#8A9AB0;}
+.tier-rare     .fc-divider{background:#F0C040;}
+.tier-epic     .fc-divider{background:#CC88FF;}
+.tier-legend   .fc-divider{background:var(--acc);}
+
+/* 6 sub-stats */
+.fc-stats{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:10px 18px;margin-bottom:18px;position:relative;z-index:1;
+}
+.fc-stat{display:flex;align-items:center;gap:10px;}
+.fc-stat-val{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:28px;letter-spacing:-.5px;line-height:1;min-width:40px;
+}
+.tier-common   .fc-stat-val{color:#C8D0DC;}
+.tier-uncommon .fc-stat-val{color:#DCE8F8;}
+.tier-rare     .fc-stat-val{color:#F8D060;}
+.tier-epic     .fc-stat-val{color:#E0AAFF;}
+.tier-legend   .fc-stat-val{color:var(--acc);}
+
+.fc-stat-meta{flex:1;}
+.fc-stat-name{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;opacity:.5;margin-bottom:4px;}
+.fc-stat-bar{height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;}
+.fc-stat-fill{height:100%;border-radius:2px;width:0%;transition:width 1.2s cubic-bezier(.4,0,.2,1) .4s;}
+.tier-common   .fc-stat-fill{background:#8A9AB0;}
+.tier-uncommon .fc-stat-fill{background:#B0C0D8;}
+.tier-rare     .fc-stat-fill{background:#F0C040;}
+.tier-epic     .fc-stat-fill{background:#CC88FF;}
+.tier-legend   .fc-stat-fill{background:var(--acc);}
+
+/* Trend arrow on stat */
+.fc-stat-trend{
+  font-size:11px;margin-left:2px;
+  opacity:.8;
+}
+.trend-up{color:var(--acc);}
+.trend-dn{color:var(--red);}
+.trend-eq{color:var(--muted);}
+
+.fc-footer{
+  border-top:1px solid rgba(255,255,255,.07);
+  padding-top:13px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:relative;z-index:1;
+}
+.fc-team{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:.75;}
+.fc-mins{font-family:'DM Mono',monospace;font-size:11px;opacity:.35;}
+
+/* ── TREND SECTION ── */
+.section{padding:20px 16px 4px;}
+.section-title{
+  font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;
+}
+.section-title::after{content:'';flex:1;height:1px;background:var(--bd);}
+.section-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* Trend grid */
+.trend-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+@media(max-width:360px){
+  .trend-grid{grid-template-columns:1fr;}
+}
+.trend-card{
+  background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);
+  padding:14px 12px;
+}
+.tc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.tc-name{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.tc-arrow{
+  font-size:18px;line-height:1;
+}
+.tc-now{
+  font-family:'Bebas Neue',sans-serif;font-size:38px;line-height:1;
+}
+.tc-now.up{color:var(--acc);}
+.tc-now.dn{color:var(--red);}
+.tc-now.eq{color:var(--txt);}
+.tc-delta{
+  font-size:12px;font-weight:700;margin-top:2px;
+}
+.tc-delta.up{color:var(--acc);}
+.tc-delta.dn{color:var(--red);}
+.tc-delta.eq{color:var(--muted);}
+
+/* Mini sparkline */
+.sparkline{
+  width:100%;height:28px;margin-top:8px;
+}
+
+/* ── MATCH HISTORY ── */
+.history-list{padding:4px 16px 40px;}
+.match-item{
+  background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);
+  padding:14px;margin-bottom:8px;min-height:64px;
+  display:flex;align-items:center;gap:12px;
+  opacity:0;transform:translateY(8px);
+  transition:opacity .3s ease,transform .3s ease;
+}
+.match-item.visible{opacity:1;transform:translateY(0);}
+.mi-num{
+  font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);
+  width:20px;text-align:center;flex-shrink:0;
+}
+.mi-info{flex:1;min-width:0;}
+.mi-opp{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mi-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+.mi-right{text-align:right;flex-shrink:0;}
+.mi-note{
+  font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1;
+}
+.mi-dur{font-size:10px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace;}
+
+/* note color */
+.note-legend{color:var(--acc);}
+.note-epic{color:#CC88FF;}
+.note-rare{color:#F0C040;}
+.note-uncommon{color:#B0C0D8;}
+.note-common{color:var(--muted);}
+
+/* Trend dot — more visible */
+.mi-trend{
+  width:10px;height:10px;border-radius:50%;flex-shrink:0;
+}
+.mi-trend.up{background:var(--acc);box-shadow:0 0 6px #00E87A88;}
+.mi-trend.dn{background:var(--red);box-shadow:0 0 6px #FF3B3B66;}
+.mi-trend.eq{background:var(--muted);}
+
+/* ── CUMULATIVE STATS ── */
+.cumul-wrap{padding:0 16px;}
+.cumul-solo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;}
+.cumul-solo{
+  background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);
+  padding:12px 8px;text-align:center;
+}
+.cumul-solo-v{font-family:'DM Mono',monospace;font-size:26px;color:var(--txt);line-height:1;}
+.cumul-solo-l{font-size:10px;font-weight:700;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.3px;line-height:1.3;}
+.cumul-solo.hi-green .cumul-solo-v{color:var(--acc);}
+.cumul-solo.hi-blue  .cumul-solo-v{color:var(--def);}
+.cumul-solo.hi-warn  .cumul-solo-v{color:var(--warn);}
+.cumul-solo.hi-red   .cumul-solo-v{color:var(--red);}
+
+.cumul-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px;}
+.cp-card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rsm);padding:11px 12px 10px;}
+.cp-card.success{border-color:#00E87A44;}
+.cp-card.fail{border-color:#FF3B3B33;}
+.cp-top{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.cp-icon{font-size:13px;}
+.cp-name{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.cp-count{font-family:'DM Mono',monospace;font-size:28px;line-height:1;}
+.cp-card.success .cp-count{color:var(--acc);}
+.cp-card.fail    .cp-count{color:var(--red);}
+
+.cumul-pct{
+  background:var(--s1);border:1px solid var(--bd);border-radius:var(--rsm);
+  padding:11px 13px;margin-bottom:8px;
+}
+.cumul-pct-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.cumul-pct-lbl{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.cumul-pct-val{font-family:'DM Mono',monospace;font-size:17px;color:var(--txt);}
+.cumul-pct-track{height:5px;background:var(--s3);border-radius:3px;overflow:hidden;}
+.cumul-pct-fill{height:100%;border-radius:3px;width:0%;transition:width 1s cubic-bezier(.4,0,.2,1) .2s;}
+.cumul-pct-fill.green{background:linear-gradient(90deg,#00B85F,#00E87A);}
+.cumul-pct-fill.amber{background:linear-gradient(90deg,#CC8800,#FFCC00);}
+.cumul-pct-fill.red  {background:linear-gradient(90deg,#CC2222,#FF3B3B);}
+
+.cumul-subsec{
+  font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+  color:var(--muted);margin:16px 0 8px;
+  display:flex;align-items:center;gap:8px;
+}
+.cumul-subsec::after{content:'';flex:1;height:1px;background:var(--bd);}
+.cumul-subsec-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="page-hdr">
+  <div class="logo">
+    <div class="logo-mark">⚽</div>
+    <div class="logo-name">Scout<em>Live</em></div>
+  </div>
+  <div class="hdr-pill">Profil joueur</div>
+</div>
+
+<!-- Player hero -->
+<div class="player-hero">
+  <div class="ph-meta">AS Lyon · U13</div>
+  <div class="ph-name">Lucas Martin</div>
+  <div class="ph-sub">Attaquant · Saison 2025–2026</div>
+  <div class="ph-tags">
+    <span class="tag green">ATT</span>
+    <span class="tag">10 matchs</span>
+    <span class="tag">120 min jouées</span>
+    <span class="tag">Tournoi U13</span>
+  </div>
+  <div class="reliability">
+    <span class="rel-icon">📊</span>
+    <div class="rel-info">
+      <div class="rel-label">Fiabilité de la note</div>
+      <div class="rel-bar-wrap"><div class="rel-bar" id="rel-bar"></div></div>
+    </div>
+    <div class="rel-val" id="rel-val">—</div>
+  </div>
+</div>
+
+<!-- Card -->
+<div class="card-wrap">
+  <div class="fc-card" id="fc-card">
+    <div class="fc-badge" id="fc-badge">Commun</div>
+    <div class="fc-top">
+      <div class="fc-ovr" id="fc-ovr">—</div>
+      <div class="fc-id">
+        <div class="fc-pos">ATT</div>
+        <div class="fc-matchcount" id="fc-matchcount">10 matchs</div>
+      </div>
+    </div>
+    <div class="fc-divider"></div>
+    <div class="fc-stats" id="fc-stats"></div>
+    <div class="fc-footer">
+      <div class="fc-team">AS Lyon U13</div>
+      <div class="fc-mins" id="fc-mins">120'</div>
+    </div>
+  </div>
+</div>
+
+<!-- Trends -->
+<div class="section">
+  <div class="section-title">
+    <span class="section-dot" style="background:var(--acc)"></span>Évolution (3 derniers vs 3 premiers)
+  </div>
+  <div class="trend-grid" id="trend-grid"></div>
+</div>
+
+<!-- Cumulative stats -->
+<div class="section">
+  <div class="section-title">
+    <span class="section-dot" style="background:var(--warn)"></span>Stats cumulées — 10 matchs
+  </div>
+  <div id="cumul-stats"></div>
+</div>
+
+<!-- Match history -->
+<div class="section">
+  <div class="section-title">
+    <span class="section-dot" style="background:var(--def)"></span>Historique des matchs
+  </div>
+</div>
+<div class="history-list" id="history-list"></div>
+
+<script>
+// ══════════════════════════════════════
+// 10 MATCHS FICTIFS — 12 MIN — ATT
+// Progression réaliste : lent démarrage → montée en puissance
+// ══════════════════════════════════════
+const MATCHES = [
+  { id:1, date:'2025-09-07', opp:'FC Mâcon',         type:'Tournoi', dureeJeu:12, total:12,
+    off:{buts:0,pdec:0,pok:14,pko:8,tca:1,tho:2,dok:2,dko:2,cok:1,cko:1},
+    def:{tok:0,tko:1,int:1,contre:0,dok:2,dko:3}, dis:{cj:0,cr:0,fco:1,fsu:0} },
+
+  { id:2, date:'2025-09-14', opp:'ESA Bron',          type:'Tournoi', dureeJeu:12, total:12,
+    off:{buts:1,pdec:0,pok:16,pko:7,tca:2,tho:2,dok:3,dko:2,cok:0,cko:1},
+    def:{tok:0,tko:0,int:0,contre:0,dok:2,dko:3}, dis:{cj:0,cr:0,fco:0,fsu:1} },
+
+  { id:3, date:'2025-09-21', opp:'JS Villeurbanne',   type:'Tournoi', dureeJeu:12, total:12,
+    off:{buts:0,pdec:1,pok:12,pko:9,tca:1,tho:3,dok:2,dko:3,cok:1,cko:2},
+    def:{tok:1,tko:0,int:1,contre:0,dok:1,dko:2}, dis:{cj:1,cr:0,fco:2,fsu:0} },
+
+  { id:4, date:'2025-10-05', opp:'AS Vénissieux',     type:'Tournoi', dureeJeu:12, total:12,
+    off:{buts:1,pdec:0,pok:18,pko:6,tca:2,tho:1,dok:4,dko:2,cok:2,cko:1},
+    def:{tok:0,tko:1,int:1,contre:0,dok:3,dko:2}, dis:{cj:0,cr:0,fco:1,fsu:1} },
+
+  { id:5, date:'2025-10-12', opp:'FC Oullins',        type:'Tournoi', dureeJeu:12, total:12,
+    off:{buts:2,pdec:0,pok:20,pko:5,tca:3,tho:1,dok:4,dko:1,cok:1,cko:0},
+    def:{tok:1,tko:0,int:2,contre:0,dok:4,dko:2}, dis:{cj:0,cr:0,fco:0,fsu:2} },
+
+  { id:6, date:'2025-10-19', opp:'RCF Lyon',          type:'Tournoi', dureeJeu:12, total:12,
+    off:{buts:1,pdec:1,pok:22,pko:4,tca:2,tho:2,dok:5,dko:1,cok:2,cko:1},
+    def:{tok:0,tko:0,int:1,contre:1,dok:3,dko:2}, dis:{cj:0,cr:0,fco:1,fsu:0} },
+
+  { id:7, date:'2025-11-02', opp:'Tassin FC',         type:'Tournoi', dureeJeu:12, total:12,
+    off:{buts:1,pdec:1,pok:24,pko:4,tca:3,tho:1,dok:5,dko:1,cok:3,cko:0},
+    def:{tok:1,tko:0,int:2,contre:0,dok:4,dko:1}, dis:{cj:0,cr:0,fco:0,fsu:1} },
+
+  { id:8, date:'2025-11-09', opp:'AS Villefranche',   type:'Tournoi', dureeJeu:12, total:12,
+    off:{buts:2,pdec:0,pok:25,pko:3,tca:3,tho:1,dok:6,dko:1,cok:2,cko:0},
+    def:{tok:0,tko:0,int:1,contre:0,dok:5,dko:1}, dis:{cj:0,cr:0,fco:0,fsu:2} },
+
+  { id:9, date:'2025-11-23', opp:'FC Caluire',        type:'Tournoi', dureeJeu:12, total:12,
+    off:{buts:2,pdec:1,pok:26,pko:3,tca:4,tho:1,dok:6,dko:0,cok:3,cko:0},
+    def:{tok:1,tko:0,int:2,contre:0,dok:5,dko:1}, dis:{cj:0,cr:0,fco:0,fsu:1} },
+
+  { id:10,date:'2025-11-30', opp:'Saint-Priest FC',   type:'Tournoi', dureeJeu:12, total:12,
+    off:{buts:3,pdec:1,pok:28,pko:2,tca:4,tho:0,dok:7,dko:0,cok:3,cko:0},
+    def:{tok:1,tko:0,int:2,contre:1,dok:6,dko:0}, dis:{cj:0,cr:0,fco:0,fsu:1} },
+];
+
+const POS = 'ATT';
+const PLAYER = { team:'AS Lyon U13', pos:POS };
+
+// ══════════════════════════════════════
+// CALCUL PAR MATCH
+// ══════════════════════════════════════
+function pct(ok,ko){ const t=ok+ko; return t===0?null:Math.round(ok/t*100); }
+function flat(val,bench){ return Math.min(100,Math.round(val/bench*100)); }
+function p(v){ return v!==null?v:50; }
+
+function calcMatchNote(m){
+  const {off,def,dis,dureeJeu,total} = m;
+  const mins = dureeJeu;
+
+  const nBut    = flat(off.buts,3);
+  const nPdec   = flat(off.pdec,2);
+  const nInt    = flat(def.int,8);
+  const nContre = flat(def.contre,5);
+
+  const pPasses   = pct(off.pok,off.pko);
+  const pTirs     = pct(off.tca,off.tho);
+  const pDribbles = pct(off.dok,off.dko);
+  const pTacles   = pct(def.tok,def.tko);
+  const pDuels    = pct(def.dok,def.dko);
+
+  const sPasses=p(pPasses),sTirs=p(pTirs),sDribbles=p(pDribbles),sTacles=p(pTacles),sDuels=p(pDuels);
+
+  const TIR = Math.round(nBut*.5+sTirs*.5);
+  const PAS = Math.round(sPasses*.6+nPdec*.4);
+  const DRI = Math.round(sDribbles);
+  const DEF = Math.round(sDuels*.35+sTacles*.35+nInt*.2+nContre*.1);
+  const PHY = Math.round(sDuels*.5+sTacles*.5);
+  const DISC= Math.max(0,100-dis.cj*20-dis.cr*50-Math.min(dis.fco,5)*4);
+
+  const w = {TIR:.35,PAS:.25,DRI:.25,DEF:.05,PHY:.10};
+  let ovr = Math.round(TIR*w.TIR+PAS*w.PAS+DRI*w.DRI+DEF*w.DEF+PHY*w.PHY);
+
+  // Bonus relatifs au poste ATT
+  if(off.buts>0){ ovr+=off.buts*3; }
+  if(off.pdec>0){ ovr+=off.pdec*3; }
+  if(sDuels>60){ ovr+=3; }
+  if(dis.cj>0){ ovr-=dis.cj*2; }
+  if(dis.cr>0){ ovr-=dis.cr*5; }
+
+  // Malus fiabilité relatif
+  const ratio = dureeJeu/total;
+  if(ratio<0.40) ovr=Math.round(ovr*0.80);
+  else if(ratio<0.70) ovr=Math.round(ovr*0.90);
+
+  ovr = Math.max(1,Math.min(99,ovr));
+  return { ovr,TIR,PAS,DRI,DEF,PHY,DISC };
+}
+
+// ══════════════════════════════════════
+// AGRÉGATION MULTI-MATCHS
+// ══════════════════════════════════════
+function aggregate(matches){
+  const N = matches.length;
+  const sum = (fn) => matches.reduce((a,m)=>a+fn(m),0);
+  const avg = (fn) => Math.round(sum(fn)/N);
+  const avgPct = (okFn,koFn) => {
+    const totalOk=sum(okFn), totalKo=sum(koFn);
+    return pct(totalOk,totalKo);
+  };
+
+  const totalButs  = sum(m=>m.off.buts);
+  const totalPdec  = sum(m=>m.off.pdec);
+  const totalInt   = sum(m=>m.def.int);
+  const totalContre= sum(m=>m.def.contre);
+
+  const nBut    = flat(totalButs/N,3);
+  const nPdec   = flat(totalPdec/N,2);
+  const nInt    = flat(totalInt/N,8);
+  const nContre = flat(totalContre/N,5);
+
+  const pPasses   = avgPct(m=>m.off.pok,m=>m.off.pko);
+  const pTirs     = avgPct(m=>m.off.tca,m=>m.off.tho);
+  const pDribbles = avgPct(m=>m.off.dok,m=>m.off.dko);
+  const pTacles   = avgPct(m=>m.def.tok,m=>m.def.tko);
+  const pDuels    = avgPct(m=>m.def.dok,m=>m.def.dko);
+
+  const sPasses=p(pPasses),sTirs=p(pTirs),sDribbles=p(pDribbles),sTacles=p(pTacles),sDuels=p(pDuels);
+
+  const TIR = Math.round(nBut*.5+sTirs*.5);
+  const PAS = Math.round(sPasses*.6+nPdec*.4);
+  const DRI = Math.round(sDribbles);
+  const DEF = Math.round(sDuels*.35+sTacles*.35+nInt*.2+nContre*.1);
+  const PHY = Math.round(sDuels*.5+sTacles*.5);
+  const DISC= Math.max(0,Math.round(100-(sum(m=>m.dis.cj)/N)*20-(sum(m=>m.dis.cr)/N)*50-Math.min(sum(m=>m.dis.fco)/N,5)*4));
+
+  const w = {TIR:.35,PAS:.25,DRI:.25,DEF:.05,PHY:.10};
+  let ovr = Math.round(TIR*w.TIR+PAS*w.PAS+DRI*w.DRI+DEF*w.DEF+PHY*w.PHY);
+
+  const avgButs=totalButs/N, avgPdecA=totalPdec/N;
+  if(avgButs>0) ovr+=Math.round(avgButs*3);
+  if(avgPdecA>0) ovr+=Math.round(avgPdecA*3);
+  if(sDuels>60) ovr+=3;
+
+  // Fiabilité : plus de matchs = note plus stable, pas de malus après 5 matchs
+  if(N<3) ovr=Math.round(ovr*.80);
+  else if(N<5) ovr=Math.round(ovr*.90);
+
+  ovr=Math.max(1,Math.min(99,ovr));
+  const totalMins=sum(m=>m.dureeJeu);
+
+  return {ovr,TIR,PAS,DRI,DEF,PHY,DISC,N,totalMins};
+}
+
+// Calcule l'agrégat sur un sous-ensemble
+function subAggregate(matches,statFn){
+  const notes=matches.map(m=>calcMatchNote(m));
+  return Math.round(notes.reduce((a,n)=>a+statFn(n),0)/notes.length);
+}
+
+// Fiabilité en % (10 matchs = 90%)
+function reliability(N){ return Math.min(95,Math.round(40+N*5.5)); }
+
+// Tier
+function tier(ovr){
+  return ovr>=93?'legend':ovr>=85?'epic':ovr>=75?'rare':ovr>=60?'uncommon':'common';
+}
+function tierLabel(t){
+  return {legend:'Légendaire',epic:'Épique',rare:'Rare',uncommon:'Peu commun',common:'Commun'}[t];
+}
+function noteClass(ovr){
+  return ovr>=93?'note-legend':ovr>=85?'note-epic':ovr>=75?'note-rare':ovr>=60?'note-uncommon':'note-common';
+}
+
+// ══════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════
+function render(){
+  const agg = aggregate(MATCHES);
+  const t = tier(agg.ovr);
+
+  // ── Card ──
+  const card = document.getElementById('fc-card');
+  card.className = `fc-card tier-${t}`;
+  document.getElementById('fc-badge').textContent = tierLabel(t);
+  document.getElementById('fc-ovr').textContent = agg.ovr;
+  document.getElementById('fc-matchcount').textContent = `${agg.N} matchs`;
+  document.getElementById('fc-mins').textContent = `${agg.totalMins}'`;
+
+  // Sub stats avec tendances
+  const first3 = MATCHES.slice(0,3), last3 = MATCHES.slice(-3);
+  const statFns = {
+    TIR: n=>n.TIR, PAS: n=>n.PAS, DRI: n=>n.DRI,
+    DEF: n=>n.DEF, PHY: n=>n.PHY, DISC: n=>n.DISC
+  };
+  const trends = {};
+  Object.entries(statFns).forEach(([k,fn])=>{
+    const early = subAggregate(first3,fn);
+    const late  = subAggregate(last3,fn);
+    const delta = late-early;
+    trends[k] = { delta, dir: delta>2?'up':delta<-2?'dn':'eq' };
+  });
+
+  const stats = [
+    {n:'TIR',v:agg.TIR},{n:'PAS',v:agg.PAS},{n:'DRI',v:agg.DRI},
+    {n:'DEF',v:agg.DEF},{n:'PHY',v:agg.PHY},{n:'DISC',v:agg.DISC}
+  ];
+  const arrowChar = { up:'↑', dn:'↓', eq:'→' };
+  document.getElementById('fc-stats').innerHTML = stats.map(s=>{
+    const tr = trends[s.n];
+    return `<div class="fc-stat">
+      <div class="fc-stat-val">${s.v}</div>
+      <div class="fc-stat-meta">
+        <div class="fc-stat-name">${s.n} <span class="fc-stat-trend trend-${tr.dir}">${arrowChar[tr.dir]}</span></div>
+        <div class="fc-stat-bar"><div class="fc-stat-fill" data-w="${s.v}" style="width:0%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Reveal card
+  setTimeout(()=>card.classList.add('revealed'),80);
+
+  // Reliability
+  const rel = reliability(agg.N);
+  document.getElementById('rel-val').textContent = rel+'%';
+  setTimeout(()=>document.getElementById('rel-bar').style.width=rel+'%',200);
+
+  // ── Trend cards ──
+  const trendData = stats.map(s=>{
+    const tr = trends[s.n];
+    const early = subAggregate(first3,statFns[s.n]);
+    const late  = subAggregate(last3,statFns[s.n]);
+    // Sparkline: values for each match
+    const vals = MATCHES.map(m=>calcMatchNote(m)[s.n]);
+    return {name:s.n, now:late, delta:tr.delta, dir:tr.dir, vals};
+  });
+
+  document.getElementById('trend-grid').innerHTML = trendData.map(td=>{
+    const sign = td.delta>0?'+':'';
+    const svg = sparklineSVG(td.vals, td.dir);
+    return `<div class="trend-card">
+      <div class="tc-header">
+        <span class="tc-name">${td.name}</span>
+        <span class="tc-arrow">${td.dir==='up'?'📈':td.dir==='dn'?'📉':'➡️'}</span>
+      </div>
+      <div class="tc-now ${td.dir}">${td.now}</div>
+      <div class="tc-delta ${td.dir}">${sign}${td.delta} pts vs début de saison</div>
+      ${svg}
+    </div>`;
+  }).join('');
+
+  // ── Match history ──
+  const matchNotes = MATCHES.map((m,i)=>({
+    ...m,
+    ...calcMatchNote(m),
+    prev: i>0 ? calcMatchNote(MATCHES[i-1]).ovr : null
+  }));
+
+  document.getElementById('history-list').innerHTML = matchNotes.slice().reverse().map(m=>{
+    const dir = m.prev===null?'eq': m.ovr>m.prev?'up':m.ovr<m.prev?'dn':'eq';
+    const dateStr = new Date(m.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+    return `<div class="match-item">
+      <div class="mi-num">${m.id}</div>
+      <div class="mi-info">
+        <div class="mi-opp">${m.opp}</div>
+        <div class="mi-meta">${dateStr} · ${m.type} · ${m.dureeJeu} min</div>
+      </div>
+      <div class="mi-trend ${dir}"></div>
+      <div class="mi-right">
+        <div class="mi-note ${noteClass(m.ovr)}">${m.ovr}</div>
+        <div class="mi-dur">${m.off.buts}⚽ ${m.off.pdec}🎯</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Animate bars
+  setTimeout(()=>{
+    document.querySelectorAll('.fc-stat-fill').forEach(el=>{
+      el.style.width=(el.dataset.w||0)+'%';
+    });
+  },400);
+
+  // Staggered match items
+  document.querySelectorAll('.match-item').forEach((el,i)=>{
+    setTimeout(()=>el.classList.add('visible'),100+i*60);
+  });
+}
+
+// ── Sparkline SVG ──
+function sparklineSVG(values, dir){
+  const W=200,H=28,pad=2;
+  const min=Math.min(...values), max=Math.max(...values);
+  const range=max-min||1;
+  const pts=values.map((v,i)=>{
+    const x=pad+(i/(values.length-1))*(W-pad*2);
+    const y=H-pad-((v-min)/range)*(H-pad*2);
+    return `${x},${y}`;
+  }).join(' ');
+  const color=dir==='up'?'#00E87A':dir==='dn'?'#FF3B3B':'#5A6070';
+  return `<svg class="sparkline" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity=".15"/>
+  </svg>`;
+}
+
+// ══════════════════════════════════════
+// CUMULATIVE STATS RENDER
+// ══════════════════════════════════════
+function soloCard(val,label,cls=''){
+  return `<div class="cumul-solo ${cls}">
+    <div class="cumul-solo-v">${val}</div>
+    <div class="cumul-solo-l">${label}</div>
+  </div>`;
+}
+function pairRow(ok,okL,ko,koL,pctVal,pctLabel){
+  const hasPct=pctVal!==null;
+  const col=!hasPct?'green':pctVal>=70?'green':pctVal>=45?'amber':'red';
+  const barW=hasPct?pctVal:0;
+  return `
+  <div class="cumul-pair">
+    <div class="cp-card fail"><div class="cp-top"><span class="cp-icon">✗</span><span class="cp-name">${koL}</span></div><div class="cp-count">${ko}</div></div>
+    <div class="cp-card success"><div class="cp-top"><span class="cp-icon">✓</span><span class="cp-name">${okL}</span></div><div class="cp-count">${ok}</div></div>
+  </div>
+  <div class="cumul-pct">
+    <div class="cumul-pct-hdr">
+      <span class="cumul-pct-lbl">${pctLabel}</span>
+      <span class="cumul-pct-val">${hasPct?pctVal+'%':'—'}</span>
+    </div>
+    <div class="cumul-pct-track"><div class="cumul-pct-fill ${col}" data-w="${barW}" style="width:0%"></div></div>
+  </div>`;
+}
+function subsec(label,color){
+  return `<div class="cumul-subsec"><span class="cumul-subsec-dot" style="background:${color}"></span>${label}</div>`;
+}
+
+function renderCumulStats(){
+  const S = m => m;
+  const sum = fn => MATCHES.reduce((a,m)=>a+fn(m),0);
+
+  // Totals
+  const totButs   = sum(m=>m.off.buts);
+  const totPdec   = sum(m=>m.off.pdec);
+  const totTirs   = sum(m=>m.off.tca+m.off.tho);
+  const totPok    = sum(m=>m.off.pok);
+  const totPko    = sum(m=>m.off.pko);
+  const totTca    = sum(m=>m.off.tca);
+  const totTho    = sum(m=>m.off.tho);
+  const totDok    = sum(m=>m.off.dok);
+  const totDko    = sum(m=>m.off.dko);
+  const totCok    = sum(m=>m.off.cok);
+  const totCko    = sum(m=>m.off.cko);
+  const totTacOk  = sum(m=>m.def.tok);
+  const totTacKo  = sum(m=>m.def.tko);
+  const totInt    = sum(m=>m.def.int);
+  const totContre = sum(m=>m.def.contre);
+  const totDuelOk = sum(m=>m.def.dok);
+  const totDuelKo = sum(m=>m.def.dko);
+  const totCj     = sum(m=>m.dis.cj);
+  const totCr     = sum(m=>m.dis.cr);
+  const totFco    = sum(m=>m.dis.fco);
+  const totFsu    = sum(m=>m.dis.fsu);
+
+  const pctP  = pct(totPok,  totPko);
+  const pctT  = pct(totTca,  totTho);
+  const pctD  = pct(totDok,  totDko);
+  const pctC  = pct(totCok,  totCko);
+  const pctTa = pct(totTacOk,totTacKo);
+  const pctDu = pct(totDuelOk,totDuelKo);
+
+  const N = MATCHES.length;
+
+  let html = '<div class="cumul-wrap">';
+
+  // ── OFFENSIF ──
+  html += subsec('Offensif','var(--acc)');
+  html += `<div class="cumul-solo-grid">
+    ${soloCard(totButs,'Buts','hi-green')}
+    ${soloCard(totPdec,'Passes déc.','hi-blue')}
+    ${soloCard(totTirs,'Tirs total','')}
+  </div>`;
+  html += pairRow(totPok,'Passes ✓',totPko,'Passes ✗',pctP,'Précision passe');
+  html += pairRow(totTca,'Tirs cadrés',totTho,'Tirs hors',pctT,'Précision tir');
+  html += pairRow(totDok,'Dribbles ✓',totDko,'Dribbles ✗',pctD,'Réussite dribble');
+  html += pairRow(totCok,'Centres ✓',totCko,'Centres ✗',pctC,'Réussite centre');
+
+  // Moyennes par match
+  html += `<div class="cumul-solo-grid" style="margin-top:8px;">
+    ${soloCard((totButs/N).toFixed(1),'Buts / match','hi-green')}
+    ${soloCard((totPdec/N).toFixed(1),'Passes déc. / m.','hi-blue')}
+    ${soloCard(Math.round(totTirs/N),'Tirs / match','')}
+  </div>`;
+
+  // ── DÉFENSIF ──
+  html += subsec('Défensif','var(--def)');
+  html += `<div class="cumul-solo-grid">
+    ${soloCard(totInt,'Interceptions','hi-blue')}
+    ${soloCard(totContre,'Contres','hi-blue')}
+    ${soloCard(totDuelOk+totDuelKo,'Duels total','')}
+  </div>`;
+  html += pairRow(totDuelOk,'Duels ✓',totDuelKo,'Duels ✗',pctDu,'Réussite duel');
+  html += pairRow(totTacOk,'Tacles ✓',totTacKo,'Tacles ✗',pctTa,'Réussite tacle');
+
+  // ── DISCIPLINE ──
+  html += subsec('Discipline','var(--warn)');
+  html += `<div class="cumul-solo-grid">
+    ${soloCard(totCj,'Cartons 🟨','hi-warn')}
+    ${soloCard(totCr,'Cartons 🟥',totCr>0?'hi-red':'')}
+    ${soloCard(totFco,'Fautes comm.','')}
+    ${soloCard(totFsu,'Fautes subies','')}
+    ${soloCard((totFco/N).toFixed(1),'Fautes / match','')}
+  </div>`;
+
+  html += '</div>';
+  document.getElementById('cumul-stats').innerHTML = html;
+
+  // Animate bars
+  setTimeout(()=>{
+    document.querySelectorAll('.cumul-pct-fill').forEach(el=>{
+      el.style.width=(el.dataset.w||0)+'%';
+    });
+  },300);
+}
+
+// ── Init ──
+window.addEventListener('DOMContentLoaded', ()=>{ render(); renderCumulStats(); });
+</script>
+</body>
+</html>

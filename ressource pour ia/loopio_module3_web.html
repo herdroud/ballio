@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Module 3 — La Trousse de Secours | Loopio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rouge:      #C0392B;
+      --rouge-vif:  #E74C3C;
+      --noir:       #0D0D0D;
+      --noir-2:     #141414;
+      --noir-3:     #1C1C1C;
+      --gris-m:     #888888;
+      --blanc:      #FFFFFF;
+      --vert:       #1A7A34;
+      --vert-pale:  #EAF6EC;
+      --orange:     #E67E22;
+      --orange-pale:#FEF0E3;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--noir); color: var(--blanc);
+      font-size: 18px; line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── PROGRESS ── */
+    #progress {
+      position: fixed; top: 0; left: 0; height: 3px;
+      background: var(--rouge); width: 0%; z-index: 1000;
+      transition: width .15s linear;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 48px;
+      background: rgba(13,13,13,0.93); backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .nav-left { display: flex; align-items: center; gap: 24px; }
+    .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 3px; color: var(--rouge); text-decoration: none; }
+    .nav-sep { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+    .nav-module { font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--gris-m); }
+    .nav-cta { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; background: var(--rouge); color: var(--blanc); padding: 10px 24px; text-decoration: none; transition: background .2s; }
+    .nav-cta:hover { background: var(--rouge-vif); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      justify-content: flex-end; padding: 0 48px 80px;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg-num {
+      position: absolute; top: 50%; right: -60px; transform: translateY(-50%);
+      font-family: 'Bebas Neue', sans-serif; font-size: clamp(280px,38vw,560px);
+      color: rgba(192,57,43,0.05); line-height: 1;
+      pointer-events: none; user-select: none; letter-spacing: -10px;
+    }
+    /* Croix médicale en filigrane */
+    .hero-cross {
+      position: absolute; top: 12%; left: 8%;
+      font-size: clamp(80px, 12vw, 180px);
+      color: rgba(192,57,43,0.04);
+      pointer-events: none; user-select: none; line-height: 1;
+    }
+    .hero-module-tag { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+    .hero-module-num { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 4px; color: var(--blanc); background: var(--rouge); padding: 6px 14px; }
+    .hero-module-label { font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--gris-m); font-weight: 600; }
+    .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(60px,9.5vw,136px); line-height: 0.88; letter-spacing: 2px; margin-bottom: 36px; }
+    .hero-title .sub { display: block; color: var(--rouge); font-size: clamp(30px,4vw,56px); }
+    .hero-lead { font-family: 'DM Serif Display', serif; font-size: clamp(18px,2vw,24px); font-style: italic; color: rgba(255,255,255,0.6); max-width: 600px; line-height: 1.6; margin-bottom: 56px; }
+
+    /* Situations 4 cards */
+    .hero-situations {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 3px; max-width: 860px;
+    }
+    .hero-sit {
+      background: var(--noir-3); padding: 22px 24px;
+      border-top: 2px solid rgba(255,255,255,0.06);
+      transition: border-color .2s;
+    }
+    .hero-sit:hover { border-color: var(--rouge); }
+    .hero-sit-num {
+      font-family: 'Bebas Neue', sans-serif; font-size: 11px;
+      letter-spacing: 3px; color: var(--rouge); display: block; margin-bottom: 8px;
+    }
+    .hero-sit-label { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.75); line-height: 1.35; }
+
+    .scroll-cue {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gris-m);
+      animation: breathe 2.5s ease-in-out infinite;
+    }
+    .scroll-cue::after { content: ''; width: 1px; height: 44px; background: linear-gradient(to bottom, var(--rouge), transparent); }
+    @keyframes breathe { 0%,100%{opacity:.3} 50%{opacity:.9} }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 780px; margin: 0 auto; padding: 0 32px; }
+    section { padding: 110px 0; }
+    section + section { border-top: 1px solid rgba(255,255,255,0.05); }
+
+    /* ── TYPO ── */
+    .lead { font-family: 'DM Serif Display', serif; font-size: clamp(20px,2.6vw,27px); font-style: italic; line-height: 1.55; color: rgba(255,255,255,0.82); margin-bottom: 44px; }
+    p { font-size: 18px; line-height: 1.85; color: rgba(255,255,255,0.65); margin-bottom: 26px; font-weight: 300; }
+    p strong { color: var(--blanc); font-weight: 600; }
+    p em { color: rgba(255,255,255,0.75); }
+
+    .choc { font-family: 'DM Serif Display', serif; font-size: clamp(23px,3.2vw,38px); font-style: italic; line-height: 1.3; color: var(--blanc); padding: 44px 0; border-top: 2px solid var(--rouge); border-bottom: 2px solid var(--rouge); margin: 60px 0; }
+    .choc span { color: var(--rouge); }
+
+    /* ── LESSON ── */
+    .lesson-wrap { position: relative; }
+    .lesson-num-bg { position: absolute; top: -20px; right: 0; font-family: 'Bebas Neue', sans-serif; font-size: clamp(100px,16vw,200px); color: rgba(192,57,43,0.04); line-height: 1; pointer-events: none; user-select: none; }
+    .lesson-tag { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .lesson-tag-num { font-family: 'Bebas Neue', sans-serif; font-size: 12px; letter-spacing: 4px; color: var(--blanc); background: var(--rouge); padding: 5px 12px; }
+    .lesson-tag-line { flex: 0 0 48px; height: 1px; background: var(--rouge); }
+    .lesson-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(42px,6.5vw,80px); line-height: 0.92; margin-bottom: 12px; letter-spacing: 1px; }
+    .lesson-hook { font-size: 15px; color: var(--gris-m); font-weight: 300; margin-bottom: 56px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+
+    /* ── RÈGLE D'OR ── */
+    .regle { background: var(--rouge); padding: 44px 56px; margin: 56px 0; position: relative; overflow: hidden; }
+    .regle::after { content: '⚡'; position: absolute; right: 24px; bottom: -20px; font-size: 140px; opacity: .07; line-height: 1; }
+    .regle-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 14px; }
+    .regle-text { font-family: 'Bebas Neue', sans-serif; font-size: clamp(20px,3.2vw,34px); line-height: 1.15; color: var(--blanc); letter-spacing: 1px; }
+
+    /* ── SCIENCE ── */
+    .science { border-left: 3px solid var(--vert); padding: 28px 36px; background: rgba(26,122,52,0.06); margin: 44px 0; }
+    .science-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--vert); margin-bottom: 10px; }
+    .science-text { font-size: 15px; color: rgba(255,255,255,.52); line-height: 1.75; font-style: italic; font-weight: 300; margin: 0; }
+    .science-text strong { color: rgba(255,255,255,.75); font-weight: 500; }
+
+    /* ── SCRIPT EXACT ── */
+    .script-exact { margin: 52px 0; border: 1px solid rgba(230,126,34,0.3); background: rgba(230,126,34,0.05); }
+    .script-exact-header {
+      padding: 18px 32px;
+      background: rgba(230,126,34,0.12);
+      display: flex; align-items: center; gap: 14px;
+      border-bottom: 1px solid rgba(230,126,34,0.2);
+    }
+    .script-exact-icon { font-size: 16px; }
+    .script-exact-title { font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 2px; color: var(--orange); }
+    .script-exact-body { padding: 36px 40px; }
+    .script-exact-line {
+      font-family: 'DM Serif Display', serif; font-style: italic;
+      font-size: clamp(17px,2.2vw,22px);
+      color: rgba(255,255,255,0.88); line-height: 1.65;
+      margin-bottom: 16px;
+    }
+    .script-exact-line:last-child { margin-bottom: 0; }
+    .script-exact-sep { height: 1px; background: rgba(230,126,34,0.15); margin: 24px 0; }
+    .script-exact-note { font-size: 14px; color: rgba(255,255,255,0.45); font-weight: 300; line-height: 1.6; }
+    .script-exact-note strong { color: rgba(255,255,255,0.7); font-weight: 500; }
+
+    /* ── PROTOCOLE ── */
+    .protocole { margin: 52px 0; }
+    .protocole-header { background: var(--rouge); padding: 20px 36px; display: flex; align-items: center; gap: 14px; }
+    .protocole-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--blanc); }
+    .protocole-steps { background: var(--noir-3); }
+    .protocole-step { display: grid; grid-template-columns: 52px 1fr; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .protocole-step:last-child { border-bottom: none; }
+    .protocole-step-num { display: flex; align-items: center; justify-content: center; background: rgba(192,57,43,0.12); font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--rouge); border-right: 1px solid rgba(255,255,255,0.05); }
+    .protocole-step-text { padding: 20px 28px; font-size: 16px; color: rgba(255,255,255,0.72); font-weight: 300; line-height: 1.6; }
+    .protocole-step-text strong { color: var(--blanc); font-weight: 600; }
+    .protocole-step-text em { color: rgba(255,255,255,0.5); }
+
+    /* ── BIFURCATION (2 colonnes erreur) ── */
+    .bifurcation { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin: 52px 0; }
+    .bifurc-col { background: var(--noir-3); }
+    .bifurc-header { padding: 22px 28px; border-top: 3px solid; }
+    .bifurc-col.mauvais .bifurc-header { border-color: var(--rouge); }
+    .bifurc-col.bon     .bifurc-header { border-color: var(--vert); }
+    .bifurc-header-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+    .bifurc-col.mauvais .bifurc-header-label { color: var(--rouge); }
+    .bifurc-col.bon     .bifurc-header-label { color: var(--vert); }
+    .bifurc-header-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--blanc); }
+    .bifurc-body { padding: 28px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .bifurc-text { font-size: 15px; color: rgba(255,255,255,0.6); font-weight: 300; line-height: 1.65; margin-bottom: 20px; }
+    .bifurc-text em { font-style: italic; color: rgba(255,255,255,0.75); }
+    .bifurc-result { font-size: 13px; font-weight: 600; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .bifurc-col.mauvais .bifurc-result { color: var(--rouge); }
+    .bifurc-col.bon     .bifurc-result { color: var(--vert); }
+
+    /* ── 2 TYPES D'ARRÊT ── */
+    .types-arret { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin: 52px 0; }
+    .type-arret { background: var(--noir-3); padding: 36px 32px; }
+    .type-arret-num { font-family: 'Bebas Neue', sans-serif; font-size: 52px; color: rgba(192,57,43,0.2); line-height: 1; margin-bottom: 16px; }
+    .type-arret-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--blanc); margin-bottom: 12px; }
+    .type-arret-dit { font-size: 14px; color: var(--gris-m); margin-bottom: 8px; }
+    .type-arret-veut { font-size: 15px; color: rgba(255,255,255,0.75); font-style: italic; font-weight: 300; line-height: 1.5; }
+    .type-arret-veut strong { color: var(--blanc); font-weight: 600; }
+    .type-arret-sep { height: 1px; background: rgba(255,255,255,0.07); margin: 20px 0; }
+
+    /* ── 3 PHASES BLESSURE ── */
+    .phases { margin: 52px 0; }
+    .phase { margin-bottom: 3px; }
+    .phase-header {
+      display: grid; grid-template-columns: 64px 1fr;
+      background: var(--noir-3); cursor: pointer;
+    }
+    .phase-num {
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(192,57,43,0.1);
+      font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--rouge);
+      border-right: 1px solid rgba(255,255,255,0.05);
+    }
+    .phase-meta { padding: 20px 24px; }
+    .phase-period { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--rouge); margin-bottom: 6px; }
+    .phase-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; color: var(--blanc); }
+    .phase-body { padding: 28px 32px 28px 88px; background: var(--noir-2); border-top: 1px solid rgba(255,255,255,0.05); }
+    .phase-desc { font-size: 15px; color: rgba(255,255,255,0.6); font-weight: 300; line-height: 1.7; margin-bottom: 16px; }
+    .phase-action { font-size: 15px; color: rgba(255,255,255,0.82); line-height: 1.65; }
+    .phase-action strong { color: var(--blanc); font-weight: 600; }
+
+    /* ── 5 RÈGLES AGENT ── */
+    .regles-agent { margin: 52px 0; }
+    .regles-agent-header {
+      background: var(--noir-3); padding: 20px 32px;
+      border-top: 3px solid var(--rouge);
+      font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--blanc);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .regle-agent {
+      display: grid; grid-template-columns: 60px 1fr;
+      background: var(--noir-2); border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .regle-agent:last-child { border-bottom: none; }
+    .regle-agent-num {
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(192,57,43,0.08);
+      font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--rouge);
+      border-right: 1px solid rgba(255,255,255,0.05);
+    }
+    .regle-agent-content { padding: 22px 28px; }
+    .regle-agent-title { font-size: 15px; font-weight: 600; color: var(--blanc); margin-bottom: 5px; }
+    .regle-agent-desc { font-size: 14px; color: rgba(255,255,255,0.5); font-weight: 300; line-height: 1.55; }
+    .regle-agent-desc strong { color: rgba(255,255,255,0.75); font-weight: 500; }
+
+    /* ── ALERTE ── */
+    .alerte {
+      border: 1px solid rgba(192,57,43,0.4);
+      background: rgba(192,57,43,0.06);
+      padding: 36px 40px; margin: 52px 0;
+      position: relative;
+    }
+    .alerte::before {
+      content: '⚠';
+      position: absolute; top: 24px; right: 28px;
+      font-size: 28px; opacity: 0.3;
+    }
+    .alerte-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--rouge); margin-bottom: 14px; }
+    .alerte-text { font-family: 'DM Serif Display', serif; font-size: clamp(17px,2.2vw,22px); font-style: italic; color: rgba(255,255,255,0.82); line-height: 1.6; }
+    .alerte-text strong { color: var(--blanc); font-style: normal; }
+
+    /* ── CTA ── */
+    .cta-section { padding: 150px 0; text-align: center; position: relative; overflow: hidden; }
+    .cta-section::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, rgba(192,57,43,0.1) 0%, transparent 65%); pointer-events: none; }
+    .cta-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--rouge); margin-bottom: 44px; }
+    .cta-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(46px,7.5vw,96px); line-height: 0.9; letter-spacing: 2px; margin-bottom: 44px; }
+    .cta-title span { color: var(--rouge); display: block; }
+    .cta-body { font-size: 18px; color: rgba(255,255,255,.6); max-width: 580px; margin: 0 auto 56px; line-height: 1.8; font-weight: 300; }
+    .cta-body strong { color: var(--blanc); font-weight: 500; }
+    .cta-question { font-family: 'DM Serif Display', serif; font-size: clamp(19px,2.6vw,29px); font-style: italic; color: var(--blanc); max-width: 660px; margin: 0 auto 56px; line-height: 1.55; }
+    .cta-question span { color: var(--rouge); }
+    .btn-primary { display: inline-block; background: var(--rouge); color: var(--blanc); text-decoration: none; padding: 22px 56px; font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; transition: all .25s; }
+    .btn-primary:hover { background: var(--rouge-vif); transform: translateY(-2px); }
+    .btn-primary::after { content: ' →'; }
+    .cta-note { display: block; margin-top: 18px; font-size: 13px; color: var(--gris-m); }
+
+    /* ── NEXT ── */
+    .next-module { border-top: 1px solid rgba(255,255,255,0.05); padding: 64px 0; text-align: center; }
+    .next-label { font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gris-m); margin-bottom: 20px; }
+    .next-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(34px,5vw,62px); color: var(--blanc); margin-bottom: 12px; letter-spacing: 1px; }
+    .next-sub { font-size: 16px; color: var(--gris-m); margin-bottom: 32px; font-weight: 300; }
+    .next-sub em { color: var(--rouge); font-style: normal; font-weight: 600; }
+    .btn-ghost { display: inline-block; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,.6); text-decoration: none; padding: 16px 40px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 3px; transition: all .25s; }
+    .btn-ghost:hover { border-color: var(--rouge); color: var(--blanc); }
+
+    /* ── FOOTER ── */
+    footer { padding: 40px 48px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
+    .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; color: var(--rouge); }
+    .footer-tagline { font-size: 13px; color: var(--gris-m); }
+
+    /* ── REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .nav-cta { display: none; }
+      .hero { padding: 0 24px 64px; }
+      .hero-bg-num, .hero-cross { display: none; }
+      .hero-situations { grid-template-columns: 1fr 1fr; }
+      section { padding: 72px 0; }
+      .container { padding: 0 24px; }
+      .bifurcation, .types-arret { grid-template-columns: 1fr; }
+      .phase-body { padding: 24px 24px; }
+      .regle { padding: 36px 28px; }
+      .script-exact-body { padding: 28px 24px; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+      .next-module { padding: 48px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav>
+  <div class="nav-left">
+    <a class="nav-logo" href="#">LOOPIO</a>
+    <div class="nav-sep"></div>
+    <span class="nav-module">Module 3 — Payant</span>
+  </div>
+  <a class="nav-cta" href="#formation">Accéder à la formation</a>
+</nav>
+
+<!-- ═══════════════════════════════════
+     HERO
+════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-bg-num">03</div>
+  <div class="hero-cross">✚</div>
+  <div class="hero-module-tag">
+    <div class="hero-module-num">MODULE 3</div>
+    <div class="hero-module-label">La Trousse de Secours</div>
+  </div>
+  <h1 class="hero-title">
+    Quand le protocole
+    <span class="sub">ne suffit plus.</span>
+  </h1>
+  <p class="hero-lead">
+    Les Modules 1 et 2 couvrent les situations normales.<br>
+    Ce module couvre ce qui sort de l'ordinaire. Et ça arrive.
+    <br>Pas si. <strong style="color:var(--blanc)">Quand.</strong>
+  </p>
+  <div class="hero-situations">
+    <div class="hero-sit">
+      <span class="hero-sit-num">3.1</span>
+      <span class="hero-sit-label">Il a coûté le match</span>
+    </div>
+    <div class="hero-sit">
+      <span class="hero-sit-num">3.2</span>
+      <span class="hero-sit-label">Il veut arrêter</span>
+    </div>
+    <div class="hero-sit">
+      <span class="hero-sit-num">3.3</span>
+      <span class="hero-sit-label">La blessure longue</span>
+    </div>
+    <div class="hero-sit">
+      <span class="hero-sit-num">3.4</span>
+      <span class="hero-sit-label">L'agent vous approche</span>
+    </div>
+  </div>
+  <div class="scroll-cue">Lire</div>
+</div>
+
+<!-- ═══════════════════════════════════
+     INTRO
+════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="choc reveal">
+      Ce que vous faites dans les premières heures<br>
+      de chacune de ces situations —<br>
+      <span>c'est souvent ce qui détermine la suite.</span>
+    </div>
+    <p class="reveal">Ce module ne vous donne pas des principes généraux. Il vous donne les mots exacts. Les silences exacts. L'ordre exact. Pour quatre situations précises que vous ne pouvez pas improviser.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     LEÇON 3.1 — IL A COÛTÉ LE MATCH
+════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="lesson-wrap">
+      <div class="lesson-num-bg">3.1</div>
+      <div class="lesson-tag reveal">
+        <div class="lesson-tag-num">LEÇON 3.1</div>
+        <div class="lesson-tag-line"></div>
+      </div>
+      <h2 class="lesson-title reveal">Il a Coûté<br>le Match</h2>
+      <p class="lesson-hook reveal">Le penalty raté. Le rouge stupide. L'erreur en fin de match. Le moment le plus périlleux pour un enfant sportif.</p>
+    </div>
+
+    <p class="lead reveal">Il rate le penalty. La balle passe au-dessus de la barre. L'équipe adverse remporte la finale.</p>
+
+    <p class="reveal">Il est seul au centre du terrain pendant quatre secondes. <strong>Ces quatre secondes — votre enfant les vivra encore pendant des années.</strong> Il sort du terrain. Il monte dans la voiture. Et là, vous avez une fenêtre de 24 heures.</p>
+
+    <p class="reveal">Ce que vous faites pendant ces 24 heures va soit ancrer cette erreur dans son identité, soit lui apprendre quelque chose d'essentiel sur ce qu'est une erreur.</p>
+
+    <div class="choc reveal">
+      Son cerveau est en train de décider :<br>
+      est-ce que c'est <span>un geste raté</span><br>
+      — ou est-ce qu'il est raté ?
+    </div>
+
+    <p class="reveal">Ce n'est pas une nuance philosophique. C'est une bifurcation neurologique. Un geste raté — l'enfant peut l'analyser, l'intégrer, progresser. Un enfant raté — c'est une conclusion sur son identité. Elle peut durer des années.</p>
+
+    <div class="science reveal">
+      <div class="science-label">🧠 La fenêtre de consolidation</div>
+      <p class="science-text">La consolidation émotionnelle d'un souvenir douloureux se produit dans les <strong>6 à 24 heures après l'événement</strong>. C'est pendant cette fenêtre que le contexte social — notamment la réaction parentale — influence si l'erreur est encodée comme « une chose qui m'est arrivée » ou comme « une chose qui dit qui je suis ». Les commentaires parentaux dans cette fenêtre sont plus influents que le coaching sportif.</p>
+    </div>
+
+    <div class="bifurcation reveal">
+      <div class="bifurc-col mauvais">
+        <div class="bifurc-header">
+          <div class="bifurc-header-label">Chemin A — Ce qui aggrave</div>
+          <div class="bifurc-header-title">Analyser l'erreur</div>
+        </div>
+        <div class="bifurc-body">
+          <p class="bifurc-text">Dans la voiture, vous analysez. <em>« Le gardien était à gauche, tu aurais dû tirer à droite. »</em> Ou vous gardez un silence lourd — qui dit la même chose. À la maison, vous appelez la famille pour raconter la défaite. Votre enfant vous entend.</p>
+          <div class="bifurc-result">Ce qu'il retient : « J'ai déçu mon père. »</div>
+        </div>
+      </div>
+      <div class="bifurc-col bon">
+        <div class="bifurc-header">
+          <div class="bifurc-header-label">Chemin B — Ce qui aide</div>
+          <div class="bifurc-header-title">Le soir : une phrase</div>
+        </div>
+        <div class="bifurc-body">
+          <p class="bifurc-text">Règle des 30 minutes dans la voiture. Silence sur le match. À la maison, une seule phrase — le script ci-dessous. Rien de plus. Vous lui donnez la permission de souffrir ET la promesse de votre présence.</p>
+          <div class="bifurc-result">Ce qu'il retient : « Je peux traverser ça. »</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="script-exact reveal">
+      <div class="script-exact-header">
+        <span class="script-exact-icon">💬</span>
+        <span class="script-exact-title">Le soir même — Une seule phrase. Mot pour mot.</span>
+      </div>
+      <div class="script-exact-body">
+        <p class="script-exact-line">« Ce penalty — tu peux le rejouer dans ta tête autant de fois que tu veux ce soir. »</p>
+        <p class="script-exact-line">« Ça va faire mal. C'est normal. »</p>
+        <p class="script-exact-line">« Demain matin, si tu veux en parler — je suis là. »</p>
+        <p class="script-exact-line">« Et si tu ne veux pas en parler — c'est correct aussi. »</p>
+        <div class="script-exact-sep"></div>
+        <p class="script-exact-note">Puis silence. Ne dites pas <strong>« ça va aller »</strong>. Ne dites pas <strong>« c'est pas grave »</strong>. Ce que vous venez de lui donner — c'est la permission de souffrir ET la promesse de votre présence. Ces deux choses ensemble. C'est tout ce dont il a besoin ce soir.</p>
+      </div>
+    </div>
+
+    <p class="reveal">Le lendemain matin — s'il veut en parler, vous l'écoutez. Et vous lui posez une seule question.</p>
+
+    <div class="script-exact reveal">
+      <div class="script-exact-header">
+        <span class="script-exact-icon">💬</span>
+        <span class="script-exact-title">Le lendemain — La seule question utile</span>
+      </div>
+      <div class="script-exact-body">
+        <p class="script-exact-line">« Qu'est-ce que tu retiens de ce penalty — pas l'erreur — le trajet pour y arriver ? »</p>
+        <div class="script-exact-sep"></div>
+        <p class="script-exact-note">Cette question déplace le regard de l'erreur finale vers le processus entier. Elle lui apprend que le <strong>courage de prendre ce penalty</strong> compte autant que le résultat. Elle ne nie pas l'erreur. Elle la contextualise. Vous écoutez. Vous ne corrigez pas.</p>
+      </div>
+    </div>
+
+    <div class="protocole reveal">
+      <div class="protocole-header">
+        <span class="protocole-title">📋 Protocole — Les 24h après l'erreur fatale</span>
+      </div>
+      <div class="protocole-steps">
+        <div class="protocole-step">
+          <div class="protocole-step-num">1</div>
+          <div class="protocole-step-text">Voiture retour : <strong>règle des 30 minutes</strong>. Silence sur le match.</div>
+        </div>
+        <div class="protocole-step">
+          <div class="protocole-step-num">2</div>
+          <div class="protocole-step-text">Le soir même : <strong>une seule phrase</strong> (script ci-dessus). Zéro analyse de l'erreur technique.</div>
+        </div>
+        <div class="protocole-step">
+          <div class="protocole-step-num">3</div>
+          <div class="protocole-step-text"><strong>Ne pas appeler la famille</strong> pour raconter la défaite dans les 24h. Il vous entend.</div>
+        </div>
+        <div class="protocole-step">
+          <div class="protocole-step-num">4</div>
+          <div class="protocole-step-text">Le lendemain : disponible, pas pressant. S'il parle — une seule question (script ci-dessus). S'il ne parle pas — présence normale.</div>
+        </div>
+        <div class="protocole-step">
+          <div class="protocole-step-num">5</div>
+          <div class="protocole-step-text">La semaine suivante : <strong>laissez le coach gérer l'aspect technique</strong>. Zéro replay de l'erreur avec vous.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="regle reveal">
+      <div class="regle-label">⚡ Règle d'or Loopio — Leçon 3.1</div>
+      <div class="regle-text">Une erreur doit rester une erreur.<br>Pas une conclusion sur qui il est.<br>C'est votre rôle de tenir cette ligne.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     LEÇON 3.2 — IL VEUT ARRÊTER
+════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="lesson-wrap">
+      <div class="lesson-num-bg">3.2</div>
+      <div class="lesson-tag reveal">
+        <div class="lesson-tag-num">LEÇON 3.2</div>
+        <div class="lesson-tag-line"></div>
+      </div>
+      <h2 class="lesson-title reveal">Il Veut<br>Arrêter</h2>
+      <p class="lesson-hook reveal">La phrase la plus difficile à entendre. Et la plus importante à bien lire.</p>
+    </div>
+
+    <p class="lead reveal">Un mardi matin. Pas après un mauvais match. Pas après une dispute avec le coach. Un mardi matin ordinaire — dans la cuisine.</p>
+
+    <div class="choc reveal">
+      « Je veux arrêter le foot. »<br>
+      <span>Votre première réaction va tout conditionner.</span>
+    </div>
+
+    <p class="reveal">Si vous n'êtes pas préparé, votre première réaction sera probablement l'une de ces trois : <em>« Quoi ? Mais pourquoi ? »</em> — <em>« Tu es sûr ? »</em> — ou le silence chargé qui dit votre désapprobation sans un mot. Ces trois réactions font la même chose. <strong>Elles lui signalent que cette décision est un problème. Elles lui retirent la liberté de la poser.</strong></p>
+
+    <p class="reveal">Avant de répondre quoi que ce soit, vous devez comprendre que <em>« je veux arrêter »</em> n'est pas toujours une décision. Parfois — souvent — c'est un signal.</p>
+
+    <div class="types-arret reveal">
+      <div class="type-arret">
+        <div class="type-arret-num">01</div>
+        <div class="type-arret-title">La Fatigue Temporaire</div>
+        <div class="type-arret-sep"></div>
+        <p class="type-arret-dit">Ce qu'il dit : <em>« Je veux arrêter. »</em></p>
+        <p class="type-arret-veut">Ce qu'il veut dire : <strong>« J'ai besoin que ça change. »</strong> Il a trop de pression. Il est épuisé. La compétition est devenue lourde.</p>
+      </div>
+      <div class="type-arret">
+        <div class="type-arret-num">02</div>
+        <div class="type-arret-title">La Décision Réelle</div>
+        <div class="type-arret-sep"></div>
+        <p class="type-arret-dit">Ce qu'il dit : <em>« Je veux arrêter. »</em></p>
+        <p class="type-arret-veut">Ce qu'il veut dire : <strong>« Je veux arrêter. »</strong> Il a réfléchi. Il a évolué. Le football n'est plus ce qu'il cherche. Ce n'est pas une humeur — c'est une réorientation.</p>
+      </div>
+    </div>
+
+    <p class="reveal">Ces deux situations méritent des réponses différentes. Mais elles méritent la <strong>même première réaction.</strong></p>
+
+    <div class="script-exact reveal">
+      <div class="script-exact-header">
+        <span class="script-exact-icon">💬</span>
+        <span class="script-exact-title">Première réaction — Mot pour mot</span>
+      </div>
+      <div class="script-exact-body">
+        <p class="script-exact-line">« D'accord. »</p>
+        <p class="script-exact-note" style="margin:12px 0 20px;"><em>[Pause. Rien d'autre dans les 10 premières secondes.]</em></p>
+        <p class="script-exact-line">« Merci de me le dire. »</p>
+        <p class="script-exact-note" style="margin:12px 0 20px;"><em>[Pause.]</em></p>
+        <p class="script-exact-line">« Est-ce que tu veux qu'on en parle — ou tu voulais juste me le dire ? »</p>
+        <div class="script-exact-sep"></div>
+        <p class="script-exact-note"><strong>« D'accord »</strong> valide sa parole sans la bloquer. <strong>« Merci de me le dire »</strong> lui signale que vous entendez, pas que vous jugez. La question finale lui redonne le contrôle du rythme. Vous ne fermez pas. Vous n'avez pas paniqué. Vous avez ouvert.</p>
+      </div>
+    </div>
+
+    <p class="reveal">Si la conversation s'ouvre — votre rôle, c'est d'écouter et de comprendre. Pas de convaincre. Pas de contre-argumenter. Et pas de faire valoir l'investissement des dernières années.</p>
+
+    <div class="alerte reveal">
+      <div class="alerte-label">⚠ Ne jamais dire</div>
+      <p class="alerte-text">« On a mis tellement d'argent, de temps, d'énergie... » <strong>Cet argument ne concerne pas votre enfant. Il concerne votre deuil à vous.</strong> Et ce n'est pas le moment pour ça.</p>
+    </div>
+
+    <div class="script-exact reveal">
+      <div class="script-exact-header">
+        <span class="script-exact-icon">💬</span>
+        <span class="script-exact-title">Les deux questions — Dans cet ordre, une à la fois</span>
+      </div>
+      <div class="script-exact-body">
+        <p class="script-exact-line">Question 1 : « Qu'est-ce qui est difficile en ce moment dans le foot ? »</p>
+        <p class="script-exact-note" style="margin:8px 0 24px;">Écoutez. Ne commentez pas. Laissez le silence après sa réponse.</p>
+        <div class="script-exact-sep"></div>
+        <p class="script-exact-line">Question 2 <em style="font-size:14px;color:rgba(255,255,255,0.4)">(seulement si la conversation continue)</em> : « Est-ce que tu veux arrêter pour souffler — ou tu veux vraiment changer de direction ? »</p>
+        <p class="script-exact-note" style="margin:8px 0 0;">Écoutez. Ne suggérez pas la réponse. Laissez-la être la sienne.</p>
+      </div>
+    </div>
+
+    <div class="science reveal">
+      <div class="science-label">🧠 Le paradoxe de la liberté</div>
+      <p class="science-text">Les recherches sur l'abandon sportif précoce montrent que la principale variable prédictive n'est pas le niveau de l'enfant ni les conditions d'entraînement — c'est le <strong>niveau de pression parentale perçu</strong>. Un enfant qui sent qu'il peut arrêter sans conséquences relationnelles avec son parent est paradoxalement celui qui continue le plus longtemps. <strong>La liberté de partir est ce qui donne envie de rester.</strong></p>
+    </div>
+
+    <div class="regle reveal">
+      <div class="regle-label">⚡ Règle d'or Loopio — Leçon 3.2</div>
+      <div class="regle-text">Si votre enfant veut arrêter — votre premier mot est « D'accord. »<br>Pas une question. Pas un argument.<br>« D'accord. »</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     LEÇON 3.3 — LA BLESSURE LONGUE
+════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="lesson-wrap">
+      <div class="lesson-num-bg">3.3</div>
+      <div class="lesson-tag reveal">
+        <div class="lesson-tag-num">LEÇON 3.3</div>
+        <div class="lesson-tag-line"></div>
+      </div>
+      <h2 class="lesson-title reveal">La Blessure<br>Longue</h2>
+      <p class="lesson-hook reveal">Quand l'enfant perd son terrain, son groupe, son identité. Le risque que personne ne nomme.</p>
+    </div>
+
+    <p class="lead reveal">Vous pensez à la douleur physique. À la rééducation. Au retour. Ce que vous ne voyez pas encore — c'est ce qui se passe en dehors du corps.</p>
+
+    <p class="reveal">Semaine un — il ne va plus à l'entraînement. Ses coéquipiers jouent sans lui. Il y a des blagues auxquelles il n'a pas participé. Des matchs qu'il n'a pas joués. Un langage de groupe qui évolue sans lui.</p>
+    <p class="reveal">Semaine quatre — le coach a repositionné quelqu'un à sa place. Ce quelqu'un joue bien. <strong>Votre enfant se demande si sa place l'attend encore.</strong></p>
+    <p class="reveal">Mois trois — il est là. Mais il n'est plus dedans.</p>
+
+    <div class="choc reveal">
+      Ce que vit votre enfant<br>
+      pendant une blessure longue,<br>
+      <span>c'est une perte d'identité progressive.</span>
+    </div>
+
+    <div class="science reveal">
+      <div class="science-label">🧠 La menace identitaire</div>
+      <p class="science-text">Les études sur les blessures longues chez les jeunes sportifs montrent que le risque psychologique majeur n'est pas la douleur physique — c'est la menace identitaire. Un enfant dont l'identité est fortement liée au sport vit une blessure longue comme <strong>une perte de soi partielle</strong>. Sans accompagnement actif, le risque de dépression secondaire, d'abandon au retour, et de difficultés de réintégration au groupe est significativement plus élevé.</p>
+    </div>
+
+    <p class="reveal">Votre rôle change. Il ne s'agit plus de gérer le sport. <strong>Il s'agit de maintenir le lien de votre enfant avec lui-même.</strong></p>
+
+    <div class="phases reveal">
+      <div class="phase">
+        <div class="phase-header">
+          <div class="phase-num">1</div>
+          <div class="phase-meta">
+            <div class="phase-period">Semaines 1 & 2</div>
+            <div class="phase-title">Le Choc — Vie normale maintenue</div>
+          </div>
+        </div>
+        <div class="phase-body">
+          <p class="phase-desc">Votre enfant s'adapte encore. Il est peut-être en colère, ou il fait semblant que ça va.</p>
+          <p class="phase-action">Vous ne sur-compensez pas. Pas de grands discours. <strong>Vous faites la vie normale</strong> — avec une heure par jour où vous êtes disponible sans raison. Pas pour parler du genou. Pour exister ensemble en dehors du football.</p>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-header">
+          <div class="phase-num">2</div>
+          <div class="phase-meta">
+            <div class="phase-period">Semaines 3 à 6</div>
+            <div class="phase-title">La Frustration — Nourrir autre chose</div>
+          </div>
+        </div>
+        <div class="phase-body">
+          <p class="phase-desc">Souvent la plus difficile. La douleur physique s'atténue. L'ennui s'installe. Il voit ses coéquipiers progresser sans lui.</p>
+          <p class="phase-action">Vous l'aidez à trouver quelque chose d'autre — pas pour remplacer le football, pour nourrir une autre partie de lui. Et <strong>vous parlez de lui, pas de son genou.</strong> « Comment tu vas, toi ? » — pas « Comment va ton genou ? »</p>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-header">
+          <div class="phase-num">3</div>
+          <div class="phase-meta">
+            <div class="phase-period">Le Retour</div>
+            <div class="phase-title">Le Bénéfice — Ne pas surcharger l'enjeu</div>
+          </div>
+        </div>
+        <div class="phase-body">
+          <p class="phase-desc">Un enfant qui a maintenu une identité en dehors du football pendant sa blessure revient plus fort mentalement. Il est entier. Il n'a pas besoin du football pour exister.</p>
+          <p class="phase-action"><strong>Pas de « c'est le grand retour ». Pas de « tout le monde t'attend ».</strong> « Tu es prêt ? Alors vas-y. » C'est tout ce dont il a besoin.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="script-exact reveal">
+      <div class="script-exact-header">
+        <span class="script-exact-icon">💬</span>
+        <span class="script-exact-title">Le premier soir de blessure — Ce que vous dites</span>
+      </div>
+      <div class="script-exact-body">
+        <p class="script-exact-line">« Ça fait mal et c'est normal que ça fasse mal. »</p>
+        <p class="script-exact-line">« Ton corps va se réparer — c'est sa spécialité. »</p>
+        <p class="script-exact-line">« Pendant ce temps — t'es toujours toi. Le football c'est ce que tu fais. Pas qui tu es. »</p>
+        <div class="script-exact-sep"></div>
+        <p class="script-exact-note">Cette dernière phrase — vous pouvez la répéter pendant toute la blessure. Pas à chaque conversation. <strong>Une fois par semaine suffit.</strong> C'est la chose la plus utile que vous puissiez ancrer pendant cette période.</p>
+      </div>
+    </div>
+
+    <div class="regle reveal">
+      <div class="regle-label">⚡ Règle d'or Loopio — Leçon 3.3</div>
+      <div class="regle-text">« Comment tu vas, toi ? »<br>Pas « Comment va ton genou ? »<br>Deux questions différentes. Deux enfants différents en réponse.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     LEÇON 3.4 — L'AGENT
+════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="lesson-wrap">
+      <div class="lesson-num-bg">3.4</div>
+      <div class="lesson-tag reveal">
+        <div class="lesson-tag-num">LEÇON 3.4</div>
+        <div class="lesson-tag-line"></div>
+      </div>
+      <h2 class="lesson-title reveal">L'Agent et<br>l'Écosystème<br>Pro</h2>
+      <p class="lesson-hook reveal">Quand ça devient sérieux. Les pièges. Ce que vous ne dites jamais.</p>
+    </div>
+
+    <p class="lead reveal">Il a quinze ans. Après un tournoi, un homme s'approche. Il se présente. Il dit qu'il a regardé votre fils jouer.</p>
+
+    <p class="reveal">Ce moment arrive. Pas pour tous les enfants. Mais si votre enfant a le niveau — il arrive. Et dans ce moment, <strong>vous êtes vulnérable.</strong> Parce que vous aimez votre enfant. Parce que vous voulez que ça marche pour lui. Et parce que personne ne vous a jamais appris à naviguer dans cet écosystème.</p>
+
+    <div class="choc reveal">
+      Un agent de joueur en France<br>
+      doit être <span>licencié FFF.</span><br>
+      Vérifiable. Publiquement.
+    </div>
+
+    <p class="reveal">Pas un « représentant ». Pas un « consultant ». <strong>Licencié FFF — vérifiable sur la liste publique de la fédération.</strong> Si la personne qui vous aborde ne peut pas vous donner son numéro de licence — la conversation s'arrête là. Poliment. Fermement.</p>
+
+    <div class="regles-agent reveal">
+      <div class="regles-agent-header">
+        <span>⚖</span>
+        5 Règles Face à un Agent — Non Négociables
+      </div>
+      <div class="regle-agent">
+        <div class="regle-agent-num">1</div>
+        <div class="regle-agent-content">
+          <div class="regle-agent-title">Demandez son numéro de licence FFF immédiatement</div>
+          <div class="regle-agent-desc">Vérifiez sur le site de la fédération avant toute conversation sérieuse. <strong>Un agent licencié donne ce numéro sans hésitation.</strong></div>
+        </div>
+      </div>
+      <div class="regle-agent">
+        <div class="regle-agent-num">2</div>
+        <div class="regle-agent-content">
+          <div class="regle-agent-title">Aucun document ne se signe le jour de la rencontre</div>
+          <div class="regle-agent-desc">Délai minimum : 7 jours. Avec un avocat spécialisé si possible. <strong>Jamais le soir même.</strong> Peu importe la formulation utilisée.</div>
+        </div>
+      </div>
+      <div class="regle-agent">
+        <div class="regle-agent-num">3</div>
+        <div class="regle-agent-content">
+          <div class="regle-agent-title">Votre enfant n'est pas présent à la première réunion</div>
+          <div class="regle-agent-desc">Vous filtrez d'abord. Si la démarche n'est pas sérieuse — il ne s'est rien passé pour lui.</div>
+        </div>
+      </div>
+      <div class="regle-agent">
+        <div class="regle-agent-num">4</div>
+        <div class="regle-agent-content">
+          <div class="regle-agent-title">Tout agent sérieux accepte que vous consultiez un tiers</div>
+          <div class="regle-agent-desc">Avocat, autre professionnel — avant de signer quoi que ce soit. <strong>Si ce n'est pas accepté, c'est un signal d'alarme.</strong></div>
+        </div>
+      </div>
+      <div class="regle-agent">
+        <div class="regle-agent-num">5</div>
+        <div class="regle-agent-content">
+          <div class="regle-agent-title">Un agent qui crée de l'urgence n'est pas un partenaire</div>
+          <div class="regle-agent-desc"><em>« C'est maintenant ou jamais. »</em> — <em>« L'opportunité passe. »</em> — <em>« Ça ne vous engage à rien. »</em> <strong>Ce sont des techniques de pression. Pas des arguments.</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alerte reveal">
+      <div class="alerte-label">⚠ Ce que vous ne dites jamais à votre enfant</div>
+      <p class="alerte-text">Vous ne lui dites pas <strong>« un agent t'a repéré »</strong> — pas avant d'avoir vérifié que la démarche est sérieuse. Un enfant de quinze ans à qui on dit ça vient de changer. Son rapport à l'entraînement, au coach, à ses coéquipiers change. Si la démarche ne donne rien — <strong>vous lui avez donné quelque chose à perdre.</strong></p>
+    </div>
+
+    <div class="script-exact reveal">
+      <div class="script-exact-header">
+        <span class="script-exact-icon">💬</span>
+        <span class="script-exact-title">Quand vous en parlez à votre enfant — seulement si c'est vérifié</span>
+      </div>
+      <div class="script-exact-body">
+        <p class="script-exact-line">« Quelqu'un t'a remarqué. On va voir si c'est sérieux. »</p>
+        <p class="script-exact-line">« Ça ne change rien à ce que tu fais à l'entraînement — tu continues exactement pareil. »</p>
+        <p class="script-exact-line">« Si ça avance, tu seras le premier à savoir. »</p>
+        <div class="script-exact-sep"></div>
+        <p class="script-exact-note">Ces trois phrases informent sans surestimer. Elles maintiennent le focus sur le présent. <strong>Elles ne créent pas d'attente qui pourrait être déçue.</strong></p>
+      </div>
+    </div>
+
+    <p class="reveal">Un dernier point — le plus important. Si votre enfant est vraiment bon, les discussions sérieuses avec des clubs professionnels ne passent pas par des agents qui vous abordent au bord du terrain. <strong>Elles passent par le club où votre enfant joue.</strong> Par l'éducateur qui appelle. Par une invitation officielle.</p>
+
+    <p class="reveal">Le bord du terrain — c'est rarement là que les vraies carrières se construisent. C'est sur le terrain. Et votre job, c'est de vous assurer qu'il peut y jouer libre.</p>
+
+    <div class="regle reveal">
+      <div class="regle-label">⚡ Règle d'or Loopio — Leçon 3.4</div>
+      <div class="regle-text">Un agent sérieux accepte que vous preniez 7 jours.<br>Un agent qui crée de l'urgence<br>crée aussi le problème.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     CTA
+════════════════════════════════════ -->
+<div class="cta-section" id="formation">
+  <div class="container">
+    <div class="cta-eyebrow">Quatre situations. Quatre protocoles exacts.</div>
+    <h2 class="cta-title">
+      Ces situations ne vous
+      <span>surprendront plus.</span>
+    </h2>
+    <p class="cta-body">
+      L'erreur fatale — les 24 heures qui suivent. L'arrêt — la première réaction. La blessure longue — les trois phases. L'agent — les cinq règles.<br><br>
+      <strong>Vous avez les mots. Vous avez les protocoles. Vous êtes prêt.</strong>
+    </p>
+    <p class="cta-question">
+      Mais votre enfant grandit.<br>
+      Ce dont il a besoin de vous à 7 ans<br>
+      <span>n'est pas ce dont il a besoin à 15.</span>
+    </p>
+    <a href="#" class="btn-primary">Accéder au Module 4</a>
+    <span class="cta-note">Le Manuel par Âge — U6 à U18, ce que votre enfant a besoin de vous à chaque étape</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     NEXT MODULE
+════════════════════════════════════ -->
+<div class="next-module">
+  <div class="container">
+    <div class="next-label">La suite de la formation</div>
+    <div class="next-title">Module 4 — Le Manuel par Âge</div>
+    <p class="next-sub">U6 à U18. Ce que votre enfant a besoin de vous <em>à chaque étape</em>. Et quand s'effacer.</p>
+    <a href="#" class="btn-ghost">Voir le Module 4</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">LOOPIO</div>
+  <div class="footer-tagline">Le talent, c'est l'enfant. Le mental, c'est vous. Loopio forme les pilotes.</div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const p = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100;
+    document.getElementById('progress').style.width = p + '%';
+  });
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 55);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>

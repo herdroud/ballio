@@ -1,0 +1,51 @@
+[
+  {
+    "id": "m0",
+    "num": "0",
+    "title": "Module 0 · L'Électrochoc",
+    "subtitle": "L'ennemi invisible, c'est vous ?",
+    "isFree": true
+  },
+  {
+    "id": "m1",
+    "num": "1",
+    "title": "Module 1 · Les Fondations",
+    "subtitle": "Reprendre sa juste place",
+    "isFree": false
+  },
+  {
+    "id": "m2",
+    "num": "2",
+    "title": "Module 2 · Le Protocole Jour de Match",
+    "subtitle": "Du vendredi soir au dimanche",
+    "isFree": false
+  },
+  {
+    "id": "m3",
+    "num": "3",
+    "title": "Module 3 · La Trousse de Secours",
+    "subtitle": "Gérer crise, échec et injustice",
+    "isFree": false
+  },
+  {
+    "id": "m4",
+    "num": "4",
+    "title": "Module 4 · Le Manuel par Âge",
+    "subtitle": "KPIs spécifiques U6–U18",
+    "isFree": false
+  },
+  {
+    "id": "m5",
+    "num": "5",
+    "title": "Module 5 · L'Ingénierie Invisible",
+    "subtitle": "La performance se construit hors terrain",
+    "isFree": false
+  },
+  {
+    "id": "m6",
+    "num": "6",
+    "title": "Module 6 · L'Écosystème Pro",
+    "subtitle": "Clubs, détection, agents — sans se faire avoir",
+    "isFree": false
+  }
+]
