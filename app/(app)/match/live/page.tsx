@@ -252,7 +252,7 @@ export default function MatchLivePage() {
     }
   };
 
-  const { stats, activeTime, totalTime, note } = (state === 'summary') ? calculateFinalStats() : { stats: null, activeTime: 0, totalTime: 0, note: { ovr: 0, tier: '', TIR: 0, PAS: 0, DRI: 0, DEF: 0, PHY: 0, DISC: 0 } };
+  const { stats, activeTime, totalTime, note } = (state === 'summary') ? calculateFinalStats() : { stats: null, activeTime: 0, totalTime: 0, note: { ovr: 0, tier: 'common' as any, TIR: 0, PAS: 0, DRI: 0, DEF: 0, PHY: 0, DISC: 0 } };
   const tier = note?.tier;
 
   return (
