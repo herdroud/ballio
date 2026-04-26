@@ -63,11 +63,11 @@ export function calcMatchNote(stats: any, position: string, duration: number, to
     // Bonus poste
     if (off.buts > 0) {
         const ptsByPos = { ATT: 3, AIL: 3, MOC: 5, MC: 5, MDC: 7, LAT: 7, DC: 10, GB: 10 };
-        ovr += off.buts * (ptsByPos[position] || 5);
+        ovr += off.buts * ((ptsByPos as any)[position] || 5);
     }
     if (off.pdec > 0) {
         const ptsByPos = { AIL: 2, MOC: 2, ATT: 3, MC: 3, LAT: 3, MDC: 5, DC: 5, GB: 5 };
-        ovr += off.pdec * (ptsByPos[position] || 3);
+        ovr += off.pdec * ((ptsByPos as any)[position] || 3);
     }
     if (['ATT', 'AIL'].includes(position) && sDuels > 60) ovr += 3;
 
