@@ -54,7 +54,7 @@ export default function Hero() {
                     className="flex flex-col items-center gap-4"
                 >
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <Button size="lg" variant="outline" className="h-14 px-8 text-lg font-bold border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 transition-all" asChild>
+                        <Button size="lg" variant="outline" className="h-14 px-8 text-lg font-bold border-white text-white hover:bg-white hover:text-slate-900 transition-all" asChild>
                             <Link href="/login">
                                 Se connecter
                             </Link>
