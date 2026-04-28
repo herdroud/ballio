@@ -57,11 +57,18 @@ export default function AntiObjections() {
                         Ballio aide les parents à adopter la bonne posture, au bon moment.
                     </h3>
 
-                    <Button size="lg" variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-950 hover:text-blue-300" asChild>
-                        <Link href="/quiz">
-                            Faire le diagnostic parental gratuit
-                        </Link>
-                    </Button>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <Button size="lg" variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-950 hover:text-blue-300" asChild>
+                            <Link href="/quiz">
+                                Faire le diagnostic parental gratuit
+                            </Link>
+                        </Button>
+                        <Button size="lg" variant="ghost" className="text-slate-400 hover:text-white" asChild>
+                            <Link href="/login">
+                                Se connecter
+                            </Link>
+                        </Button>
+                    </div>
                 </div>
             </div>
         </section>

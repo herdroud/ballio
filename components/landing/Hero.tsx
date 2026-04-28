@@ -53,11 +53,18 @@ export default function Hero() {
                     transition={{ duration: 0.5, delay: 0.4 }}
                     className="flex flex-col items-center gap-4"
                 >
-                    <Button size="lg" className="h-14 px-8 text-lg font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20 hover:shadow-blue-900/40 transition-all" asChild>
-                        <Link href="/quiz">
-                            Faire le diagnostic parental gratuit <ArrowRight className="ml-2 w-5 h-5" />
-                        </Link>
-                    </Button>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <Button size="lg" className="h-14 px-8 text-lg font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20 hover:shadow-blue-900/40 transition-all" asChild>
+                            <Link href="/quiz">
+                                Faire le diagnostic parental gratuit <ArrowRight className="ml-2 w-5 h-5" />
+                            </Link>
+                        </Button>
+                        <Button size="lg" variant="outline" className="h-14 px-8 text-lg font-bold border-slate-700 text-white hover:bg-slate-800 transition-all" asChild>
+                            <Link href="/login">
+                                Se connecter
+                            </Link>
+                        </Button>
+                    </div>
                     <p className="text-sm text-slate-500">
                         (3 minutes · aucun jugement)
                     </p>
