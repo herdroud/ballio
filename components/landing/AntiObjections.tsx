@@ -59,7 +59,7 @@ export default function AntiObjections() {
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Button size="lg" variant="ghost" className="text-slate-400 hover:text-white" asChild>
-                            <Link href="/login">
+                            <Link href="/sign-in">
                                 Se connecter
                             </Link>
                         </Button>
