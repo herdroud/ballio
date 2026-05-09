@@ -258,7 +258,7 @@ export default function LandingPage() {
         id="toast"
         className={`fixed bottom-6 right-6 z-[9999] px-6 py-4 rounded-xl bg-pitch-500/15 border border-pitch-500/30 backdrop-blur-xl transition-all duration-500 ${toast.show
           ? "translate-y-0 opacity-100"
-          : "translate-y-[100px] opacity-0"
+          : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 translate-y-[100px] opacity-0"
           }`}
       >
         <div className="flex items-center gap-3">
@@ -448,7 +448,7 @@ export default function LandingPage() {
           {/* Badge */}
           <div
             data-reveal-id="hero-badge"
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 transition-all duration-700 ${isRevealed("hero-badge") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 transition-all duration-700 ${isRevealed("hero-badge") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
               }`}
           >
             <span className="w-2 h-2 rounded-full bg-pitch-400 pulse-green" />
@@ -460,7 +460,7 @@ export default function LandingPage() {
           {/* Headline */}
           <h1
             data-reveal-id="hero-title"
-            className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05] mb-6 transition-all duration-700 delay-100 ${isRevealed("hero-title") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05] mb-6 transition-all duration-700 delay-100 ${isRevealed("hero-title") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
               }`}
           >
             <span className="text-dark-200">8 parents sur 10</span>{" "}
@@ -491,7 +491,7 @@ export default function LandingPage() {
           <div
             id="hero-actions"
             data-reveal-id="hero-form"
-            className={`max-w-lg mx-auto transition-all duration-700 delay-300 flex flex-col items-center gap-6 ${isRevealed("hero-form") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`max-w-lg mx-auto transition-all duration-700 delay-300 flex flex-col items-center gap-6 ${isRevealed("hero-form") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
               }`}
           >
             {/* Dashboard Button */}
@@ -581,7 +581,7 @@ export default function LandingPage() {
           {/* Social proof */}
           <div
             data-reveal-id="hero-social"
-            className={`mt-10 flex items-center justify-center gap-3 transition-all duration-700 delay-400 ${isRevealed("hero-social") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`mt-10 flex items-center justify-center gap-3 transition-all duration-700 delay-400 ${isRevealed("hero-social") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
               }`}
           >
             <div className="flex -space-x-2.5">
@@ -639,7 +639,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto">
           <div
             data-reveal-id="stats"
-            className={`glass rounded-2xl p-6 sm:p-8 transition-all duration-700 ${isRevealed("stats") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`glass rounded-2xl p-6 sm:p-8 transition-all duration-700 ${isRevealed("stats") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
               }`}
           >
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
@@ -687,7 +687,7 @@ export default function LandingPage() {
             </span>
             <h2
               data-reveal-id="testimonials-headline"
-              className={`text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight transition-all duration-700 delay-100 ${isRevealed("testimonials-headline") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              className={`text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight transition-all duration-700 delay-100 ${isRevealed("testimonials-headline") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
                 }`}
             >
               <span className="text-dark-200">Ils ont fait le premier pas.</span>
@@ -720,7 +720,7 @@ export default function LandingPage() {
               <div
                 key={i}
                 data-reveal-id={`testimonial-${i}`}
-                className={`glass glass-hover rounded-2xl p-7 flex flex-col gap-5 transition-all duration-700 delay-${(i + 1) * 100} ${isRevealed(`testimonial-${i}`) ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                className={`glass glass-hover rounded-2xl p-7 flex flex-col gap-5 transition-all duration-700 delay-${(i + 1) * 100} ${isRevealed(`testimonial-${i}`) ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
                   }`}
               >
                 <div>
@@ -758,7 +758,7 @@ export default function LandingPage() {
           {/* CTA after testimonials */}
           <div
             data-reveal-id="testimonials-cta"
-            className={`text-center mt-12 transition-all duration-700 delay-400 ${isRevealed("testimonials-cta") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`text-center mt-12 transition-all duration-700 delay-400 ${isRevealed("testimonials-cta") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
               }`}
           >
             <a
@@ -784,7 +784,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
             data-reveal-id="mirror"
-            className={`glass rounded-3xl p-8 sm:p-12 lg:p-16 relative overflow-hidden transition-all duration-700 ${isRevealed("mirror") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`glass rounded-3xl p-8 sm:p-12 lg:p-16 relative overflow-hidden transition-all duration-700 ${isRevealed("mirror") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
               }`}
           >
             <div className="absolute -top-20 -right-20 w-40 h-40 bg-red-500/10 rounded-full blur-[80px]" />
@@ -902,7 +902,7 @@ export default function LandingPage() {
             </span>
             <h2
               data-reveal-id="promise-headline"
-              className={`text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-[1.15] transition-all duration-700 delay-100 ${isRevealed("promise-headline") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              className={`text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-[1.15] transition-all duration-700 delay-100 ${isRevealed("promise-headline") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
                 }`}
             >
               <span className="text-dark-200">Ballio ne forme pas</span>
@@ -942,7 +942,7 @@ export default function LandingPage() {
                 data-reveal-id={`promise-${i}`}
                 ref={setSpotlightRef(`promise-${i}`)}
                 onMouseMove={(e) => handleMouseMove(e, `promise-${i}`)}
-                className={`glass glass-hover spotlight-card rounded-2xl p-8 text-center transition-all duration-700 delay-${(i + 2) * 100} ${isRevealed(`promise-${i}`) ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                className={`glass glass-hover spotlight-card rounded-2xl p-8 text-center transition-all duration-700 delay-${(i + 2) * 100} ${isRevealed(`promise-${i}`) ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
                   }`}
               >
                 <div className="w-14 h-14 rounded-2xl bg-pitch-500/10 flex items-center justify-center mx-auto mb-5">
@@ -973,7 +973,7 @@ export default function LandingPage() {
             </span>
             <h2
               data-reveal-id="modules-headline"
-              className={`text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight transition-all duration-700 delay-100 ${isRevealed("modules-headline") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              className={`text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight transition-all duration-700 delay-100 ${isRevealed("modules-headline") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
                 }`}
             >
               <span className="text-dark-200">7 modules.</span>
@@ -993,7 +993,7 @@ export default function LandingPage() {
               data-reveal-id="module-0"
               ref={(el) => { spotlightRefs.current["module-0"] = el }}
               onMouseMove={(e) => handleMouseMove(e, "module-0")}
-              className={`glass glass-hover spotlight-card rounded-2xl p-7 flex flex-col justify-between min-h-[200px] relative overflow-hidden transition-all duration-700 delay-100 bento-1 ${isRevealed("module-0") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              className={`glass glass-hover spotlight-card rounded-2xl p-7 flex flex-col justify-between min-h-[200px] relative overflow-hidden transition-all duration-700 delay-100 bento-1 ${isRevealed("module-0") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
                 }`}
             >
               <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-orange-500/10 rounded-full blur-[40px]" />
@@ -1025,7 +1025,7 @@ export default function LandingPage() {
               data-reveal-id="module-1"
               ref={(el) => { spotlightRefs.current["module-1"] = el }}
               onMouseMove={(e) => handleMouseMove(e, "module-1")}
-              className={`glass glass-hover spotlight-card rounded-2xl p-7 flex flex-col min-h-[200px] transition-all duration-700 delay-200 bento-2 ${isRevealed("module-1") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              className={`glass glass-hover spotlight-card rounded-2xl p-7 flex flex-col min-h-[200px] transition-all duration-700 delay-200 bento-2 ${isRevealed("module-1") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
                 }`}
             >
               <span className="text-[10px] font-bold tracking-wider uppercase text-dark-500 mb-4">
@@ -1045,7 +1045,7 @@ export default function LandingPage() {
               data-reveal-id="module-2"
               ref={(el) => { spotlightRefs.current["module-2"] = el }}
               onMouseMove={(e) => handleMouseMove(e, "module-2")}
-              className={`glass glass-hover spotlight-card rounded-2xl p-7 flex flex-col min-h-[200px] transition-all duration-700 delay-300 bento-3 ${isRevealed("module-2") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              className={`glass glass-hover spotlight-card rounded-2xl p-7 flex flex-col min-h-[200px] transition-all duration-700 delay-300 bento-3 ${isRevealed("module-2") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
                 }`}
             >
               <span className="text-[10px] font-bold tracking-wider uppercase text-dark-500 mb-4">
@@ -1065,7 +1065,7 @@ export default function LandingPage() {
               data-reveal-id="module-3"
               ref={(el) => { spotlightRefs.current["module-3"] = el }}
               onMouseMove={(e) => handleMouseMove(e, "module-3")}
-              className={`glass glass-hover spotlight-card rounded-2xl p-7 flex flex-col min-h-[200px] transition-all duration-700 delay-400 bento-4 ${isRevealed("module-3") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              className={`glass glass-hover spotlight-card rounded-2xl p-7 flex flex-col min-h-[200px] transition-all duration-700 delay-400 bento-4 ${isRevealed("module-3") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
                 }`}
             >
               <span className="text-[10px] font-bold tracking-wider uppercase text-dark-500 mb-4">
@@ -1092,7 +1092,7 @@ export default function LandingPage() {
               data-reveal-id="module-5"
               ref={(el) => { spotlightRefs.current["module-5"] = el }}
               onMouseMove={(e) => handleMouseMove(e, "module-5")}
-              className={`glass glass-hover spotlight-card rounded-2xl p-7 flex flex-col min-h-[200px] transition-all duration-700 delay-500 bento-5 ${isRevealed("module-5") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              className={`glass glass-hover spotlight-card rounded-2xl p-7 flex flex-col min-h-[200px] transition-all duration-700 delay-500 bento-5 ${isRevealed("module-5") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
                 }`}
             >
               <span className="text-[10px] font-bold tracking-wider uppercase text-dark-500 mb-4">
@@ -1123,7 +1123,7 @@ export default function LandingPage() {
               data-reveal-id="module-4"
               ref={(el) => { spotlightRefs.current["module-4"] = el }}
               onMouseMove={(e) => handleMouseMove(e, "module-4")}
-              className={`glass glass-hover spotlight-card rounded-2xl p-7 flex flex-col min-h-[200px] transition-all duration-700 delay-600 bento-6 ${isRevealed("module-4") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              className={`glass glass-hover spotlight-card rounded-2xl p-7 flex flex-col min-h-[200px] transition-all duration-700 delay-600 bento-6 ${isRevealed("module-4") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
                 }`}
             >
               <span className="text-[10px] font-bold tracking-wider uppercase text-dark-500 mb-4">
@@ -1144,7 +1144,7 @@ export default function LandingPage() {
               data-reveal-id="module-6"
               ref={(el) => { spotlightRefs.current["module-6"] = el }}
               onMouseMove={(e) => handleMouseMove(e, "module-6")}
-              className={`glass glass-hover spotlight-card rounded-2xl p-7 flex flex-col min-h-[200px] transition-all duration-700 bento-7 ${isRevealed("module-6") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              className={`glass glass-hover spotlight-card rounded-2xl p-7 flex flex-col min-h-[200px] transition-all duration-700 bento-7 ${isRevealed("module-6") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
                 }`}
             >
               <span className="text-[10px] font-bold tracking-wider uppercase text-dark-500 mb-4">
@@ -1176,7 +1176,7 @@ export default function LandingPage() {
             </span>
             <h2
               data-reveal-id="tools-headline"
-              className={`text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight transition-all duration-700 delay-100 ${isRevealed("tools-headline") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              className={`text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight transition-all duration-700 delay-100 ${isRevealed("tools-headline") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
                 }`}
             >
               <span className="text-dark-200">Pas que de la théorie.</span>
@@ -1363,7 +1363,7 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
             data-reveal-id="diagnostic"
-            className={`glass rounded-3xl p-8 sm:p-12 relative overflow-hidden transition-all duration-700 ${isRevealed("diagnostic") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`glass rounded-3xl p-8 sm:p-12 relative overflow-hidden transition-all duration-700 ${isRevealed("diagnostic") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
               }`}
           >
             <div className="text-center mb-8">
@@ -1619,7 +1619,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
             data-reveal-id="why-free"
-            className={`glass rounded-2xl p-8 sm:p-12 transition-all duration-700 ${isRevealed("why-free") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`glass rounded-2xl p-8 sm:p-12 transition-all duration-700 ${isRevealed("why-free") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
               }`}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
@@ -1683,7 +1683,7 @@ export default function LandingPage() {
             </span>
             <h2
               data-reveal-id="faq-headline"
-              className={`text-3xl sm:text-4xl font-bold tracking-tight transition-all duration-700 delay-100 ${isRevealed("faq-headline") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              className={`text-3xl sm:text-4xl font-bold tracking-tight transition-all duration-700 delay-100 ${isRevealed("faq-headline") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
                 }`}
             >
               <span className="text-dark-200">Questions</span>
@@ -1692,7 +1692,7 @@ export default function LandingPage() {
           </div>
           <div
             data-reveal-id="faq-items"
-            className={`space-y-0 transition-all duration-700 delay-200 ${isRevealed("faq-items") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`space-y-0 transition-all duration-700 delay-200 ${isRevealed("faq-items") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
               }`}
           >
             {[
@@ -1753,7 +1753,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <h2
             data-reveal-id="final-cta-headline"
-            className={`text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-[1.15] mb-6 transition-all duration-700 ${isRevealed("final-cta-headline") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-[1.15] mb-6 transition-all duration-700 ${isRevealed("final-cta-headline") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
               }`}
           >
             <span className="text-dark-200">Votre enfant ne se souviendra pas</span>
@@ -1770,7 +1770,7 @@ export default function LandingPage() {
           </p>
           <div
             data-reveal-id="final-cta-form"
-            className={`max-w-lg mx-auto transition-all duration-700 delay-200 flex flex-col items-center gap-6 ${isRevealed("final-cta-form") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`max-w-lg mx-auto transition-all duration-700 delay-200 flex flex-col items-center gap-6 ${isRevealed("final-cta-form") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
               }`}
           >
             {/* Dashboard Button */}
