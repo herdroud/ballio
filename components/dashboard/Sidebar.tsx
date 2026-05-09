@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUser, useAuth } from "@clerk/nextjs";
 import { getChildProfile } from "@/app/actions/child";
+import { APP_VERSION } from "@/lib/version";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -68,7 +69,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
         <div className="text-[10px] text-white/35 mt-0.5 uppercase tracking-widest flex items-center justify-between">
           <span>Manager de Talent</span>
-          <span className="text-[9px] opacity-60 normal-case tracking-normal">v0.1.0</span>
+          <span className="text-[9px] opacity-60 normal-case tracking-normal">{APP_VERSION}</span>
         </div>
       </div>
 
