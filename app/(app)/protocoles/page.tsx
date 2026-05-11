@@ -144,8 +144,8 @@ export default function ProtocolesPage() {
         <div className="max-w-4xl mx-auto pb-24 relative">
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">Protocoles Match</h1>
-                <p className="text-gray-500 mt-2 text-sm leading-relaxed max-w-2xl">
+                <h1 className="text-2xl min-[500px]:text-3xl font-extrabold text-gray-800 tracking-tight">Protocoles Match</h1>
+                <p className="text-gray-500 mt-2 text-sm leading-relaxed break-words">
                     Des plans d'action psychologiques et pédagogiques conçus par des professionnels pour gérer les situations de crise ou de stress avec votre enfant.
                 </p>
             </div>
@@ -169,8 +169,8 @@ export default function ProtocolesPage() {
                             key={cat}
                             onClick={() => setSelectedCategory(cat)}
                             className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${selectedCategory === cat
-                                    ? 'bg-gray-800 text-white shadow-md'
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                ? 'bg-gray-800 text-white shadow-md'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                 }`}
                         >
                             {cat}
@@ -227,7 +227,7 @@ export default function ProtocolesPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[300] flex justify-end bg-gray-900/40 backdrop-blur-sm p-2 sm:p-4"
+                        className="fixed inset-0 z-[300] flex justify-end bg-gray-900/40 backdrop-blur-sm p-1 min-[500px]:p-4 overflow-hidden"
                     >
                         {/* Background click listener to close */}
                         <div className="absolute inset-0" onClick={() => setSelectedProtocol(null)} />
@@ -237,7 +237,7 @@ export default function ProtocolesPage() {
                             animate={{ x: 0, y: 0 }}
                             exit={{ x: '100%', transition: { duration: 0.2 } }}
                             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                            className="w-full max-w-[480px] bg-white h-full max-h-screen overflow-y-auto shadow-2xl rounded-3xl p-6 flex flex-col relative z-10"
+                            className="w-full max-w-full min-[520px]:max-w-[480px] bg-white h-full max-h-screen overflow-y-auto shadow-2xl rounded-3xl p-6 flex flex-col relative z-10"
                         >
                             {/* Modal Header */}
                             <div className="flex justify-between items-start mb-6">

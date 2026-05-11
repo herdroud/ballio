@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Settings, User, HeartHandshake, Shield, Check, Mail, ChevronRight, Save, Baby } from 'lucide-react';
 import { getChildProfile, getParentProfile, updateChildProfile, updateParentProfile } from '@/app/actions/child';
 import { useRouter } from 'next/navigation';
+import { APP_VERSION } from '@/lib/version';
 
 const POSITIONS = [
     { id: 'GB', label: 'Gardien', icon: '🧤' },
@@ -215,7 +216,7 @@ export default function ParametresPage() {
 
                         <div>
                             <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Poste Préféré</label>
-                            <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                            <div className="grid grid-cols-4 sm:grid-cols-8 gap-2.5 sm:gap-2">
                                 {POSITIONS.map(pos => (
                                     <button
                                         key={pos.id}
@@ -317,7 +318,7 @@ export default function ParametresPage() {
                 </div>
 
                 <div className="text-center">
-                    <p className="text-xs font-bold text-gray-400 tracking-widest uppercase">Ballio v0.1.0</p>
+                    <p className="text-xs font-bold text-gray-400 tracking-widest uppercase">Ballio {APP_VERSION}</p>
                     <p className="text-[10px] text-gray-300 mt-1">© 2026 - Conçu avec ❤️ pour les jeunes talents</p>
                 </div>
             </div>

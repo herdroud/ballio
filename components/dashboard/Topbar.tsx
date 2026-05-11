@@ -12,11 +12,11 @@ export default function Topbar({ onMenuOpen }: TopbarProps) {
 
     const now = new Date();
     const dateStr = now.toLocaleDateString("fr-FR", {
-        weekday: "long",
         day: "numeric",
         month: "long",
         year: "numeric",
     });
+    const weekday = now.toLocaleDateString("fr-FR", { weekday: "long" });
     const weekNum = getWeekNumber(now);
 
     return (
@@ -34,8 +34,8 @@ export default function Topbar({ onMenuOpen }: TopbarProps) {
                     <div className="text-[15px] font-bold text-gray-800">
                         👋 Bonjour, {firstName}
                     </div>
-                    <div className="text-[12px] text-gray-400 mt-0.5 capitalize">
-                        {dateStr} &nbsp;·&nbsp; Semaine {weekNum}
+                    <div className="text-[12px] text-gray-400 mt-0.5 capitalize truncate">
+                        <span className="hidden min-[400px]:inline">{weekday} </span>{dateStr} &nbsp;·&nbsp; Semaine {weekNum}
                     </div>
                 </div>
             </div>

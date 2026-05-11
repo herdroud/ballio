@@ -370,16 +370,16 @@ export default function MatchLivePage() {
       {/* ─── Live Screen ───────────────────────────────────────────────────────────── */}
       {state === 'live' && (
         <div className="max-w-2xl mx-auto space-y-4">
-          <div className="bg-loo-green-900 rounded-2xl p-4 flex items-center justify-between text-white">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-loo-green-400/20 border border-loo-green-400/50 flex items-center justify-center text-loo-green-400 font-bold text-lg">⚽</div>
-              <div>
-                <div className="font-bold text-sm leading-tight">{config.team} <span className="text-white/40">vs</span> {config.opponent}</div>
-                <div className="text-[11px] text-white/50 uppercase font-bold tracking-wide">{config.position} · {config.competition}</div>
+          <div className="bg-loo-green-900 rounded-2xl p-4 flex items-center justify-between text-white gap-3">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-10 h-10 rounded-xl bg-loo-green-400/20 border border-loo-green-400/50 flex items-center justify-center text-loo-green-400 font-bold text-lg shrink-0">⚽</div>
+              <div className="min-w-0">
+                <div className="font-bold text-sm leading-tight truncate">{config.team} <span className="text-white/40">vs</span> {config.opponent}</div>
+                <div className="text-[11px] text-white/50 uppercase font-bold tracking-wide truncate">{config.position} · {config.competition}</div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase border ${onField ? 'bg-loo-green-400/20 text-loo-green-400 border-loo-green-400/50' : 'bg-white/10 text-white/40 border-white/20'
+            <div className="flex items-center gap-2 shrink-0">
+              <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase border whitespace-nowrap ${onField ? 'bg-loo-green-400/20 text-loo-green-400 border-loo-green-400/50' : 'bg-white/10 text-white/40 border-white/20'
                 }`}>
                 {onField ? '🟢 En Jeu' : '⏸ Banc'}
               </span>
@@ -408,7 +408,7 @@ export default function MatchLivePage() {
             )}
           </AnimatePresence>
 
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 flex items-center gap-3">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 flex flex-col min-[500px]:flex-row items-stretch min-[500px]:items-center gap-3">
             <button
               onClick={() => setIsRunning(!isRunning)}
               className={`flex-1 flex items-center justify-center gap-3 p-3 rounded-xl border-2 transition-all ${isRunning
@@ -420,18 +420,20 @@ export default function MatchLivePage() {
               <span className="text-2xl font-mono font-black">{formatTime(elapsed)}</span>
               <span className="text-xs font-bold uppercase opacity-60">{isRunning ? 'Pause' : 'Démarrer'}</span>
             </button>
-            <button
-              onClick={() => { setHalf(half === 1 ? 2 : 1); setIsRunning(false); }}
-              className="px-4 py-3 rounded-xl bg-gray-100 border border-gray-200 hover:bg-gray-200 text-xs font-bold uppercase text-gray-600 transition-colors whitespace-nowrap"
-            >
-              Mi-temps {half}
-            </button>
-            <button
-              onClick={() => setState('summary')}
-              className="px-4 py-3 rounded-xl bg-loo-green-500 hover:bg-loo-green-600 text-white font-black uppercase text-xs transition-colors whitespace-nowrap shadow-sm"
-            >
-              Fin 🏁
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setHalf(half === 1 ? 2 : 1); setIsRunning(false); }}
+                className="flex-1 min-[500px]:flex-none px-4 py-3 rounded-xl bg-gray-100 border border-gray-200 hover:bg-gray-200 text-xs font-bold uppercase text-gray-600 transition-colors whitespace-nowrap"
+              >
+                Mi-temps {half}
+              </button>
+              <button
+                onClick={() => setState('summary')}
+                className="flex-1 min-[500px]:flex-none px-4 py-3 rounded-xl bg-loo-green-500 hover:bg-loo-green-600 text-white font-black uppercase text-xs transition-colors whitespace-nowrap shadow-sm"
+              >
+                Fin 🏁
+              </button>
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -446,7 +448,7 @@ export default function MatchLivePage() {
                     <button
                       key={action.id}
                       onClick={() => handleAddEvent(catId as any, action)}
-                      className={`relative group p-3 rounded-xl border transition-all active:scale-95 hover:shadow-sm ${(action as any).wide ? 'col-span-2 min-[500px]:col-span-3' : ''
+                      className={`relative group p-3.5 min-[500px]:p-3 rounded-xl border transition-all active:scale-95 hover:shadow-sm ${(action as any).wide ? 'col-span-2 min-[500px]:col-span-3' : ''
                         } ${cat.bgCls} ${cat.borderCls} flex items-center gap-2.5`}
                     >
                       <span className="text-xl shrink-0">{action.icon}</span>

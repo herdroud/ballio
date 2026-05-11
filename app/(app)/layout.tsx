@@ -21,9 +21,9 @@ export default function AppLayout({
                 onClose={() => setSidebarOpen(false)}
             />
 
-            <main className="min-[900px]:ml-64 flex-1 flex flex-col min-h-screen">
+            <main className="min-[900px]:ml-64 flex-1 flex flex-col min-h-screen overflow-x-hidden">
                 <Topbar onMenuOpen={() => setSidebarOpen(true)} />
-                <div className="flex-1 p-4 min-[900px]:p-7 pb-20 min-[900px]:pb-7">
+                <div className="flex-1 p-4 min-[900px]:p-7 pb-20 min-[900px]:pb-7 overflow-x-hidden">
                     {children}
                 </div>
             </main>

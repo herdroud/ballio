@@ -202,7 +202,7 @@ export default function PlayerProfilePage() {
             {/* Season totals summary */}
             <div className="bg-gray-900 rounded-2xl p-5 text-white">
                 <div className="text-[10px] font-black uppercase text-white/40 tracking-widest mb-4">Volume de Jeu (Saison)</div>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 min-[420px]:grid-cols-4 gap-4">
                     <div className="text-center">
                         <div className="text-xl font-black">{seasonActions.passes}</div>
                         <div className="text-[10px] font-bold uppercase text-white/40">Passes</div>
@@ -307,7 +307,7 @@ export default function PlayerProfilePage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[300] flex justify-end bg-gray-900/40 backdrop-blur-sm p-4"
+                        className="fixed inset-0 z-[300] flex justify-end bg-gray-900/40 backdrop-blur-sm p-1 min-[500px]:p-4"
                     >
                         <div className="absolute inset-0" onClick={() => setSelectedMatch(null)} />
                         <motion.div

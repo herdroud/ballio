@@ -127,14 +127,14 @@ export default function EvolutionPage() {
                             <p className="text-indigo-200 text-sm leading-relaxed mb-6">
                                 Nos analyses montrent que lors des semaines où la qualité du sommeil de {childName} est au-dessus de 80% (Check-in), sa <strong className="text-white">Note de Match (OVR) augmente en moyenne de +9 pts</strong>.
                             </p>
-                            <div className="flex items-center gap-4 bg-black/20 p-4 rounded-xl border border-white/5">
+                            <div className="flex flex-col min-[480px]:flex-row items-center gap-4 bg-black/20 p-4 rounded-xl border border-white/5">
                                 <div className="flex flex-col items-center justify-center">
                                     <div className="text-[10px] uppercase font-bold text-indigo-300 tracking-wider">Sommeil "Mauvais"</div>
                                     <div className="text-2xl font-black italic text-red-400">65<span className="text-sm">OVR</span></div>
                                 </div>
-                                <div className="flex-1 border-t-2 border-dashed border-indigo-400/30"></div>
+                                <div className="hidden min-[480px]:block flex-1 border-t-2 border-dashed border-indigo-400/30"></div>
                                 <div className="p-1 bg-indigo-500/20 rounded-full"><TrendingUp size={16} className="text-indigo-300" /></div>
-                                <div className="flex-1 border-t-2 border-dashed border-indigo-400/30"></div>
+                                <div className="hidden min-[480px]:block flex-1 border-t-2 border-dashed border-indigo-400/30"></div>
                                 <div className="flex flex-col items-center justify-center">
                                     <div className="text-[10px] uppercase font-bold text-indigo-300 tracking-wider">Sommeil "Excellent"</div>
                                     <div className="text-2xl font-black italic text-loo-green-400">82<span className="text-sm">OVR</span></div>
@@ -152,7 +152,7 @@ export default function EvolutionPage() {
                                 <div className="text-2xl font-black text-loo-green-600">↑ +14</div>
                             </div>
 
-                            <div className="h-40 flex items-end gap-2 sm:gap-4 w-full">
+                            <div className="h-40 flex items-end gap-1 min-[400px]:gap-2 sm:gap-4 w-full">
                                 {OVR_HISTORY.map((item, idx) => (
                                     <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
                                         <div className="opacity-0 group-hover:opacity-100 transition-opacity text-xs font-black bg-gray-800 text-white px-2 py-1 rounded-md absolute -mt-8 pointer-events-none">
@@ -179,7 +179,7 @@ export default function EvolutionPage() {
                             <div className="space-y-4">
                                 {COMPARAISON_STATS.map(stat => (
                                     <div key={stat.label} className="flex items-center gap-3">
-                                        <div className="w-16 text-[10px] sm:text-xs font-bold uppercase text-gray-500 tracking-wider">
+                                        <div className="w-14 min-[400px]:w-16 text-[10px] sm:text-xs font-bold uppercase text-gray-500 tracking-wider shrink-0">
                                             {stat.label}
                                         </div>
                                         <div className="flex-1 relative h-6 bg-gray-100 rounded-full overflow-hidden flex items-center">

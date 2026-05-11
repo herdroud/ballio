@@ -215,7 +215,7 @@ export default function CheckinPage() {
                                 <div className="p-2 bg-indigo-50 text-indigo-500 rounded-lg"><Moon size={20} /></div>
                                 <h3 className="font-bold text-gray-800">Qualité du sommeil</h3>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="grid grid-cols-2 min-[480px]:grid-cols-4 gap-2">
                                 {[
                                     { val: 1, label: 'Mauvais' },
                                     { val: 2, label: 'Moyen' },
@@ -225,7 +225,7 @@ export default function CheckinPage() {
                                     <button
                                         key={opt.val}
                                         onClick={() => setSleep(opt.val)}
-                                        className={`flex-1 py-3 rounded-xl border text-sm font-bold transition-all ${sleep === opt.val
+                                        className={`py-3 rounded-xl border text-sm font-bold transition-all text-center ${sleep === opt.val
                                             ? 'border-indigo-400 bg-indigo-50 text-indigo-600'
                                             : 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50'
                                             }`}
@@ -244,7 +244,7 @@ export default function CheckinPage() {
                                 <div className="p-2 bg-orange-50 text-orange-500 rounded-lg"><Battery size={20} /></div>
                                 <h3 className="font-bold text-gray-800">Niveau de fatigue</h3>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="grid grid-cols-2 min-[480px]:grid-cols-4 gap-2">
                                 {[
                                     { val: 1, label: 'Épuisé' },
                                     { val: 2, label: 'Fatigué' },
@@ -254,7 +254,7 @@ export default function CheckinPage() {
                                     <button
                                         key={opt.val}
                                         onClick={() => setFatigue(opt.val)}
-                                        className={`flex-1 py-3 rounded-xl border text-xs min-[500px]:text-sm font-bold transition-all ${fatigue === opt.val
+                                        className={`py-3 rounded-xl border text-xs min-[500px]:text-sm font-bold transition-all text-center ${fatigue === opt.val
                                             ? 'border-orange-400 bg-orange-50 text-orange-600'
                                             : 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50'
                                             }`}

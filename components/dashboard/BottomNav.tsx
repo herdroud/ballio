@@ -23,7 +23,7 @@ export default function BottomNav() {
                         key={item.href}
                         href={item.href}
                         className={`
-              flex flex-col items-center gap-0.5 py-1.5 px-3 rounded-[9px] min-w-[58px]
+              flex flex-col items-center gap-0.5 py-1.5 px-2 min-[400px]:px-3 rounded-[9px] min-w-[50px] min-[400px]:min-w-[58px]
               no-underline transition-colors
             `}
                     >

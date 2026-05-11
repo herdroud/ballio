@@ -252,7 +252,7 @@ function MatchCard({ match, formatDate, statusMenuOpenId, setStatusMenuOpenId, u
                         <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                             vs {match.opponent}
                         </h3>
-                        <div className="flex items-center gap-3 text-xs text-gray-500 font-medium mt-1">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-gray-500 font-medium mt-1">
                             <span className="flex items-center capitalize"><CalendarIcon size={12} className="mr-1" /> {formatDate(match.date)}</span>
                             <span className="flex items-center"><MapPin size={12} className="mr-1" /> {match.location}</span>
                         </div>

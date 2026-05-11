@@ -111,11 +111,11 @@ export default function DashboardPage() {
       {!hasCheckedIn && <CheckinBanner childName={childName} />}
 
       {/* Section header */}
-      <div className="flex items-center justify-between mb-4 min-[640px]:mb-5">
+      <div className="flex flex-col min-[500px]:flex-row min-[500px]:items-center justify-between mb-4 min-[640px]:mb-5 gap-1">
         <h2 className="text-[17px] font-extrabold text-gray-800 tracking-tight">
           Vue d&apos;ensemble — {childName}
         </h2>
-        <span className="text-[13px] font-semibold text-loo-green-600 cursor-pointer hover:text-loo-green-700">
+        <span className="text-[13px] font-semibold text-loo-green-600 cursor-pointer hover:text-loo-green-700 shrink-0">
           Voir l&apos;historique complet →
         </span>
       </div>
@@ -140,7 +140,7 @@ export default function DashboardPage() {
       </div>
 
       {/* QUICK ACCESS SECTION */}
-      <div className="grid grid-cols-2 gap-4 mb-5">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-4 mb-5">
         <Link
           href="/match/live"
           className="flex items-center justify-between p-4 rounded-2xl bg-emerald-500 text-white hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20 group"
