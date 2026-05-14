@@ -115,6 +115,8 @@ export default function LandingPage() {
 
   // Particle generation
   useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) return;
+    
     const createParticle = () => {
       const container = document.getElementById("particles");
       if (!container) return;
@@ -239,6 +241,7 @@ export default function LandingPage() {
   };
 
   const handleMouseMove = (e: React.MouseEvent, refName: string) => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) return;
     const el = spotlightRefs.current[refName];
     if (!el) return;
     const rect = el.getBoundingClientRect();
