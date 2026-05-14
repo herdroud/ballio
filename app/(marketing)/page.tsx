@@ -116,7 +116,7 @@ export default function LandingPage() {
   // Particle generation
   useEffect(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) return;
-    
+
     const createParticle = () => {
       const container = document.getElementById("particles");
       if (!container) return;
@@ -294,99 +294,102 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* Announcement Bar */}
-      <div className="announcement py-2.5 px-4 text-center relative z-50">
-        <p className="text-xs text-dark-300 flex items-center justify-center gap-2 flex-wrap">
-          <span className="w-1.5 h-1.5 rounded-full bg-pitch-400 pulse-green flex-shrink-0" />
-          <strong className="text-pitch-300 font-semibold">
-            {liveCounter.toLocaleString("fr-FR").replace(/,/g, " ")}
-          </strong>
-          <span>parents accompagnés</span>
-          <span className="text-dark-600 hidden xs:inline">·</span>
-          <span className="hidden xs:inline">
-            Programme 100% gratuit · Aucune CB requise
-          </span>
-          <a href="#hero-form" className="text-pitch-400 font-semibold hover:underline ml-1">
-            Rejoindre →
-          </a>
-        </p>
-      </div>
-
-      {/* Navbar */}
-      <nav
-        id="navbar"
-        className={`fixed top-[40px] left-0 right-0 z-50 h-20 flex items-center transition-all duration-500 ${scrolled
-          ? "bg-[#020617]/88 backdrop-blur-2xl border-b border-white/[.06]"
-          : ""
+      {/* Sticky Header Wrapper (Announcement + Navbar) */}
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-[#020617]/90 backdrop-blur-2xl border-b border-white/[.06]" : ""
           }`}
-        style={{ background: scrolled ? "" : "transparent" }}
       >
-        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <a href="#" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pitch-400 to-pitch-600 flex items-center justify-center shadow-lg shadow-pitch-500/20 group-hover:shadow-pitch-500/40 transition-shadow">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
-                <path d="M2 12h20" />
-              </svg>
-            </div>
-            <span className="text-xl font-bold tracking-tight font-syne">
-              Ballio
+        {/* Announcement Bar */}
+        <div className="announcement py-2.5 px-4 text-center relative transition-all duration-500">
+          <p className="text-xs text-dark-300 flex items-center justify-center gap-2 flex-wrap">
+            <span className="w-1.5 h-1.5 rounded-full bg-pitch-400 pulse-green flex-shrink-0" />
+            <strong className="text-pitch-300 font-semibold">
+              {liveCounter.toLocaleString("fr-FR").replace(/,/g, " ")}
+            </strong>
+            <span>parents accompagnés</span>
+            <span className="text-dark-600 hidden xs:inline">·</span>
+            <span className="hidden xs:inline">
+              Programme 100% gratuit · Aucune CB requise
             </span>
-          </a>
-          <div className="hidden md:flex items-center gap-8">
-            <a
-              href="#methode"
-              className="text-sm text-dark-400 hover:text-white transition-colors"
-            >
-              Méthode
+            <a href="#hero-form" className="text-pitch-400 font-semibold hover:underline ml-1">
+              Rejoindre →
             </a>
-            <a
-              href="#temoignages"
-              className="text-sm text-dark-400 hover:text-white transition-colors"
-            >
-              Témoignages
-            </a>
-            <a
-              href="#outils"
-              className="text-sm text-dark-400 hover:text-white transition-colors"
-            >
-              Outils
-            </a>
-            <a
-              href="#faq"
-              className="text-sm text-dark-400 hover:text-white transition-colors"
-            >
-              FAQ
-            </a>
-          </div>
-          <div className="flex items-center gap-3">
-            <a
-              href="/sign-in"
-              className="hidden sm:inline-flex cta-btn rounded-xl px-5 py-2.5 text-sm font-semibold text-white items-center gap-2"
-            >
-              <span>Accès gratuit</span>
-              <ArrowRight className="w-4 h-4" />
-            </a>
-            <button
-              id="mobile-menu-btn"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl glass"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-          </div>
+          </p>
         </div>
-      </nav>
+
+        {/* Navbar */}
+        <nav
+          id="navbar"
+          className="h-20 flex items-center transition-all duration-500"
+          style={{ background: "transparent" }}
+        >
+          <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+            <a href="#" className="flex items-center gap-2.5 group">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pitch-400 to-pitch-600 flex items-center justify-center shadow-lg shadow-pitch-500/20 group-hover:shadow-pitch-500/40 transition-shadow">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+                  <path d="M2 12h20" />
+                </svg>
+              </div>
+              <span className="text-xl font-bold tracking-tight font-syne">
+                Ballio
+              </span>
+            </a>
+            <div className="hidden md:flex items-center gap-8">
+              <a
+                href="#methode"
+                className="text-sm text-dark-400 hover:text-white transition-colors"
+              >
+                Méthode
+              </a>
+              <a
+                href="#temoignages"
+                className="text-sm text-dark-400 hover:text-white transition-colors"
+              >
+                Témoignages
+              </a>
+              <a
+                href="#outils"
+                className="text-sm text-dark-400 hover:text-white transition-colors"
+              >
+                Outils
+              </a>
+              <a
+                href="#faq"
+                className="text-sm text-dark-400 hover:text-white transition-colors"
+              >
+                FAQ
+              </a>
+            </div>
+            <div className="flex items-center gap-3">
+              <a
+                href="/sign-in"
+                className="hidden sm:inline-flex cta-btn rounded-xl px-5 py-2.5 text-sm font-semibold text-white items-center gap-2"
+              >
+                <span>Accès gratuit</span>
+                <ArrowRight className="w-4 h-4" />
+              </a>
+              <button
+                id="mobile-menu-btn"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl glass"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </nav>
+      </header>
 
       {/* Mobile Menu */}
       <div
