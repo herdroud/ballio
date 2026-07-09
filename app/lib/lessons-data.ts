@@ -14,7 +14,8 @@ export const LESSONS_DATA: Record<string, Lesson> = {
         id: "mental-1",
         title: "Le Paradoxe du Parent",
         subtitle: "Module Mental - Leçon 1",
-        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        // Pas encore de vidéo produite : laisser vide plutôt qu'un placeholder.
+        videoUrl: "",
         description: "Découvrez pourquoi 80% des parents ruinent involontairement la progression.",
         content: `
       Dans cette leçon, nous abordons le concept de la 'pression invisible'.

@@ -52,10 +52,12 @@ export default async function ModuleViewerPage({
     );
   }
 
-  const publicDir = path.join(process.cwd(), "public", "modules");
+  // Contenu servi via ce composant (authentifié) uniquement — hors de /public
+  // pour ne pas exposer les modules en accès statique direct.
+  const modulesDir = path.join(process.cwd(), "content", "modules");
   const [rawCssContent, rawHtmlContent] = await Promise.all([
-    fs.readFile(path.join(publicDir, `module${mod.num}.css`), "utf-8"),
-    fs.readFile(path.join(publicDir, `module${mod.num}.html`), "utf-8"),
+    fs.readFile(path.join(modulesDir, `module${mod.num}.css`), "utf-8"),
+    fs.readFile(path.join(modulesDir, `module${mod.num}.html`), "utf-8"),
   ]);
 
   // Force hardcoded white values in original CSS and inline HTML to soft dark colors

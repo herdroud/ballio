@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, PlayCircle, CheckCircle, Lock } from "lucide-react";
+import { ChevronLeft, PlayCircle, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
@@ -17,7 +17,6 @@ export default function LessonPage() {
 
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [requiredTier, setRequiredTier] = useState<string | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -42,9 +41,6 @@ export default function LessonPage() {
           setIsCompleted(result.isCompleted);
         } else {
           setError(result.error);
-          if (result.requiredTier) {
-            setRequiredTier(result.requiredTier);
-          }
         }
       } catch (err) {
         console.error("Erreur fetch lesson:", err);
@@ -145,9 +141,7 @@ export default function LessonPage() {
               <h3 className="font-bold text-xl">L'action du jour</h3>
             </div>
             <p className="text-blue-50 leading-relaxed mb-6">{lesson.actionItem}</p>
-            <Button className="w-full bg-white text-blue-600 hover:bg-blue-50 font-bold py-6 rounded-xl shadow-lg">
-              J'ai terminé cette leçon
-            </Button>
+            <LessonCompleteButton lessonId={lessonId} initialIsCompleted={isCompleted} />
           </div>
         </div>
       </div>

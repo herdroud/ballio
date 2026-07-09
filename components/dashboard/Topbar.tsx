@@ -1,6 +1,7 @@
 "use client";
 
 import { useUser, UserButton } from "@clerk/nextjs";
+import { getWeekNumber } from "@/lib/utils";
 
 interface TopbarProps {
     onMenuOpen: () => void;
@@ -41,13 +42,8 @@ export default function Topbar({ onMenuOpen }: TopbarProps) {
             </div>
 
             <div className="flex items-center gap-3">
-                <button className="w-[38px] h-[38px] rounded-[10px] bg-gray-100 border-none cursor-pointer flex items-center justify-center text-[17px] relative hover:bg-gray-200 transition-colors">
-                    🔔
-                    <span className="absolute top-[7px] right-[7px] w-[7px] h-[7px] bg-loo-red rounded-full border-[1.5px] border-white" />
-                </button>
-                <button className="w-[38px] h-[38px] rounded-[10px] bg-gray-100 border-none cursor-pointer flex items-center justify-center text-[17px] hover:bg-gray-200 transition-colors max-[899px]:hidden">
-                    ❓
-                </button>
+                {/* Boutons notifications / aide : à réintroduire quand les
+                    fonctionnalités correspondantes existeront. */}
                 <div className="flex items-center gap-2 px-3 pl-1 py-1 rounded-full bg-gray-100 cursor-pointer hover:bg-gray-200 transition-colors">
                     <UserButton afterSignOutUrl="/" />
                     <span className="text-[13px] font-semibold text-gray-700 max-[899px]:hidden">
@@ -57,11 +53,4 @@ export default function Topbar({ onMenuOpen }: TopbarProps) {
             </div>
         </header>
     );
-}
-
-function getWeekNumber(d: Date): number {
-    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
-    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-    return Math.ceil(((date.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 }

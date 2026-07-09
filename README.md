@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ⚽ Ballio
 
-## Getting Started
+**Le copilote des parents de jeunes footballeurs.** Application gratuite d'accompagnement :
+formation parentale (7 modules), check-in bien-être quotidien, suivi de match en direct
+avec notation type FIFA, calendrier et statistiques de saison.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (App Router, Turbopack) · React 19 · TypeScript
+- **Clerk** — authentification
+- **Supabase** — base de données (PostgreSQL)
+- **Tailwind CSS 4** · framer-motion · sonner (toasts)
+- **Vitest** — tests unitaires
+
+## Démarrage
 
 ```bash
+npm install
+cp .env.example .env.local   # puis renseigner les clés (voir ci-dessous)
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+> ⚠️ Node.js ≥ 20.9 requis (champ `engines` du package.json).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Variables d'environnement (`.env.local`)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Description |
+|---|---|
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clé publique Clerk |
+| `CLERK_SECRET_KEY` | Clé secrète Clerk |
+| `NEXT_PUBLIC_SUPABASE_URL` | URL du projet Supabase |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Clé anonyme Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | Clé service role Supabase (serveur uniquement) |
 
-## Learn More
+### Base de données
 
-To learn more about Next.js, take a look at the following resources:
+Le schéma est documenté dans [`docs/supabase_schema.md`](docs/supabase_schema.md).
+Les migrations à appliquer sont dans [`supabase/migrations/`](supabase/migrations/) —
+exécutez-les dans le SQL Editor de Supabase (elles sont idempotentes).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Commande | Effet |
+|---|---|
+| `npm run dev` | Serveur de développement |
+| `npm run build` | Build de production |
+| `npm run lint` | ESLint |
+| `npm test` | Tests unitaires (Vitest) |
 
-## Deploy on Vercel
+## Architecture
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+app/
+  (marketing)/     Landing page publique + pages légales
+  (auth)/          Connexion / inscription (Clerk)
+  (app)/           Application (dashboard, formation, check-in, match live…)
+  actions/         Server actions (seule couche d'accès aux données)
+  lib/             Logique métier pure (stats, bien-être, formation) — testée
+  types/           Types TS des tables Supabase et du domaine
+components/        Composants React (dashboard, formation, ui)
+content/modules/   Contenu HTML/CSS des modules de formation (servi authentifié)
+proxy.ts           Protection des routes (Clerk) — tout est privé sauf liste blanche
+supabase/          Migrations SQL
+tests/             Tests unitaires Vitest
+docs/              Schéma BDD, analyses, prototypes archivés
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Règles de sécurité
+
+- Les server actions utilisent la clé **service role** (contourne la RLS) : toute
+  requête liée à un enfant **doit** passer par `requireOwnedChild()` (`app/actions/child.ts`)
+  qui vérifie l'appartenance de l'enfant au parent connecté.
+- Aucun accès Supabase direct depuis les composants client.

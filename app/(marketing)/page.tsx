@@ -10,7 +10,6 @@ import {
   XCircle,
   AlertTriangle,
   Clock,
-  Star,
   Zap,
   Landmark,
   CalendarCheck,
@@ -25,20 +24,21 @@ import {
   Menu,
   Plus,
   Unlock,
-  ChevronDown,
   MegaphoneOff,
   Compass,
 } from "lucide-react";
+import Link from "next/link";
+import { saveLead } from "@/app/actions/leads";
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [stickyCtaVisible, setStickyCtaVisible] = useState(false);
-  const [liveCounter, setLiveCounter] = useState(3847);
   const [toast, setToast] = useState<{ show: boolean; message: string }>({
     show: false,
     message: "",
   });
+  const [pendingForm, setPendingForm] = useState<string | null>(null);
 
   // Checklist state
   const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
@@ -146,20 +146,34 @@ export default function LandingPage() {
     setTimeout(() => setToast({ show: false, message: "" }), 4000);
   };
 
-  const handleEmailForm = (
-    e: React.FormEvent,
+  const handleEmailForm = async (
+    e: React.FormEvent<HTMLFormElement>,
     context: "hero" | "quiz" | "final"
   ) => {
     e.preventDefault();
-    if (context === "hero") {
-      setHeroFormSubmitted(true);
-    } else if (context === "quiz") {
-      setQuizFormSubmitted(true);
-    } else if (context === "final") {
-      setFinalFormSubmitted(true);
+    const email = new FormData(e.currentTarget).get("email");
+    if (typeof email !== "string" || !email) return;
+
+    setPendingForm(context);
+    try {
+      const result = await saveLead(email, context);
+      if (!result.success) {
+        showToast(result.error || "Une erreur est survenue. Réessayez.");
+        return;
+      }
+      if (context === "hero") {
+        setHeroFormSubmitted(true);
+      } else if (context === "quiz") {
+        setQuizFormSubmitted(true);
+      } else if (context === "final") {
+        setFinalFormSubmitted(true);
+      }
+      showToast("C'est noté ! Votre accès est prêt ci-dessous.");
+    } catch {
+      showToast("Une erreur est survenue. Réessayez.");
+    } finally {
+      setPendingForm(null);
     }
-    showToast("Bienvenue dans Ballio ! Vérifiez vos emails.");
-    setLiveCounter((prev) => prev + 1);
   };
 
   const toggleCheck = (index: number) => {
@@ -288,8 +302,7 @@ export default function LandingPage() {
             <ArrowRight className="w-4 h-4" />
           </a>
           <p className="text-[10px] text-dark-600 hidden sm:block whitespace-nowrap">
-            {liveCounter.toLocaleString("fr-FR").replace(/,/g, " ")} parents ·
-            0€
+            100% gratuit · 0€
           </p>
         </div>
       </div>
@@ -304,12 +317,10 @@ export default function LandingPage() {
           <p className="text-xs text-dark-300 flex items-center justify-center gap-2 flex-wrap">
             <span className="w-1.5 h-1.5 rounded-full bg-pitch-400 pulse-green flex-shrink-0" />
             <strong className="text-pitch-300 font-semibold">
-              {liveCounter.toLocaleString("fr-FR").replace(/,/g, " ")}
+              Programme 100% gratuit
             </strong>
-            <span>parents accompagnés</span>
-            <span className="text-dark-600 hidden xs:inline">·</span>
             <span className="hidden xs:inline">
-              Programme 100% gratuit · Aucune CB requise
+              · Aucune CB requise · 7 modules complets
             </span>
             <a href="#hero-form" className="text-pitch-400 font-semibold hover:underline ml-1">
               Rejoindre →
@@ -372,13 +383,13 @@ export default function LandingPage() {
               </a>
             </div>
             <div className="flex items-center gap-3">
-              <a
+              <Link
                 href="/sign-in"
                 className="hidden sm:inline-flex cta-btn rounded-xl px-5 py-2.5 text-sm font-semibold text-white items-center gap-2"
               >
                 <span>Accès gratuit</span>
                 <ArrowRight className="w-4 h-4" />
-              </a>
+              </Link>
               <button
                 id="mobile-menu-btn"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -501,13 +512,13 @@ export default function LandingPage() {
               }`}
           >
             {/* Dashboard Button */}
-            <a
+            <Link
               href="/sign-in"
               className="cta-btn rounded-xl px-10 py-5 text-lg font-semibold text-white flex items-center justify-center gap-3 w-full max-w-sm shadow-xl shadow-pitch-500/20"
             >
               <span>Connexion au Dashboard</span>
               <ArrowRight className="w-5 h-5" />
-            </a>
+            </Link>
 
             <p className="text-xs text-dark-600 flex items-center justify-center gap-4 flex-wrap mt-3">
               <span className="flex items-center gap-1.5">
@@ -546,15 +557,17 @@ export default function LandingPage() {
                     <div className="flex flex-col sm:flex-row gap-3">
                       <input
                         type="email"
+                        name="email"
                         placeholder="votre@email.com"
                         required
                         className="email-input flex-1 rounded-xl px-5 py-4 text-base"
                       />
                       <button
                         type="submit"
-                        className="rounded-xl px-7 py-4 text-base font-semibold text-dark-900 bg-pitch-500 hover:bg-pitch-400 flex items-center justify-center gap-2.5 whitespace-nowrap transition-colors shadow-lg shadow-pitch-500/20"
+                        disabled={pendingForm === "hero"}
+                        className="rounded-xl px-7 py-4 text-base font-semibold text-dark-900 bg-pitch-500 hover:bg-pitch-400 flex items-center justify-center gap-2.5 whitespace-nowrap transition-colors shadow-lg shadow-pitch-500/20 disabled:opacity-60"
                       >
-                        <span>Recevoir le PDF</span>
+                        <span>{pendingForm === "hero" ? "Envoi..." : "Recevoir le PDF"}</span>
                         <ArrowRight className="w-4 h-4" />
                       </button>
                     </div>
@@ -570,13 +583,13 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <p className="text-lg font-bold text-dark-100 font-syne">
-                      Demande enregistrée !
+                      C&apos;est noté !
                     </p>
                     <p className="text-sm text-dark-400 mt-1 font-light block mb-3">
-                      Vous allez recevoir le Protocole Silence par email.
+                      Votre Protocole Silence est prêt.
                     </p>
                     <a href="/Le Protocole Silence Ballio.pdf" download className="text-pitch-400 text-sm font-medium hover:underline inline-flex items-center gap-2">
-                      <ArrowRight className="w-4 h-4" /> Télécharger directement le PDF
+                      <ArrowRight className="w-4 h-4" /> Télécharger le PDF
                     </a>
                   </div>
                 </div>
@@ -590,41 +603,15 @@ export default function LandingPage() {
             className={`mt-10 flex items-center justify-center gap-3 transition-all duration-700 delay-400 ${isRevealed("hero-social") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
               }`}
           >
-            <div className="flex -space-x-2.5">
-              <img
-                src="https://i.pravatar.cc/40?img=47"
-                alt=""
-                className="w-9 h-9 rounded-full border-2 border-dark-950 object-cover"
-              />
-              <img
-                src="https://i.pravatar.cc/40?img=33"
-                alt=""
-                className="w-9 h-9 rounded-full border-2 border-dark-950 object-cover"
-              />
-              <img
-                src="https://i.pravatar.cc/40?img=56"
-                alt=""
-                className="w-9 h-9 rounded-full border-2 border-dark-950 object-cover"
-              />
-              <img
-                src="https://i.pravatar.cc/40?img=12"
-                alt=""
-                className="w-9 h-9 rounded-full border-2 border-dark-950 object-cover"
-              />
-              <div className="w-9 h-9 rounded-full border-2 border-dark-950 bg-dark-800 flex items-center justify-center text-[9px] font-bold text-pitch-400">
-                +3k
-              </div>
-            </div>
-            <div className="text-left">
-              <div className="flex items-center gap-1.5">
-                <span className="text-amber-400 text-xs tracking-tight">
-                  ★★★★★
-                </span>
-                <span className="text-xs font-bold text-dark-200">4,9/5</span>
-              </div>
-              <span className="text-xs text-dark-500 font-light">
-                {liveCounter.toLocaleString("fr-FR").replace(/,/g, " ")} parents
-                ont déjà rejoint Ballio
+            <div className="flex items-center gap-6 text-xs text-dark-400 font-light">
+              <span className="flex items-center gap-1.5">
+                <Check className="w-3.5 h-3.5 text-pitch-400" /> 7 modules complets
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Check className="w-3.5 h-3.5 text-pitch-400" /> 100% gratuit
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Check className="w-3.5 h-3.5 text-pitch-400" /> Sans carte bancaire
               </span>
             </div>
           </div>
@@ -651,18 +638,18 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
               <div>
                 <div className="text-3xl sm:text-4xl font-bold text-dark-100 mb-1 font-syne">
-                  {liveCounter.toLocaleString("fr-FR").replace(/,/g, " ")}
+                  24 <span className="text-pitch-400 text-2xl">leçons</span>
                 </div>
                 <div className="text-xs text-dark-500 tracking-widest uppercase">
-                  Parents accompagnés
+                  Concrètes et actionnables
                 </div>
               </div>
               <div className="border-t sm:border-t-0 sm:border-l border-white/[.06] pt-6 sm:pt-0 sm:pl-6">
                 <div className="text-3xl sm:text-4xl font-bold text-dark-100 mb-1 font-syne">
-                  4,9<span className="text-pitch-400">/5</span>
+                  0<span className="text-pitch-400">€</span>
                 </div>
                 <div className="text-xs text-dark-500 tracking-widest uppercase">
-                  Satisfaction parents
+                  Gratuit, sans engagement
                 </div>
               </div>
               <div className="border-t sm:border-t-0 sm:border-l border-white/[.06] pt-6 sm:pt-0 sm:pl-6">
@@ -689,38 +676,38 @@ export default function LandingPage() {
               data-reveal-id="testimonials-title"
               className="text-xs font-semibold tracking-widest uppercase text-pitch-500/80 mb-4 block transition-all duration-700"
             >
-              Témoignages
+              Situations vécues
             </span>
             <h2
               data-reveal-id="testimonials-headline"
               className={`text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight transition-all duration-700 delay-100 ${isRevealed("testimonials-headline") ? "opacity-100 translate-y-0" : "max-sm:opacity-100 max-sm:translate-y-0 max-sm:translate-x-0 max-sm:scale-100 opacity-0 translate-y-8"
                 }`}
             >
-              <span className="text-dark-200">Ils ont fait le premier pas.</span>
+              <span className="text-dark-200">Vous vous reconnaissez ?</span>
               <br />
-              <span className="text-gradient-green">Tout a changé.</span>
+              <span className="text-gradient-green">Voici ce qui peut changer.</span>
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
-                img: "33",
-                name: "Frédéric L.",
-                role: "Papa de Théo, U14 · AS Poissy",
-                text: "Mon fils avait clairement dit qu'il voulait arrêter. Je ne comprenais pas pourquoi. Après le module M3, j'ai réalisé que c'était moi le problème — pas le foot. Aujourd'hui il est titulaire en U14 et me raconte chaque match à table.",
+                icon: "🚗",
+                persona: "Le parent d'un U14 qui veut arrêter",
+                before: "« Mon fils avait clairement dit qu'il voulait arrêter. Je ne comprenais pas pourquoi. »",
+                after: "Le module 3 apprend à identifier la cause racine — pression, conflit ou épuisement — avant qu'il ne soit trop tard.",
               },
               {
-                img: "47",
-                name: "Sophie M.",
-                role: "Maman de Lucas, U11 · FC Boulogne",
-                text: "Je ne savais pas que je mettais une pression invisible. Le diagnostic m'a ouvert les yeux : j'étais en mode Manager Anxieux sans le voir. Le trajet retour est devenu notre meilleur moment de la semaine.",
+                icon: "😶",
+                persona: "Le parent qui met une pression invisible",
+                before: "« Je pensais bien faire. Chaque encouragement était en réalité une attente de résultat. »",
+                after: "Le diagnostic révèle votre profil parental et les réflexes à corriger — dès le prochain trajet retour.",
               },
               {
-                img: "25",
-                name: "Marc D.",
-                role: "Papa de Chloé, U16 · Stade Rennais Formation",
-                text: "Ma fille pleurait après chaque match perdu. Je pensais qu'elle était trop sensible. Ballio m'a appris à créer le bon espace. Elle a été sélectionnée en équipe régionale 3 mois plus tard. Notre relation s'est transformée.",
+                icon: "😢",
+                persona: "Le parent d'une joueuse qui pleure après les défaites",
+                before: "« Elle pleurait après chaque match perdu. Je pensais qu'elle était trop sensible. »",
+                after: "Le protocole après-match donne les 3 étapes exactes pour accueillir l'émotion sans la nier ni l'amplifier.",
               },
             ].map((t, i) => (
               <div
@@ -730,32 +717,16 @@ export default function LandingPage() {
                   }`}
               >
                 <div>
-                  <div className="flex gap-0.5 mb-4">
-                    {[...Array(5)].map((_, j) => (
-                      <Star
-                        key={j}
-                        className="w-4 h-4 text-amber-400 fill-amber-400"
-                      />
-                    ))}
-                  </div>
-                  <p className="text-sm text-dark-300 leading-relaxed font-light">
-                    "{t.text.split("**")[0]}
-                    <strong className="text-dark-100 font-semibold">
-                      {t.text.split("**")[1]}
-                    </strong>
-                    {t.text.split("**")[2]}"
+                  <div className="text-3xl mb-4">{t.icon}</div>
+                  <p className="text-sm text-dark-300 leading-relaxed font-light italic">
+                    {t.before}
+                  </p>
+                  <p className="text-sm text-dark-100 leading-relaxed font-medium mt-4">
+                    {t.after}
                   </p>
                 </div>
                 <div className="flex items-center gap-3 pt-5 border-t border-white/[.06]">
-                  <img
-                    src={`https://i.pravatar.cc/80?img=${t.img}`}
-                    alt={t.name}
-                    className="w-11 h-11 rounded-full object-cover flex-shrink-0"
-                  />
-                  <div>
-                    <p className="text-sm font-bold text-dark-200">{t.name}</p>
-                    <p className="text-xs text-dark-500 font-light">{t.role}</p>
-                  </div>
+                  <p className="text-xs text-dark-500 font-light">{t.persona}</p>
                 </div>
               </div>
             ))}
@@ -771,12 +742,11 @@ export default function LandingPage() {
               href="#hero-form"
               className="cta-btn rounded-2xl px-10 py-4 text-base font-semibold text-white inline-flex items-center gap-3"
             >
-              <span>Je veux les mêmes résultats — C'est gratuit</span>
+              <span>Je veux changer ça — C'est gratuit</span>
               <ArrowRight className="w-5 h-5" />
             </a>
             <p className="text-xs text-dark-600 mt-3">
-              Rejoignez {liveCounter.toLocaleString("fr-FR").replace(/,/g, " ")}{" "}
-              parents · Aucune CB requise
+              100% gratuit · Aucune CB requise
             </p>
           </div>
         </div>
@@ -1568,15 +1538,17 @@ export default function LandingPage() {
                         <div className="flex flex-col sm:flex-row gap-3 mb-2">
                           <input
                             type="email"
+                            name="email"
                             placeholder="votre@email.com"
                             required
                             className="email-input flex-1 rounded-xl px-4 py-3.5 text-sm"
                           />
                           <button
                             type="submit"
-                            className="cta-btn rounded-xl px-6 py-3.5 text-sm font-semibold text-white flex items-center justify-center gap-2 whitespace-nowrap"
+                            disabled={pendingForm === "quiz"}
+                            className="cta-btn rounded-xl px-6 py-3.5 text-sm font-semibold text-white flex items-center justify-center gap-2 whitespace-nowrap disabled:opacity-60"
                           >
-                            <span>Recevoir mon plan</span>
+                            <span>{pendingForm === "quiz" ? "Envoi..." : "Accéder à mon plan"}</span>
                             <ArrowRight className="w-4 h-4" />
                           </button>
                         </div>
@@ -1602,11 +1574,15 @@ export default function LandingPage() {
                       <CheckCircle className="w-8 h-8 text-pitch-400" />
                       <div className="text-center">
                         <p className="text-sm font-bold text-dark-200">
-                          Plan personnalisé envoyé !
+                          C&apos;est noté !
                         </p>
-                        <p className="text-xs text-dark-500 mt-1 font-light">
-                          Vérifiez votre boîte mail dans 2 minutes.
+                        <p className="text-xs text-dark-500 mt-1 font-light mb-2">
+                          Créez votre compte gratuit pour accéder à votre plan
+                          d&apos;action personnalisé.
                         </p>
+                        <Link href="/sign-up" className="text-pitch-400 text-xs font-semibold hover:underline inline-flex items-center gap-1.5">
+                          Créer mon compte <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
                       </div>
                     </div>
                   )}
@@ -1780,13 +1756,13 @@ export default function LandingPage() {
               }`}
           >
             {/* Dashboard Button */}
-            <a
+            <Link
               href="/sign-in"
               className="cta-btn rounded-xl px-10 py-5 text-lg font-semibold text-white flex items-center justify-center gap-3 w-full max-w-sm shadow-xl shadow-pitch-500/20"
             >
               <span>Connexion au Dashboard</span>
               <ArrowRight className="w-5 h-5" />
-            </a>
+            </Link>
 
             <p className="text-xs text-dark-600 flex items-center justify-center gap-4 flex-wrap mt-3">
               <span className="flex items-center gap-1.5">
@@ -1818,22 +1794,24 @@ export default function LandingPage() {
                       Pas encore prêt ? Lisez le "Protocole Silence" (PDF Gratuit)
                     </p>
                     <p className="text-xs sm:text-sm text-dark-300 font-light leading-relaxed">
-                      Le guide d'urgence à lire avant votre prochain match pour désamorcer la pression parentale. <strong className="text-white font-medium">Déjà {liveCounter.toLocaleString("fr-FR").replace(/,/g, " ")} téléchargements.</strong> Recevez-le directement par email.
+                      Le guide d'urgence à lire avant votre prochain match pour désamorcer la pression parentale. <strong className="text-white font-medium">Laissez votre email pour y accéder immédiatement.</strong>
                     </p>
                   </div>
                   <form onSubmit={(e) => handleEmailForm(e, "final")}>
                     <div className="flex flex-col sm:flex-row gap-3">
                       <input
                         type="email"
+                        name="email"
                         placeholder="votre@email.com"
                         required
                         className="email-input flex-1 rounded-xl px-5 py-4 text-base"
                       />
                       <button
                         type="submit"
-                        className="rounded-xl px-7 py-4 text-base font-semibold text-dark-900 bg-pitch-500 hover:bg-pitch-400 flex items-center justify-center gap-2.5 whitespace-nowrap transition-colors shadow-lg shadow-pitch-500/20"
+                        disabled={pendingForm === "final"}
+                        className="rounded-xl px-7 py-4 text-base font-semibold text-dark-900 bg-pitch-500 hover:bg-pitch-400 flex items-center justify-center gap-2.5 whitespace-nowrap transition-colors shadow-lg shadow-pitch-500/20 disabled:opacity-60"
                       >
-                        <span>Recevoir le PDF</span>
+                        <span>{pendingForm === "final" ? "Envoi..." : "Recevoir le PDF"}</span>
                         <ArrowRight className="w-4 h-4" />
                       </button>
                     </div>
@@ -1849,13 +1827,13 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <p className="text-lg font-bold text-dark-100 font-syne">
-                      Demande enregistrée !
+                      C&apos;est noté !
                     </p>
                     <p className="text-sm text-dark-400 mt-1 font-light block mb-3">
-                      Vous allez recevoir le Protocole Silence par email.
+                      Votre Protocole Silence est prêt.
                     </p>
                     <a href="/Le Protocole Silence Ballio.pdf" download className="text-pitch-400 text-sm font-medium hover:underline inline-flex items-center gap-2">
-                      <ArrowRight className="w-4 h-4" /> Télécharger directement le PDF
+                      <ArrowRight className="w-4 h-4" /> Télécharger le PDF
                     </a>
                   </div>
                 </div>

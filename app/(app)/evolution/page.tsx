@@ -1,32 +1,16 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, Award, Brain, Target, Zap, Heart, Activity, LineChart as ChartIcon, BookOpen, ShieldAlert, Navigation } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Award, Target, Zap, Heart, LineChart as ChartIcon, Navigation, PlayCircle } from 'lucide-react';
+import { getChildProfile, getChildMatches } from '@/app/actions/child';
+import type { Child, MatchRow } from '@/app/types/db';
 
 type Tab = 'Analytique' | 'Parcours';
 type CategoryAge = 'U10-U11' | 'U12-U13' | 'U14-U15' | 'U16-U18';
 
-// --- MOCK DATA FOR ANALYTIQUE ---
-const OVR_HISTORY = [
-    { match: 'M1', ovr: 68, sleep: 'Moyen' },
-    { match: 'M2', ovr: 72, sleep: 'Bon' },
-    { match: 'M3', ovr: 65, sleep: 'Mauvais' },
-    { match: 'M4', ovr: 78, sleep: 'Excellent' },
-    { match: 'M5', ovr: 85, sleep: 'Excellent' },
-    { match: 'M6', ovr: 82, sleep: 'Bon' },
-];
-
-const COMPARAISON_STATS = [
-    { label: 'Tir', start: 60, current: 85 },
-    { label: 'Passe', start: 65, current: 75 },
-    { label: 'Dribble', start: 70, current: 80 },
-    { label: 'Défense', start: 30, current: 45 },
-    { label: 'Physique', start: 50, current: 65 },
-    { label: 'Discipline', start: 80, current: 90 },
-];
-
-// --- MOCK DATA FOR PARCOURS ---
+// --- CONTENU ÉDUCATIF PAR ÂGE (statique, rédigé par Ballio) ---
 const PARCOURS_DATA: Record<CategoryAge, { title: string, subtitle: string, tactique: string, technique: string, physique: string, mental: string }> = {
     'U10-U11': {
         title: 'Football Réduit (Foot à 8)',
@@ -62,23 +46,69 @@ const PARCOURS_DATA: Record<CategoryAge, { title: string, subtitle: string, tact
     }
 };
 
+const STAT_LABELS: { key: keyof Pick<MatchRow, 'stat_tir' | 'stat_pas' | 'stat_dri' | 'stat_def' | 'stat_phy' | 'stat_disc'>, label: string }[] = [
+    { key: 'stat_tir', label: 'Tir' },
+    { key: 'stat_pas', label: 'Passe' },
+    { key: 'stat_dri', label: 'Dribble' },
+    { key: 'stat_def', label: 'Défense' },
+    { key: 'stat_phy', label: 'Physique' },
+    { key: 'stat_disc', label: 'Discipline' },
+];
 
-import { getChildProfile } from '@/app/actions/child';
+const avgOf = (matches: MatchRow[], key: keyof MatchRow): number => {
+    const vals = matches.map(m => m[key]).filter((v): v is number => typeof v === 'number');
+    if (vals.length === 0) return 0;
+    return Math.round(vals.reduce((s, v) => s + v, 0) / vals.length);
+};
 
 export default function EvolutionPage() {
     const [activeTab, setActiveTab] = useState<Tab>('Analytique');
     const [selectedAge, setSelectedAge] = useState<CategoryAge>('U12-U13');
-    const [child, setChild] = useState<any>(null);
+    const [child, setChild] = useState<Child | null>(null);
+    const [matches, setMatches] = useState<MatchRow[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    React.useEffect(() => {
-        async function loadProfile() {
-            const profile = await getChildProfile();
-            if (profile) setChild(profile);
+    useEffect(() => {
+        async function loadData() {
+            try {
+                const profile = await getChildProfile();
+                if (profile) {
+                    setChild(profile);
+                    const matchData = await getChildMatches(profile.id);
+                    setMatches(matchData);
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
         }
-        loadProfile();
+        loadData();
     }, []);
 
     const childName = child?.first_name || 'joueur';
+
+    // Analytique — matches est trié du plus récent au plus ancien.
+    const chronological = [...matches].reverse();
+    const last6 = chronological.slice(-6);
+    const avgOvr = avgOf(matches, 'rating_ovr');
+    const bestOvr = matches.length > 0 ? Math.max(...matches.map(m => m.rating_ovr || 0)) : 0;
+
+    // Tendance : moyenne des 3 derniers vs les 3 précédents.
+    const recent3 = chronological.slice(-3);
+    const previous3 = chronological.slice(-6, -3);
+    const trend = previous3.length > 0
+        ? avgOf(recent3, 'rating_ovr') - avgOf(previous3, 'rating_ovr')
+        : 0;
+
+    // Comparaison début de saison (3 premiers matchs) vs forme actuelle (3 derniers).
+    const first3 = chronological.slice(0, 3);
+    const comparison = STAT_LABELS.map(({ key, label }) => ({
+        label,
+        start: avgOf(first3, key),
+        current: avgOf(recent3, key),
+    }));
+    const hasComparison = matches.length >= 4;
 
     return (
         <div className="max-w-3xl mx-auto pb-24">
@@ -117,96 +147,134 @@ export default function EvolutionPage() {
                         transition={{ duration: 0.2 }}
                         className="space-y-6"
                     >
-                        {/* The Ballio Correlation Highlight */}
-                        <div className="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-2xl p-6 text-white shadow-lg border border-indigo-500/20">
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="p-2 bg-white/10 rounded-xl backdrop-blur-sm"><Brain size={20} className="text-indigo-200" /></div>
-                                <h2 className="font-extrabold tracking-wide uppercase text-sm text-indigo-100">Corrélation Bien-être / Perf</h2>
-                            </div>
-                            <h3 className="text-xl sm:text-2xl font-black mb-2">Le sommeil est son arme secrète.</h3>
-                            <p className="text-indigo-200 text-sm leading-relaxed mb-6">
-                                Nos analyses montrent que lors des semaines où la qualité du sommeil de {childName} est au-dessus de 80% (Check-in), sa <strong className="text-white">Note de Match (OVR) augmente en moyenne de +9 pts</strong>.
-                            </p>
-                            <div className="flex flex-col min-[480px]:flex-row items-center gap-4 bg-black/20 p-4 rounded-xl border border-white/5">
-                                <div className="flex flex-col items-center justify-center">
-                                    <div className="text-[10px] uppercase font-bold text-indigo-300 tracking-wider">Sommeil "Mauvais"</div>
-                                    <div className="text-2xl font-black italic text-red-400">65<span className="text-sm">OVR</span></div>
-                                </div>
-                                <div className="hidden min-[480px]:block flex-1 border-t-2 border-dashed border-indigo-400/30"></div>
-                                <div className="p-1 bg-indigo-500/20 rounded-full"><TrendingUp size={16} className="text-indigo-300" /></div>
-                                <div className="hidden min-[480px]:block flex-1 border-t-2 border-dashed border-indigo-400/30"></div>
-                                <div className="flex flex-col items-center justify-center">
-                                    <div className="text-[10px] uppercase font-bold text-indigo-300 tracking-wider">Sommeil "Excellent"</div>
-                                    <div className="text-2xl font-black italic text-loo-green-400">82<span className="text-sm">OVR</span></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Progression Chart (Mocked with tailwind bars) */}
-                        <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200 shadow-sm">
-                            <div className="flex justify-between items-end mb-6">
-                                <div>
-                                    <h3 className="font-bold text-gray-800">Évolution de la Forme</h3>
-                                    <p className="text-xs text-gray-500">OVR sur les 6 derniers matchs</p>
-                                </div>
-                                <div className="text-2xl font-black text-loo-green-600">↑ +14</div>
-                            </div>
-
-                            <div className="h-40 flex items-end gap-1 min-[400px]:gap-2 sm:gap-4 w-full">
-                                {OVR_HISTORY.map((item, idx) => (
-                                    <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
-                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity text-xs font-black bg-gray-800 text-white px-2 py-1 rounded-md absolute -mt-8 pointer-events-none">
-                                            {item.ovr}
-                                        </div>
-                                        <div
-                                            className={`w-full max-w-[40px] rounded-t-lg transition-all duration-500 ${idx === OVR_HISTORY.length - 1 ? 'bg-loo-green-500' : 'bg-loo-green-200 group-hover:bg-loo-green-300'
-                                                }`}
-                                            style={{ height: `${item.ovr}%` }}
-                                        />
-                                        <div className="text-[10px] font-bold text-gray-400 uppercase">{item.match}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Radar Comparison Chart (Mocked with horizontal bars for before/after) */}
-                        <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200 shadow-sm">
-                            <div className="mb-6">
-                                <h3 className="font-bold text-gray-800">Évolution Technique</h3>
-                                <p className="text-xs text-gray-500">Comparaison Début de Saison vs Actuel</p>
-                            </div>
-
+                        {loading ? (
                             <div className="space-y-4">
-                                {COMPARAISON_STATS.map(stat => (
-                                    <div key={stat.label} className="flex items-center gap-3">
-                                        <div className="w-14 min-[400px]:w-16 text-[10px] sm:text-xs font-bold uppercase text-gray-500 tracking-wider shrink-0">
-                                            {stat.label}
-                                        </div>
-                                        <div className="flex-1 relative h-6 bg-gray-100 rounded-full overflow-hidden flex items-center">
-                                            {/* Start Bar */}
-                                            <div
-                                                className="absolute left-0 top-0 bottom-0 bg-gray-300 opacity-60 rounded-full"
-                                                style={{ width: `${stat.start}%` }}
-                                            />
-                                            {/* Current Bar Overlapping */}
-                                            <div
-                                                className="absolute left-0 top-0 bottom-0 bg-loo-green-500 rounded-full mix-blend-multiply"
-                                                style={{ width: `${stat.current}%` }}
-                                            />
-                                        </div>
-                                        <div className="w-16 text-right flex items-center justify-end gap-1 font-bold text-sm">
-                                            {stat.current}
-                                            <span className="text-[10px] text-loo-green-600 font-black">+{stat.current - stat.start}</span>
+                                <div className="h-40 bg-white rounded-2xl animate-pulse" />
+                                <div className="h-40 bg-white rounded-2xl animate-pulse" />
+                            </div>
+                        ) : matches.length === 0 ? (
+                            <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm text-center">
+                                <div className="text-4xl mb-4">📊</div>
+                                <h3 className="text-lg font-black text-gray-900 mb-2">
+                                    Pas encore de données
+                                </h3>
+                                <p className="text-sm text-gray-500 leading-relaxed mb-6 max-w-sm mx-auto">
+                                    Enregistrez les matchs de {childName} avec le Suivi Match Live
+                                    pour voir apparaître son évolution ici.
+                                </p>
+                                <Link
+                                    href="/match/live"
+                                    className="inline-flex items-center gap-2 bg-loo-green-500 hover:bg-loo-green-600 text-white font-extrabold px-6 py-3 rounded-2xl transition-colors no-underline"
+                                >
+                                    <PlayCircle size={18} /> Suivre un match
+                                </Link>
+                            </div>
+                        ) : (
+                            <>
+                                {/* Résumé de forme */}
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 text-center">
+                                        <div className="text-[10px] uppercase text-gray-400 font-bold">Moy. OVR</div>
+                                        <div className="text-2xl font-black text-gray-800">{avgOvr}</div>
+                                    </div>
+                                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 text-center">
+                                        <div className="text-[10px] uppercase text-gray-400 font-bold">Best</div>
+                                        <div className="text-2xl font-black text-amber-500">{bestOvr}</div>
+                                    </div>
+                                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 text-center">
+                                        <div className="text-[10px] uppercase text-gray-400 font-bold">Tendance</div>
+                                        <div className={`text-2xl font-black flex items-center justify-center gap-1 ${trend > 0 ? 'text-loo-green-600' : trend < 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                                            {trend > 0 ? <TrendingUp size={20} /> : trend < 0 ? <TrendingDown size={20} /> : <Minus size={20} />}
+                                            {trend > 0 ? `+${trend}` : trend}
                                         </div>
                                     </div>
-                                ))}
-                            </div>
+                                </div>
 
-                            <div className="flex justify-center gap-4 mt-6 text-xs font-bold text-gray-400 uppercase tracking-widest">
-                                <div className="flex items-center gap-1"><div className="w-3 h-3 bg-gray-300 rounded-sm"></div> Début</div>
-                                <div className="flex items-center gap-1"><div className="w-3 h-3 bg-loo-green-500 rounded-sm"></div> Actuel</div>
-                            </div>
-                        </div>
+                                {/* Progression Chart */}
+                                <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200 shadow-sm">
+                                    <div className="flex justify-between items-end mb-6">
+                                        <div>
+                                            <h3 className="font-bold text-gray-800">Évolution de la Forme</h3>
+                                            <p className="text-xs text-gray-500">
+                                                OVR sur les {last6.length} dernier{last6.length > 1 ? 's' : ''} match{last6.length > 1 ? 's' : ''}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="h-40 flex items-end gap-1 min-[400px]:gap-2 sm:gap-4 w-full">
+                                        {last6.map((match, idx) => {
+                                            const ovr = match.rating_ovr || 0;
+                                            const dateLabel = new Date(`${match.match_date}T00:00:00`)
+                                                .toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
+                                            return (
+                                                <div key={match.id} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+                                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity text-xs font-black bg-gray-800 text-white px-2 py-1 rounded-md absolute -mt-8 pointer-events-none">
+                                                        {ovr} · vs {match.opponent}
+                                                    </div>
+                                                    <div
+                                                        className={`w-full max-w-[40px] rounded-t-lg transition-all duration-500 ${idx === last6.length - 1 ? 'bg-loo-green-500' : 'bg-loo-green-200 group-hover:bg-loo-green-300'}`}
+                                                        style={{ height: `${Math.max(ovr, 4)}%` }}
+                                                    />
+                                                    <div className="text-[10px] font-bold text-gray-400 uppercase">{dateLabel}</div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Comparaison début de saison vs actuel */}
+                                <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200 shadow-sm">
+                                    <div className="mb-6">
+                                        <h3 className="font-bold text-gray-800">Évolution Technique</h3>
+                                        <p className="text-xs text-gray-500">
+                                            {hasComparison
+                                                ? "Comparaison 3 premiers matchs vs 3 derniers"
+                                                : "Moyennes de la saison (comparaison disponible à partir de 4 matchs)"}
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        {comparison.map(stat => {
+                                            const diff = stat.current - stat.start;
+                                            return (
+                                                <div key={stat.label} className="flex items-center gap-3">
+                                                    <div className="w-14 min-[400px]:w-16 text-[10px] sm:text-xs font-bold uppercase text-gray-500 tracking-wider shrink-0">
+                                                        {stat.label}
+                                                    </div>
+                                                    <div className="flex-1 relative h-6 bg-gray-100 rounded-full overflow-hidden flex items-center">
+                                                        {hasComparison && (
+                                                            <div
+                                                                className="absolute left-0 top-0 bottom-0 bg-gray-300 opacity-60 rounded-full"
+                                                                style={{ width: `${stat.start}%` }}
+                                                            />
+                                                        )}
+                                                        <div
+                                                            className="absolute left-0 top-0 bottom-0 bg-loo-green-500 rounded-full mix-blend-multiply"
+                                                            style={{ width: `${stat.current}%` }}
+                                                        />
+                                                    </div>
+                                                    <div className="w-16 text-right flex items-center justify-end gap-1 font-bold text-sm">
+                                                        {stat.current}
+                                                        {hasComparison && diff !== 0 && (
+                                                            <span className={`text-[10px] font-black ${diff > 0 ? 'text-loo-green-600' : 'text-red-500'}`}>
+                                                                {diff > 0 ? `+${diff}` : diff}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    {hasComparison && (
+                                        <div className="flex justify-center gap-4 mt-6 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                            <div className="flex items-center gap-1"><div className="w-3 h-3 bg-gray-300 rounded-sm"></div> Début</div>
+                                            <div className="flex items-center gap-1"><div className="w-3 h-3 bg-loo-green-500 rounded-sm"></div> Actuel</div>
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        )}
                     </motion.div>
                 )}
 
@@ -222,7 +290,7 @@ export default function EvolutionPage() {
                     >
                         {/* Timeline Selector */}
                         <div className="bg-white rounded-2xl p-4 sm:p-6 border border-gray-200 shadow-sm sticky top-4 z-10">
-                            <h3 className="font-black uppercase tracking-widest text-[11px] sm:text-xs text-gray-500 mb-4 text-center">Choisissez la catégorie de l'enfant</h3>
+                            <h3 className="font-black uppercase tracking-widest text-[11px] sm:text-xs text-gray-500 mb-4 text-center">Choisissez la catégorie de l&apos;enfant</h3>
                             <div className="flex w-full bg-gray-50 p-1 sm:p-2 rounded-xl overflow-x-auto hide-scrollbar">
                                 {(Object.keys(PARCOURS_DATA) as CategoryAge[]).map(cat => (
                                     <button
@@ -307,6 +375,6 @@ export default function EvolutionPage() {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div >
+        </div>
     );
 }

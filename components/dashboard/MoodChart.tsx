@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
-import { useAuth } from '@clerk/nextjs';
+import React from "react";
+import type { WellbeingRow } from "@/app/types/db";
 
 const LEGEND = [
     { label: "Bien", color: "bg-loo-green-400" },
@@ -12,69 +11,34 @@ const LEGEND = [
 
 interface MoodChartProps {
     childName?: string;
-    childId?: string;
+    entries: WellbeingRow[];
 }
 
-export default function MoodChart({ childName = "joueur", childId }: MoodChartProps) {
-    const { getToken, isLoaded } = useAuth();
-    const [bars, setBars] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+// Humeur des 7 derniers jours, à partir des check-ins (mood_score sur 1-5).
+export default function MoodChart({ childName = "joueur", entries }: MoodChartProps) {
+    const days = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
 
-    useEffect(() => {
-        async function fetchWellbeing() {
-            if (!isLoaded || !childId) return;
-            try {
-                const token = await getToken({ template: "supabase" });
-                const supabase = createClient(
-                    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-                    { global: { headers: { Authorization: `Bearer ${token}` } } }
-                );
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - (6 - i));
+        // checkin_date est un DATE (YYYY-MM-DD) : comparaison sur la même forme.
+        const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        const entry = entries.find(e => e.checkin_date === iso);
+        return {
+            dayLabel: days[d.getDay()],
+            mood: entry?.mood_score ?? null,
+        };
+    });
 
-                const sevenDaysAgo = new Date();
-                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-                const { data } = await supabase
-                    .from('child_wellbeing')
-                    .select('*')
-                    .eq('child_id', childId)
-                    .gte('created_at', sevenDaysAgo.toISOString())
-                    .order('created_at', { ascending: true });
-
-                const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-                const last7Days = Array.from({ length: 7 }, (_, i) => {
-                    const d = new Date();
-                    d.setDate(d.getDate() - (6 - i));
-                    return {
-                        dateStr: d.toDateString(),
-                        dayLabel: days[d.getDay()],
-                        mood: null as number | null
-                    };
-                });
-
-                data?.forEach(entry => {
-                    const entryDate = new Date(entry.created_at).toDateString();
-                    const day = last7Days.find(d => d.dateStr === entryDate);
-                    if (day) day.mood = entry.mood_score;
-                });
-
-                const formattedBars = last7Days.map(d => ({
-                    day: d.dayLabel,
-                    height: d.mood ? `${(d.mood / 5) * 100}%` : '5%',
-                    color: d.mood === 5 ? 'bg-loo-green-500' : d.mood === 3 ? 'bg-loo-orange' : d.mood === 1 ? 'bg-loo-red opacity-75' : 'bg-gray-100'
-                }));
-
-                setBars(formattedBars);
-            } catch (err) {
-                console.error("Error fetching wellbeing:", err);
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchWellbeing();
-    }, [childId, isLoaded, getToken]);
-
-    if (loading) return <div className="h-40 bg-white rounded-2xl animate-pulse" />;
+    const bars = last7Days.map(d => ({
+        day: d.dayLabel,
+        height: d.mood ? `${(d.mood / 5) * 100}%` : "5%",
+        color:
+            d.mood == null ? "bg-gray-100"
+                : d.mood >= 4 ? "bg-loo-green-500"
+                    : d.mood >= 2.5 ? "bg-loo-orange"
+                        : "bg-loo-red opacity-75",
+    }));
 
     return (
         <div className="bg-white rounded-2xl p-5 min-[640px]:p-6 shadow-[0_4px_24px_rgba(0,0,0,0.08)]">

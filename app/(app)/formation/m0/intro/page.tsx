@@ -1,8 +1,7 @@
 import React from "react";
 import { ModuleHero } from "@/components/formation/ui/ModuleHero";
-import { LessonSection, LessonHeader } from "@/components/formation/ui/Lesson";
+import { LessonSection } from "@/components/formation/ui/Lesson";
 import { ChocQuote, ChocText } from "@/components/formation/ui/ChocQuote";
-import { RuleBox, ScienceBox } from "@/components/formation/ui/Highlights";
 
 export default function Module0IntroPage() {
     return (

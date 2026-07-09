@@ -1,27 +1,29 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import {
     ArrowLeft,
     Smile,
     Meh,
     Frown,
     Battery,
-    BatteryMedium,
-    BatteryWarning,
     Moon,
     Activity,
-    CheckCircle2
+    CheckCircle2,
+    Settings
 } from 'lucide-react';
 
 import { getChildProfile, saveWellbeing, getDailyCheckinStatus } from '@/app/actions/child';
+import type { Child } from '@/app/types/db';
 
 export default function CheckinPage() {
     const router = useRouter();
 
-    const [child, setChild] = useState<any>(null);
+    const [child, setChild] = useState<Child | null>(null);
     const [hasCheckedIn, setHasCheckedIn] = useState(false);
     const [loading, setLoading] = useState(true);
     const [step, setStep] = useState(1);
@@ -57,6 +59,26 @@ export default function CheckinPage() {
         );
     }
 
+    if (!child) {
+        return (
+            <div className="max-w-xl mx-auto pb-8">
+                <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-8 text-center">
+                    <div className="text-4xl mb-4">⚡</div>
+                    <h1 className="text-xl font-black text-gray-900 mb-2">Check-in Quotidien</h1>
+                    <p className="text-gray-500 leading-relaxed mb-6">
+                        Renseignez d&apos;abord le profil de votre enfant pour démarrer le suivi bien-être.
+                    </p>
+                    <Link
+                        href="/parametres"
+                        className="inline-flex items-center gap-2 bg-loo-green-500 hover:bg-loo-green-600 text-white font-extrabold px-6 py-3 rounded-2xl transition-colors no-underline"
+                    >
+                        <Settings size={18} /> Configurer le profil
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
     if (hasCheckedIn) {
         return (
             <div className="max-w-xl mx-auto pb-8">
@@ -67,7 +89,8 @@ export default function CheckinPage() {
                     <div>
                         <h1 className="text-2xl font-black text-gray-800">Check-in déjà effectué !</h1>
                         <p className="text-gray-500 mt-2">
-                            Bravo, vous avez déjà pris le pouls du bien-être de **{child?.first_name}** aujourd'hui.
+                            Bravo, vous avez déjà pris le pouls du bien-être de{" "}
+                            <strong className="text-gray-700">{child.first_name}</strong> aujourd&apos;hui.
                         </p>
                         <p className="text-sm text-gray-400 mt-1">
                             Revenez demain pour le prochain suivi.
@@ -113,13 +136,14 @@ export default function CheckinPage() {
                 muscle_pain: muscle!,
             });
             if (result.success) {
+                toast.success('Check-in enregistré !');
                 router.push('/dashboard');
             } else {
-                alert("Erreur lors de la sauvegarde.");
+                toast.error(result.error || 'Erreur lors de la sauvegarde.');
             }
         } catch (err) {
             console.error(err);
-            alert("Une erreur est survenue.");
+            toast.error('Une erreur est survenue.');
         } finally {
             setIsSubmitting(false);
         }
@@ -144,7 +168,7 @@ export default function CheckinPage() {
                 </button>
                 <div>
                     <h1 className="text-2xl font-extrabold text-gray-800 tracking-tight">Check-in Quotidien</h1>
-                    <p className="text-sm text-gray-500 mt-0.5">Suivi bien-être de {child?.first_name || 'joueur'}</p>
+                    <p className="text-sm text-gray-500 mt-0.5">Suivi bien-être de {child.first_name}</p>
                 </div>
             </div>
 

@@ -1,13 +1,20 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, Circle, PlayCircle } from "lucide-react";
+import { lessonProgressId } from "@/app/lib/formation-config";
+import { getUserProgress } from "@/app/actions/lesson";
 
 type SubModule = {
     id: string;
     title: string;
     slug: string;
-    status: "locked" | "current" | "completed";
+    // Conservé pour compatibilité avec les layouts existants ; le statut réel
+    // est calculé à partir de la progression et de l'URL courante.
+    status?: "locked" | "current" | "completed";
 };
 
 type ModuleNav = {
@@ -17,6 +24,17 @@ type ModuleNav = {
 };
 
 export function ModuleSidebar({ nav }: { nav: ModuleNav }) {
+    const pathname = usePathname();
+    const [completedIds, setCompletedIds] = useState<string[]>([]);
+
+    useEffect(() => {
+        let cancelled = false;
+        getUserProgress().then(rows => {
+            if (!cancelled) setCompletedIds(rows.map(r => r.lesson_id));
+        });
+        return () => { cancelled = true; };
+    }, [pathname]);
+
     return (
         <div className="w-80 shrink-0 border-r border-gray-200 bg-gray-50/50 min-h-[calc(100vh-64px)] hidden lg:block sticky top-[64px] h-[calc(100vh-64px)] overflow-y-auto">
             <div className="p-6">
@@ -33,18 +51,17 @@ export function ModuleSidebar({ nav }: { nav: ModuleNav }) {
 
                 <div className="flex flex-col gap-1">
                     {nav.subModules.map((sub, index) => {
-                        const isCompleted = sub.status === "completed";
-                        const isCurrent = sub.status === "current";
-                        const isLocked = sub.status === "locked";
+                        const href = `/formation/${nav.moduleId}/${sub.slug}`;
+                        const isCompleted = completedIds.includes(lessonProgressId(nav.moduleId, sub.slug));
+                        const isCurrent = pathname === href;
 
                         return (
                             <Link
                                 key={sub.id}
-                                href={`/formation/${nav.moduleId}/${sub.slug}`}
+                                href={href}
                                 className={cn(
                                     "flex items-start gap-3 p-3 rounded-xl transition-all no-underline group",
-                                    isCurrent ? "bg-white shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-gray-100" : "hover:bg-gray-100/80",
-                                    isLocked && "opacity-50 pointer-events-none"
+                                    isCurrent ? "bg-white shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-gray-100" : "hover:bg-gray-100/80"
                                 )}
                             >
                                 <div className="mt-0.5 shrink-0">

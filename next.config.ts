@@ -27,8 +27,10 @@ const nextConfig: NextConfig = {
             value: "origin-when-cross-origin",
           },
           {
+            // Domaines limités aux services réellement utilisés (Clerk, Supabase,
+            // Google Fonts). Réintroduire Stripe ici quand le paiement arrivera.
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com https://maps.googleapis.com https://*.clerk.accounts.dev https://clerk.ballia.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' blob: data: https://*.stripe.com https://img.clerk.com https://*.clerk.accounts.dev; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.clerk.com https://clerk.ballia.com https://*.clerk.accounts.dev; frame-src 'self' https://js.stripe.com https://*.clerk.accounts.dev; worker-src 'self' blob:;",
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.clerk.accounts.dev https://clerk.ballio.app; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' blob: data: https://img.clerk.com https://*.clerk.accounts.dev; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://api.clerk.com https://clerk.ballio.app https://*.clerk.accounts.dev; frame-src 'self' https://*.clerk.accounts.dev; worker-src 'self' blob:;",
           }
         ],
       },

@@ -42,42 +42,40 @@ const STATE_CONFIG = {
         cta: "",
         ctaCls: "",
     },
-    premium: {
-        badge: "★ Premium",
-        badgeCls: "bg-amber-100 text-amber-700",
-        numBg: "bg-gradient-to-br from-amber-400 to-amber-500 text-amber-900",
-        border: "border-amber-200",
-        ring: "",
-        cta: "Découvrir",
-        ctaCls: "bg-amber-50 text-amber-700 hover:bg-amber-100",
-    },
 };
 
+type ModuleState = keyof typeof STATE_CONFIG;
+
 export default function ModuleAccordion({
-    userPlan = "free",
-    completedModuleIds = []
+    completedModuleIds = [],
+    completedLessonIds = []
 }: {
-    userPlan?: string;
     completedModuleIds?: string[];
+    completedLessonIds?: string[];
 }) {
     const effectiveModules = MODULES.map((m, index) => {
         const isDone = completedModuleIds.includes(m.id);
         const isActive = !isDone && (index === 0 || completedModuleIds.includes(MODULES[index - 1].id));
-        const state = isDone ? "done" : (isActive ? "active" : "locked");
+        const state: ModuleState = isDone ? "done" : (isActive ? "active" : "locked");
 
-        return {
-            ...m,
-            state: state as any,
-            progress: isDone ? 100 : (isActive ? 10 : 0) // Approximation
-        };
+        // Progression réelle : leçons complétées / leçons du module.
+        const moduleConfig = FORMATION_CONFIG[index];
+        const doneLessons = moduleConfig.lessons.filter(
+            l => completedLessonIds.includes(`${m.id}-${l.id}`)
+        ).length;
+        const progress = isDone
+            ? 100
+            : Math.round((doneLessons / moduleConfig.lessons.length) * 100);
+
+        return { ...m, state, progress };
     });
 
     return (
         <div className="flex flex-col gap-3 mb-6">
             {effectiveModules.map((mod) => {
-                const cfg = STATE_CONFIG[mod.state as keyof typeof STATE_CONFIG];
+                const cfg = STATE_CONFIG[mod.state];
                 const isLocked = mod.state === "locked";
-                const isDimmed = isLocked || mod.state === "premium";
+                const isDimmed = isLocked;
 
                 return (
                     <div

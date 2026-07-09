@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, User, HeartHandshake, Shield, Check, Mail, ChevronRight, Save, Baby } from 'lucide-react';
 import { getChildProfile, getParentProfile, updateChildProfile, updateParentProfile } from '@/app/actions/child';
-import { useRouter } from 'next/navigation';
 import { APP_VERSION } from '@/lib/version';
 
 const POSITIONS = [
@@ -18,7 +17,6 @@ const POSITIONS = [
 ];
 
 export default function ParametresPage() {
-    const router = useRouter();
 
     // Parent State
     const [parentName, setParentName] = useState('');
@@ -66,17 +64,17 @@ export default function ParametresPage() {
         setSaved(false);
 
         try {
-            const [parentRes, childRes] = await Promise.all([
-                updateParentProfile({ fullName: parentName, email: parentEmail }),
-                updateChildProfile({
-                    firstName: childFirstName,
-                    lastName: childLastName,
-                    birthDate: childBirthDate,
-                    clubName: playerClub,
-                    position: playerPosition,
-                    category: childCategory
-                })
-            ]);
+            // Séquentiel : le profil parent doit exister avant de créer l'enfant
+            // (première sauvegarde d'un nouvel utilisateur).
+            const parentRes = await updateParentProfile({ fullName: parentName, email: parentEmail });
+            const childRes = await updateChildProfile({
+                firstName: childFirstName,
+                lastName: childLastName,
+                birthDate: childBirthDate,
+                clubName: playerClub,
+                position: playerPosition,
+                category: childCategory
+            });
 
             if (parentRes.success && childRes.success) {
                 setSaved(true);
@@ -282,7 +280,7 @@ export default function ParametresPage() {
                     <div className="p-6">
                         <div className="space-y-3">
                             <a
-                                href="mailto:contact@balio.fr"
+                                href="mailto:contact@ballio.app"
                                 className="group block bg-gray-50 border border-gray-200 rounded-2xl p-4 hover:border-blue-300 hover:bg-blue-50/50 transition-all cursor-pointer"
                             >
                                 <div className="flex items-center justify-between">

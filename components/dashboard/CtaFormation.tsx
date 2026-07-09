@@ -26,9 +26,6 @@ export default function CtaFormation({ module }: { module: ModuleConfig }) {
                 <div className="flex items-center gap-1.5 text-[12px] text-white/60 font-medium">
                     🔓 {module.lessons.length} leçons
                 </div>
-                <div className="flex items-center gap-1.5 text-[12px] text-white/60 font-medium">
-                    ⭐ 4.9/5
-                </div>
             </div>
 
             <Link href={`/formation/${module.id}`} className="no-underline">

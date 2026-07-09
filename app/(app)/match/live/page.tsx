@@ -1,24 +1,41 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Trophy,
   Play,
   Pause,
   RotateCcw,
   History,
   ArrowLeft,
-  Timer,
-  Flag
 } from 'lucide-react';
-import { calcMatchNote, calculateTier, getTierLabel } from '@/app/lib/stats';
+import { toast } from 'sonner';
+import { calcMatchNote, getTierLabel } from '@/app/lib/stats';
 import { MatchConfig, MatchEvent } from '@/app/types/match';
+import type { Child } from '@/app/types/db';
 import { getChildProfile, saveMatch } from '@/app/actions/child';
 import { useRouter } from 'next/navigation';
 
 // --- Types & Constants ---
 type MatchState = 'setup' | 'live' | 'summary';
+
+type ActionDef = { id: string; label: string; icon: string; key?: boolean; wide?: boolean };
+
+// Sauvegarde locale du match en cours : protège contre un rafraîchissement,
+// un onglet purgé par l'OS ou une batterie à plat en plein match.
+const STORAGE_KEY = 'ballio.live-match.v1';
+
+interface SavedMatch {
+  state: MatchState;
+  config: MatchConfig;
+  events: MatchEvent[];
+  half: number;
+  onField: boolean;
+  intervals: { in: number; out: number | null }[];
+  matchScore: string;
+  matchResult: 'victoire' | 'défaite' | 'nul' | null;
+  timer: { accumulated: number; runningSince: number | null };
+}
 
 const POSITIONS = [
   { id: 'GB', label: 'Gardien', icon: '🧤' },
@@ -95,10 +112,18 @@ export default function MatchLivePage() {
   const [onField, setOnField] = useState(true);
   const [intervals, setIntervals] = useState([{ in: 0, out: null as number | null }]);
   const [showLog, setShowLog] = useState(false);
+  const [savedMatch, setSavedMatch] = useState<SavedMatch | null>(null);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const [child, setChild] = useState<any>(null);
+  // Chronomètre basé sur l'horloge : reste juste même quand l'onglet est
+  // en arrière-plan ou l'écran verrouillé (setInterval y est gelé/throttlé).
+  const timerBase = useRef({ accumulated: 0, runningSince: null as number | null });
+  const [child, setChild] = useState<Child | null>(null);
   const router = useRouter();
+
+  const computeElapsed = useCallback(() => {
+    const { accumulated, runningSince } = timerBase.current;
+    return Math.floor(accumulated + (runningSince ? (Date.now() - runningSince) / 1000 : 0));
+  }, []);
 
   useEffect(() => {
     async function loadProfile() {
@@ -107,24 +132,86 @@ export default function MatchLivePage() {
         setChild(profile);
         setConfig(prev => ({
           ...prev,
-          team: profile.club_name,
-          position: profile.position
+          team: profile.club_name || prev.team,
+          position: profile.position || prev.position
         }));
       }
     }
     loadProfile();
   }, []);
 
+  // Détection d'un match interrompu (rafraîchissement, onglet fermé…)
   useEffect(() => {
-    if (isRunning) {
-      timerRef.current = setInterval(() => {
-        setElapsed(prev => prev + 1);
-      }, 1000);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as SavedMatch;
+      if (saved && saved.state !== 'setup' && Array.isArray(saved.events)) {
+        setSavedMatch(saved);
+      }
+    } catch {
+      localStorage.removeItem(STORAGE_KEY);
     }
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [isRunning]);
+  }, []);
+
+  // Tick d'affichage : recalcule depuis l'horloge (rattrape le temps passé en arrière-plan).
+  useEffect(() => {
+    if (!isRunning) return;
+    const id = setInterval(() => setElapsed(computeElapsed()), 500);
+    return () => clearInterval(id);
+  }, [isRunning, computeElapsed]);
+
+  const toggleRunning = () => {
+    if (isRunning) {
+      timerBase.current.accumulated = computeElapsed();
+      timerBase.current.runningSince = null;
+      setElapsed(timerBase.current.accumulated);
+      setIsRunning(false);
+    } else {
+      timerBase.current.runningSince = Date.now();
+      setIsRunning(true);
+    }
+  };
+
+  // Persistance locale : déclenchée sur chaque changement significatif
+  // (le chrono n'a pas besoin d'être resauvegardé chaque seconde : accumulated
+  // et runningSince suffisent à le reconstruire).
+  useEffect(() => {
+    if (state === 'setup') return;
+    const payload: SavedMatch = {
+      state, config, events, half, onField, intervals,
+      matchScore, matchResult,
+      timer: { ...timerBase.current },
+    };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    } catch {
+      // stockage plein / indisponible : on continue sans persistance
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state, config, events, half, onField, intervals, isRunning]);
+
+  const resumeSavedMatch = () => {
+    if (!savedMatch) return;
+    setConfig(savedMatch.config);
+    setEvents(savedMatch.events);
+    setHalf(savedMatch.half);
+    setOnField(savedMatch.onField);
+    setIntervals(savedMatch.intervals);
+    setMatchScore(savedMatch.matchScore || '');
+    setMatchResult(savedMatch.matchResult || null);
+    timerBase.current = savedMatch.timer || { accumulated: 0, runningSince: null };
+    setIsRunning(!!timerBase.current.runningSince);
+    setElapsed(computeElapsed());
+    setState(savedMatch.state);
+    setSavedMatch(null);
+    toast.success('Match repris là où vous l\'aviez laissé.');
+  };
+
+  const discardSavedMatch = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setSavedMatch(null);
+  };
 
   const formatTime = (s: number) => {
     const mins = Math.floor(s / 60);
@@ -132,14 +219,15 @@ export default function MatchLivePage() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleAddEvent = (cat: keyof typeof EVENT_CATEGORIES, action: any) => {
+  const handleAddEvent = (cat: keyof typeof EVENT_CATEGORIES, action: ActionDef) => {
+    const now = computeElapsed();
     const newEvent: MatchEvent = {
       id: Date.now().toString(),
       cat,
       short: action.id,
       label: action.label,
-      time: formatTime(elapsed),
-      elapsed,
+      time: formatTime(now),
+      elapsed: now,
       half
     };
     setEvents(prev => [newEvent, ...prev]);
@@ -151,19 +239,27 @@ export default function MatchLivePage() {
   };
 
   const toggleSubstitution = () => {
+    const now = computeElapsed();
     if (onField) {
       const last = [...intervals];
-      if (last.length > 0) last[last.length - 1].out = elapsed;
+      if (last.length > 0) last[last.length - 1].out = now;
       setIntervals(last);
       setOnField(false);
     } else {
-      setIntervals(prev => [...prev, { in: elapsed, out: null }]);
+      setIntervals(prev => [...prev, { in: now, out: null }]);
       setOnField(true);
     }
   };
 
+  // Compteur d'occurrences par action (affiché en badge sur chaque bouton).
+  const eventCounts = useMemo(() => {
+    const map: Record<string, number> = {};
+    events.forEach(e => { map[e.short] = (map[e.short] || 0) + 1; });
+    return map;
+  }, [events]);
+
   const calculateFinalStats = () => {
-    const counts: any = { off: {}, def: {}, dis: {} };
+    const counts: Record<'off' | 'def' | 'dis', Record<string, number>> = { off: {}, def: {}, dis: {} };
     events.forEach(e => {
       counts[e.cat][e.short] = (counts[e.cat][e.short] || 0) + 1;
     });
@@ -197,16 +293,17 @@ export default function MatchLivePage() {
       }
     };
 
+    const total = computeElapsed();
     let activeTime = 0;
     intervals.forEach(iv => {
-      activeTime += (iv.out !== null ? iv.out : elapsed) - iv.in;
+      activeTime += (iv.out !== null ? iv.out : total) - iv.in;
     });
 
     return {
       stats: mappedStats,
       activeTime,
-      totalTime: elapsed,
-      note: calcMatchNote(mappedStats, config.position, activeTime, elapsed)
+      totalTime: total,
+      note: calcMatchNote(mappedStats, config.position, activeTime, total)
     };
   };
 
@@ -240,20 +337,24 @@ export default function MatchLivePage() {
         events: events // Pass the raw events array
       });
       if (result.success) {
+        localStorage.removeItem(STORAGE_KEY);
+        toast.success('Match enregistré !');
         router.push('/dashboard');
       } else {
-        alert(result.error);
+        toast.error(result.error || 'Erreur lors de la sauvegarde du match.');
       }
     } catch (err) {
       console.error(err);
-      alert("Une erreur est survenue lors de la sauvegarde.");
+      toast.error('Une erreur est survenue lors de la sauvegarde.');
     } finally {
       setIsSaving(false);
     }
   };
 
-  const { stats, activeTime, totalTime, note } = (state === 'summary') ? calculateFinalStats() : { stats: null, activeTime: 0, totalTime: 0, note: { ovr: 0, tier: 'common' as any, TIR: 0, PAS: 0, DRI: 0, DEF: 0, PHY: 0, DISC: 0 } };
-  const tier = note?.tier;
+  const { activeTime, totalTime, note } = (state === 'summary')
+    ? calculateFinalStats()
+    : { activeTime: 0, totalTime: 0, note: { ovr: 0, tier: 'common' as const, TIR: 0, PAS: 0, DRI: 0, DEF: 0, PHY: 0, DISC: 0 } };
+  const tier = note.tier;
 
   return (
     <div className="pb-6">
@@ -266,6 +367,39 @@ export default function MatchLivePage() {
             </h1>
             <p className="text-sm text-gray-500 mt-1">Configurez le match avant de démarrer le suivi</p>
           </div>
+
+          {savedMatch && (
+            <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 flex flex-col min-[500px]:flex-row min-[500px]:items-center gap-3">
+              <div className="flex-1">
+                <div className="text-sm font-bold text-amber-900">⏸ Match interrompu détecté</div>
+                <div className="text-xs text-amber-800 mt-0.5">
+                  {savedMatch.config.team || 'Votre équipe'} vs {savedMatch.config.opponent || 'Adversaire'} — {savedMatch.events.length} action{savedMatch.events.length > 1 ? 's' : ''} enregistrée{savedMatch.events.length > 1 ? 's' : ''}
+                </div>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <button
+                  onClick={resumeSavedMatch}
+                  className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-xs font-bold uppercase transition-colors"
+                >
+                  Reprendre
+                </button>
+                <button
+                  onClick={discardSavedMatch}
+                  className="bg-white border border-amber-300 text-amber-700 px-4 py-2 rounded-xl text-xs font-bold uppercase hover:bg-amber-100 transition-colors"
+                >
+                  Ignorer
+                </button>
+              </div>
+            </div>
+          )}
+
+          {!child && (
+            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-sm text-blue-800">
+              <strong>Profil enfant manquant.</strong> Vous pouvez suivre le match, mais pour
+              l&apos;enregistrer, complétez d&apos;abord le profil de votre enfant dans{' '}
+              <a href="/parametres" className="font-bold underline">Paramètres</a>.
+            </div>
+          )}
 
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-6">
             <div className="grid grid-cols-1 min-[500px]:grid-cols-2 gap-4">
@@ -410,7 +544,7 @@ export default function MatchLivePage() {
 
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 flex flex-col min-[500px]:flex-row items-stretch min-[500px]:items-center gap-3">
             <button
-              onClick={() => setIsRunning(!isRunning)}
+              onClick={toggleRunning}
               className={`flex-1 flex items-center justify-center gap-3 p-3 rounded-xl border-2 transition-all ${isRunning
                 ? 'border-loo-green-400 bg-loo-green-50 text-loo-green-700'
                 : 'border-gray-200 bg-gray-50 text-gray-500 hover:border-gray-300'
@@ -428,7 +562,10 @@ export default function MatchLivePage() {
                 Mi-temps {half}
               </button>
               <button
-                onClick={() => setState('summary')}
+                onClick={() => {
+                  if (isRunning) toggleRunning();
+                  setState('summary');
+                }}
                 className="flex-1 min-[500px]:flex-none px-4 py-3 rounded-xl bg-loo-green-500 hover:bg-loo-green-600 text-white font-black uppercase text-xs transition-colors whitespace-nowrap shadow-sm"
               >
                 Fin 🏁
@@ -447,15 +584,15 @@ export default function MatchLivePage() {
                   {cat.actions.map(action => (
                     <button
                       key={action.id}
-                      onClick={() => handleAddEvent(catId as any, action)}
-                      className={`relative group p-3.5 min-[500px]:p-3 rounded-xl border transition-all active:scale-95 hover:shadow-sm ${(action as any).wide ? 'col-span-2 min-[500px]:col-span-3' : ''
+                      onClick={() => handleAddEvent(catId as keyof typeof EVENT_CATEGORIES, action)}
+                      className={`relative group p-3.5 min-[500px]:p-3 rounded-xl border transition-all active:scale-95 hover:shadow-sm ${(action as ActionDef).wide ? 'col-span-2 min-[500px]:col-span-3' : ''
                         } ${cat.bgCls} ${cat.borderCls} flex items-center gap-2.5`}
                     >
                       <span className="text-xl shrink-0">{action.icon}</span>
                       <span className="text-sm font-bold text-gray-700">{action.label}</span>
-                      {events.filter(e => e.short === action.id).length > 0 && (
+                      {(eventCounts[action.id] || 0) > 0 && (
                         <span className={`ml-auto text-xs font-black text-white ${cat.activeCls} px-2 py-0.5 rounded-full`}>
-                          {events.filter(e => e.short === action.id).length}
+                          {eventCounts[action.id]}
                         </span>
                       )}
                     </button>
@@ -504,7 +641,7 @@ export default function MatchLivePage() {
                   <p className="text-sm text-gray-400 text-center py-4">Aucun événement enregistré</p>
                 )}
                 {events.map(ev => {
-                  const cat = (EVENT_CATEGORIES as any)[ev.cat];
+                  const cat = EVENT_CATEGORIES[ev.cat];
                   return (
                     <div key={ev.id} className={`flex items-center gap-3 p-2.5 rounded-lg ${cat.bgCls} border ${cat.borderCls}`}>
                       <span className="font-mono text-xs text-gray-500 w-10 shrink-0">{ev.time}</span>
@@ -561,7 +698,7 @@ export default function MatchLivePage() {
                   ].map(res => (
                     <button
                       key={res.id}
-                      onClick={() => setMatchResult(res.id as any)}
+                      onClick={() => setMatchResult(res.id as 'victoire' | 'défaite' | 'nul')}
                       className={`flex-1 py-3 rounded-xl font-black text-sm transition-all ${matchResult === res.id ? `${res.color} text-white scale-105 shadow-md` : 'bg-gray-100 text-gray-400'}`}
                     >
                       {res.label}

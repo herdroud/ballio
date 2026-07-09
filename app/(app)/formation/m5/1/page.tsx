@@ -1,6 +1,5 @@
 import React from "react";
 import { LessonSection, LessonHeader } from "@/components/formation/ui/Lesson";
-import { ChocQuote, ChocText } from "@/components/formation/ui/ChocQuote";
 import { ScienceBox, RuleBox } from "@/components/formation/ui/Highlights";
 
 export default function Module5Lesson1Page() {

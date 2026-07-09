@@ -126,3 +126,36 @@ export const FORMATION_CONFIG: ModuleConfig[] = [
         ]
     }
 ];
+
+// Identifiant d'une leçon dans user_progress : "<moduleId>-<lessonId>" (ex : "m0-intro", "m2-3")
+export function lessonProgressId(moduleId: string, lessonId: string): string {
+    return `${moduleId}-${lessonId}`;
+}
+
+export interface FormationState {
+    completedLessonIds: string[];
+    completedModuleIds: string[];
+    currentModule: ModuleConfig;
+    completedModuleCount: number;
+    totalModuleCount: number;
+}
+
+// Un module est complété quand TOUTES ses leçons le sont.
+// Le module courant est le premier module non complété.
+export function getFormationState(completedLessonIds: string[]): FormationState {
+    const completedModuleIds = FORMATION_CONFIG
+        .filter(m => m.lessons.every(l => completedLessonIds.includes(lessonProgressId(m.id, l.id))))
+        .map(m => m.id);
+
+    const currentModule =
+        FORMATION_CONFIG.find(m => !completedModuleIds.includes(m.id))
+        ?? FORMATION_CONFIG[FORMATION_CONFIG.length - 1];
+
+    return {
+        completedLessonIds,
+        completedModuleIds,
+        currentModule,
+        completedModuleCount: completedModuleIds.length,
+        totalModuleCount: FORMATION_CONFIG.length,
+    };
+}

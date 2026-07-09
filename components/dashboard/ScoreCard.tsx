@@ -1,64 +1,38 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-import { useAuth } from "@clerk/nextjs";
+import { useEffect, useRef } from "react";
+import Link from "next/link";
+import type { WellbeingRow } from "@/app/types/db";
+import { computeWellbeingScore } from "@/app/lib/wellbeing";
 
 interface ScoreCardProps {
-    childId?: string;
+    entries: WellbeingRow[];
 }
 
-export default function ScoreCard({ childId }: ScoreCardProps) {
+// Indice "Bien-être Mental" calculé sur les check-ins des 7 derniers jours.
+export default function ScoreCard({ entries }: ScoreCardProps) {
     const scoreRef = useRef<HTMLDivElement>(null);
-    const { getToken, isLoaded } = useAuth();
-    const [score, setScore] = useState(0);
+    const score = computeWellbeingScore(entries);
 
-    useEffect(() => {
-        async function fetchScore() {
-            if (!isLoaded || !childId) {
-                setScore(87); // Default mock for demo
-                return;
-            }
-            try {
-                const token = await getToken({ template: "supabase" });
-                const supabase = createClient(
-                    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-                    { global: { headers: { Authorization: `Bearer ${token}` } } }
-                );
+    // Moyennes par dimension (1-5) pour les trois mini-indicateurs.
+    const avg = (key: "mood_score" | "sleep_quality" | "energy_level") => {
+        const vals = entries.map(e => e[key]).filter((v): v is number => v != null);
+        if (vals.length === 0) return null;
+        return vals.reduce((s, v) => s + v, 0) / vals.length;
+    };
+    const avgMood = avg("mood_score");
+    const avgSleep = avg("sleep_quality");
+    const avgEnergy = avg("energy_level");
 
-                const { data } = await supabase
-                    .from('child_wellbeing')
-                    .select('mood_score, sleep_score, fatigue_score')
-                    .eq('child_id', childId)
-                    .order('created_at', { ascending: false })
-                    .limit(7);
-
-                if (data && data.length > 0) {
-                    const avg = data.reduce((acc, curr) => {
-                        return acc + (curr.mood_score / 3 + curr.sleep_score / 4 + curr.fatigue_score / 4) / 3;
-                    }, 0) / data.length;
-                    setScore(Math.round(avg * 100));
-                } else {
-                    setScore(0);
-                }
-            } catch (err) {
-                console.error(err);
-                setScore(87);
-            }
-        }
-        fetchScore();
-    }, [childId, isLoaded, getToken]);
-
+    // Animation de compteur au montage / changement de score.
     useEffect(() => {
         const el = scoreRef.current;
-        if (!el || score === 0) return;
+        if (!el || score === null) return;
         const target = score;
         let current = 0;
-        const duration = 1000;
         const steps = 60;
         const increment = target / steps;
-        const interval = duration / steps;
+        const interval = 1000 / steps;
 
         const timer = setInterval(() => {
             current = Math.min(current + increment, target);
@@ -77,45 +51,73 @@ export default function ScoreCard({ childId }: ScoreCardProps) {
                     <span className="w-1.5 h-1.5 rounded-full bg-loo-green-400 shadow-[0_0_6px_theme(colors.loo-green-400)] animate-pulse" />
                     Bien-être Mental
                 </div>
-                <div className="text-[11px] text-white/30">Mise à jour réelle</div>
+                <div className="text-[11px] text-white/30">7 derniers jours</div>
             </div>
 
-            <div className="flex items-end gap-3.5 mb-5">
-                <div
-                    ref={scoreRef}
-                    className="text-[56px] min-[640px]:text-[76px] font-black text-white leading-none tracking-[-4px]"
-                >
-                    0
-                </div>
-                <div className="pb-2">
-                    <div className="text-[13px] text-white/55 mb-2">
-                        Indice global sur 100
+            {score === null ? (
+                <div className="py-4">
+                    <div className="text-[15px] font-bold text-white mb-1.5">
+                        Aucun check-in cette semaine
                     </div>
-                    <div className="inline-flex items-center gap-1 bg-loo-green-400/20 text-loo-green-400 text-[13px] font-bold px-3 py-1 rounded-full">
-                        {score > 70 ? '↑ État optimal' : score > 40 ? '→ État stable' : '↓ Vigilance requise'}
-                    </div>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-px bg-white/[0.08] rounded-xl overflow-hidden">
-                {[
-                    { val: score > 80 ? "★★★★★" : score > 60 ? "★★★★☆" : "★★★☆☆", label: "Plaisir" },
-                    { val: score > 70 ? "Élevée" : "Moyenne", label: "Motivation" },
-                    { val: score > 50 ? "Normale" : "Élevée", label: "Fatigue" },
-                ].map((m) => (
-                    <div
-                        key={m.label}
-                        className="bg-white/[0.05] py-3 min-[640px]:py-3.5 px-2 text-center"
+                    <p className="text-[13px] text-white/55 mb-4 leading-relaxed">
+                        Faites un premier check-in pour suivre le bien-être mental de votre enfant.
+                    </p>
+                    <Link
+                        href="/checkin"
+                        className="inline-flex items-center gap-2 bg-loo-green-400/20 hover:bg-loo-green-400/30 text-loo-green-300 text-[13px] font-bold px-4 py-2.5 rounded-xl transition-colors no-underline"
                     >
-                        <div className="text-[13px] min-[640px]:text-[15px] font-bold text-white mb-1">
-                            {m.val}
+                        ⚡ Lancer le check-in
+                    </Link>
+                </div>
+            ) : (
+                <>
+                    <div className="flex items-end gap-3.5 mb-5">
+                        <div
+                            ref={scoreRef}
+                            className="text-[56px] min-[640px]:text-[76px] font-black text-white leading-none tracking-[-4px]"
+                        >
+                            0
                         </div>
-                        <div className="text-[9px] min-[640px]:text-[10px] text-white/[0.38] uppercase tracking-wide">
-                            {m.label}
+                        <div className="pb-2">
+                            <div className="text-[13px] text-white/55 mb-2">
+                                Indice global sur 100
+                            </div>
+                            <div className="inline-flex items-center gap-1 bg-loo-green-400/20 text-loo-green-400 text-[13px] font-bold px-3 py-1 rounded-full">
+                                {score > 70 ? "↑ État optimal" : score > 40 ? "→ État stable" : "↓ Vigilance requise"}
+                            </div>
                         </div>
                     </div>
-                ))}
-            </div>
+
+                    <div className="grid grid-cols-3 gap-px bg-white/[0.08] rounded-xl overflow-hidden">
+                        {[
+                            {
+                                val: avgMood === null ? "—" : avgMood >= 4 ? "★★★★★" : avgMood >= 3 ? "★★★★☆" : "★★★☆☆",
+                                label: "Humeur",
+                            },
+                            {
+                                val: avgSleep === null ? "—" : avgSleep >= 4 ? "Bon" : avgSleep >= 2.5 ? "Moyen" : "Fragile",
+                                label: "Sommeil",
+                            },
+                            {
+                                val: avgEnergy === null ? "—" : avgEnergy >= 4 ? "Élevée" : avgEnergy >= 2.5 ? "Normale" : "Basse",
+                                label: "Énergie",
+                            },
+                        ].map((m) => (
+                            <div
+                                key={m.label}
+                                className="bg-white/[0.05] py-3 min-[640px]:py-3.5 px-2 text-center"
+                            >
+                                <div className="text-[13px] min-[640px]:text-[15px] font-bold text-white mb-1">
+                                    {m.val}
+                                </div>
+                                <div className="text-[9px] min-[640px]:text-[10px] text-white/[0.38] uppercase tracking-wide">
+                                    {m.label}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
         </div>
     );
 }
