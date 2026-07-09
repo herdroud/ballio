@@ -1,28 +1,46 @@
 import { MetadataRoute } from "next";
-import { LESSONS_DATA } from "@/app/lib/lessons-data";
 
+// Seules les pages publiques sont listées : les pages protégées (dashboard,
+// formation, leçons…) redirigent vers la connexion et n'ont rien à faire ici.
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = "https://ballio.app"; // Remplacez par votre domaine réel
+    const baseUrl = "https://ballio.app";
 
-    // Pages statiques
-    const routes = [
-        "",
-        "/sign-in",
-        "/sign-up",
-    ].map((route) => ({
-        url: `${baseUrl}${route}`,
-        lastModified: new Date(),
-        changeFrequency: "monthly" as const,
-        priority: route === "" ? 1 : 0.8,
-    }));
-
-    // Pages dynamiques (Leçons)
-    const lessonRoutes = Object.values(LESSONS_DATA).map((lesson) => ({
-        url: `${baseUrl}/lessons/${lesson.id}`,
-        lastModified: new Date(),
-        changeFrequency: "weekly" as const,
-        priority: 0.6,
-    }));
-
-    return [...routes, ...lessonRoutes];
+    return [
+        {
+            url: baseUrl,
+            lastModified: new Date(),
+            changeFrequency: "monthly" as const,
+            priority: 1,
+        },
+        {
+            url: `${baseUrl}/quiz`,
+            lastModified: new Date(),
+            changeFrequency: "monthly" as const,
+            priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/sign-up`,
+            lastModified: new Date(),
+            changeFrequency: "monthly" as const,
+            priority: 0.6,
+        },
+        {
+            url: `${baseUrl}/legal/mentions`,
+            lastModified: new Date(),
+            changeFrequency: "yearly" as const,
+            priority: 0.2,
+        },
+        {
+            url: `${baseUrl}/legal/privacy`,
+            lastModified: new Date(),
+            changeFrequency: "yearly" as const,
+            priority: 0.2,
+        },
+        {
+            url: `${baseUrl}/legal/terms`,
+            lastModified: new Date(),
+            changeFrequency: "yearly" as const,
+            priority: 0.2,
+        },
+    ];
 }

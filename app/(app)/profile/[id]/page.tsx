@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, TrendingUp, Calendar, ArrowLeft, ChevronRight, Activity, X } from 'lucide-react';
+import { Calendar, ArrowLeft, ChevronRight, X } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import { calculateTier, getTierLabel } from '@/app/lib/stats';
 import { getChildById, getChildMatches, getChildProfile } from '@/app/actions/child';
+import type { Child, MatchRow, MatchMetricRow } from '@/app/types/db';
 
 const STAT_COLORS: Record<string, string> = {
     TIR: 'text-loo-green-600',
@@ -28,10 +29,10 @@ const STAT_BG: Record<string, string> = {
 export default function PlayerProfilePage() {
     const router = useRouter();
     const params = useParams();
-    const [child, setChild] = useState<any>(null);
-    const [matches, setMatches] = useState<any[]>([]);
+    const [child, setChild] = useState<Child | null>(null);
+    const [matches, setMatches] = useState<MatchRow[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedMatch, setSelectedMatch] = useState<any | null>(null);
+    const [selectedMatch, setSelectedMatch] = useState<MatchRow | null>(null);
 
     useEffect(() => {
         async function fetchData() {
@@ -72,15 +73,6 @@ export default function PlayerProfilePage() {
     if (loading) return <div className="p-10 text-center text-gray-400">Chargement du profil...</div>;
     if (!child) return <div className="p-10 text-center text-gray-400">Enfant non trouvé.</div>;
 
-    // Helper to transform vertical metrics rows into a display object
-    const transformMetrics = (metricsArray: any[]) => {
-        const obj: any = {};
-        metricsArray?.forEach(m => {
-            obj[m.metric_name.toUpperCase()] = m.value;
-        });
-        return obj;
-    };
-
     // Aggregate stats for the "Player Card" (Using summary columns from matches table)
     const matchCount = matches.length || 1;
     const totals = matches.reduce((acc, m) => {
@@ -109,27 +101,26 @@ export default function PlayerProfilePage() {
     const bestOvr = matches.length > 0 ? Math.max(...matches.map(m => m.rating_ovr || 0)) : 0;
 
     // Season Totals for specific actions
-    const seasonActions = matches.reduce((acc, m) => {
-        m.match_metrics?.forEach((ev: any) => {
-            const type = ev.action_type;
+    type ActionTotals = { passes: number; shots: number; dribbles: number; crosses: number };
+
+    const countActions = (metrics: MatchMetricRow[] | undefined, acc: ActionTotals) => {
+        metrics?.forEach(ev => {
+            const type = ev.action_type || '';
             if (['Pok', 'Pko', 'Pdec'].includes(type)) acc.passes++;
             if (['But', 'Tca', 'Tho'].includes(type)) acc.shots++;
             if (['Dok', 'Dko'].includes(type)) acc.dribbles++;
             if (['Cok', 'Cko'].includes(type)) acc.crosses++;
         });
         return acc;
-    }, { passes: 0, shots: 0, dribbles: 0, crosses: 0 });
-
-    const getMatchActionTotals = (match: any) => {
-        return (match.match_metrics || []).reduce((acc: any, ev: any) => {
-            const type = ev.action_type;
-            if (['Pok', 'Pko', 'Pdec'].includes(type)) acc.passes++;
-            if (['But', 'Tca', 'Tho'].includes(type)) acc.shots++;
-            if (['Dok', 'Dko'].includes(type)) acc.dribbles++;
-            if (['Cok', 'Cko'].includes(type)) acc.crosses++;
-            return acc;
-        }, { passes: 0, shots: 0, dribbles: 0, crosses: 0 });
     };
+
+    const seasonActions = matches.reduce<ActionTotals>(
+        (acc, m) => countActions(m.match_metrics, acc),
+        { passes: 0, shots: 0, dribbles: 0, crosses: 0 }
+    );
+
+    const getMatchActionTotals = (match: MatchRow): ActionTotals =>
+        countActions(match.match_metrics, { passes: 0, shots: 0, dribbles: 0, crosses: 0 });
 
     return (
         <div className="max-w-2xl mx-auto space-y-6 pb-6 relative">
@@ -137,6 +128,7 @@ export default function PlayerProfilePage() {
             <div className="flex items-center gap-3">
                 <button
                     onClick={() => router.back()}
+                    aria-label="Retour"
                     className="p-2 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
                 >
                     <ArrowLeft size={20} className="text-gray-600" />
@@ -330,6 +322,7 @@ export default function PlayerProfilePage() {
                                 </div>
                                 <button
                                     onClick={() => setSelectedMatch(null)}
+                                    aria-label="Fermer le détail du match"
                                     className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 transition-colors"
                                 >
                                     <X size={20} />
@@ -348,7 +341,7 @@ export default function PlayerProfilePage() {
                             </div>
 
                             {/* Detailed Stats */}
-                            {selectedMatch.match_metrics?.length > 0 && (
+                            {(selectedMatch.match_metrics?.length ?? 0) > 0 && (
                                 <div className="space-y-4">
                                     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
                                         <div className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-3">Volume de l'Action</div>
@@ -391,9 +384,15 @@ export default function PlayerProfilePage() {
                                 </div>
                             )}
 
-                            {/* Context Footer */}
+                            {/* Context Footer — informations factuelles du match */}
                             <div className="mt-auto bg-gray-50 border border-gray-200 rounded-xl p-4 text-center text-sm font-medium text-gray-600">
-                                Match solide et régulier, fidèle au niveau habituel.
+                                {selectedMatch.minutes_played ? `${selectedMatch.minutes_played} min jouées` : 'Temps de jeu non renseigné'}
+                                {selectedMatch.score ? ` · Score final ${selectedMatch.score}` : ''}
+                                {(selectedMatch.rating_ovr || 0) > avgOvr
+                                    ? ' · Au-dessus de sa moyenne saison'
+                                    : (selectedMatch.rating_ovr || 0) < avgOvr
+                                        ? ' · En dessous de sa moyenne saison'
+                                        : ''}
                             </div>
 
                         </motion.div>

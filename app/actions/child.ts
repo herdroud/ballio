@@ -3,35 +3,15 @@
 import { auth } from "@clerk/nextjs/server";
 import { supabaseAdmin } from "@/app/lib/supabase-admin";
 import { revalidatePath } from "next/cache";
+import type { Child, ParentProfile, MatchRow, WellbeingRow } from "@/app/types/db";
+import type { MatchEvent } from "@/app/types/match";
+import { normalizeCheckin, todayInParis, type CheckinAnswers } from "@/app/lib/wellbeing";
 
-export async function getChildProfile() {
-    try {
-        const { userId } = await auth();
-        if (!userId) return null;
+// ⚠️ SÉCURITÉ — ce fichier utilise supabaseAdmin (service role), qui contourne les
+// règles RLS. Toute requête portant sur un enfant DOIT passer par requireOwnedChild()
+// pour garantir que l'enfant appartient bien au parent connecté.
 
-        // Resolve Parent ID (UUID)
-        const parent = await getParentProfile();
-        if (!parent) return null;
-
-        const { data, error } = await supabaseAdmin
-            .from("children")
-            .select("*")
-            .eq("parent_id", parent.id)
-            .single();
-
-        if (error) {
-            // It's normal if no child exists before bootstrap or settings save
-            return null;
-        }
-
-        return data;
-    } catch (error) {
-        console.error("[GET_CHILD_PROFILE_ERROR]", error);
-        return null;
-    }
-}
-
-export async function getParentProfile() {
+export async function getParentProfile(): Promise<ParentProfile | null> {
     try {
         const { userId } = await auth();
         if (!userId) return null;
@@ -40,7 +20,7 @@ export async function getParentProfile() {
             .from("profiles")
             .select("*")
             .eq("user_id", userId)
-            .single();
+            .maybeSingle();
 
         if (error) {
             console.error("[GET_PARENT_PROFILE_ERROR]", error);
@@ -54,51 +34,65 @@ export async function getParentProfile() {
     }
 }
 
+export async function getChildProfile(): Promise<Child | null> {
+    try {
+        const parent = await getParentProfile();
+        if (!parent) return null;
+
+        const { data, error } = await supabaseAdmin
+            .from("children")
+            .select("*")
+            .eq("parent_id", parent.id)
+            .limit(1)
+            .maybeSingle();
+
+        if (error) {
+            console.error("[GET_CHILD_PROFILE_ERROR]", error);
+            return null;
+        }
+
+        return data;
+    } catch (error) {
+        console.error("[GET_CHILD_PROFILE_ERROR]", error);
+        return null;
+    }
+}
+
+// Renvoie l'enfant uniquement s'il appartient au parent connecté, sinon null.
+async function requireOwnedChild(childId: string): Promise<Child | null> {
+    const parent = await getParentProfile();
+    if (!parent) return null;
+
+    const { data, error } = await supabaseAdmin
+        .from("children")
+        .select("*")
+        .eq("id", childId)
+        .eq("parent_id", parent.id)
+        .maybeSingle();
+
+    if (error) {
+        console.error("[REQUIRE_OWNED_CHILD_ERROR]", error);
+        return null;
+    }
+    return data;
+}
+
+// Crée le profil parent s'il n'existe pas encore (bootstrap post-inscription).
+// L'enfant n'est plus créé avec des valeurs placeholder : c'est le parcours
+// Paramètres qui crée le vrai profil enfant.
 export async function ensureUserExists() {
     try {
         const { userId } = await auth();
         if (!userId) return { success: false, error: "Not authenticated" };
 
-        // 1. Ensure Parent exists
-        let { data: parent, error: parentError } = await supabaseAdmin
+        const { error } = await supabaseAdmin
             .from("profiles")
-            .select("id")
-            .eq("user_id", userId)
-            .single();
+            .upsert(
+                { user_id: userId },
+                { onConflict: "user_id", ignoreDuplicates: true }
+            );
 
-        if (!parent) {
-            const { data: newParent, error: createParentError } = await supabaseAdmin
-                .from("profiles")
-                .insert({ user_id: userId, full_name: 'Parent' })
-                .select("id")
-                .single();
-
-            if (createParentError) throw createParentError;
-            parent = newParent;
-        }
-
-        // 2. Ensure Child exists
-        const { data: child, error: childError } = await supabaseAdmin
-            .from("children")
-            .select("id")
-            .eq("parent_id", parent.id)
-            .single();
-
-        if (!child) {
-            const { error: createChildError } = await supabaseAdmin
-                .from("children")
-                .insert({
-                    parent_id: parent.id,
-                    first_name: "Prénom",
-                    last_name: "Joueur",
-                    club_name: "Mon Club",
-                    position: "MC",
-                    category: "U12",
-                    updated_at: new Date().toISOString()
-                });
-
-            if (createChildError) throw createChildError;
-        }
+        if (error) throw error;
 
         return { success: true };
     } catch (error) {
@@ -122,7 +116,7 @@ export async function updateParentProfile(formData: {
                 full_name: formData.fullName,
                 email: formData.email,
                 updated_at: new Date().toISOString(),
-            }, { onConflict: 'user_id' })
+            }, { onConflict: "user_id" })
             .select("id")
             .single();
 
@@ -150,46 +144,40 @@ export async function updateChildProfile(formData: {
         const { userId } = await auth();
         if (!userId) throw new Error("User not authenticated");
 
-        // Resolve Parent ID (UUID)
+        // Le profil parent doit exister avant l'enfant (créé au besoin).
+        await ensureUserExists();
         const parent = await getParentProfile();
         if (!parent) throw new Error("Parent profile not found");
 
-        // On vérifie d'abord si l'enfant existe déjà
         const { data: existingChild } = await supabaseAdmin
             .from("children")
             .select("id")
             .eq("parent_id", parent.id)
-            .single();
+            .limit(1)
+            .maybeSingle();
+
+        const childData = {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            birth_date: formData.birthDate,
+            club_name: formData.clubName,
+            position: formData.position,
+            category: formData.category,
+            updated_at: new Date().toISOString(),
+        };
 
         if (existingChild) {
-            // Mise à jour
             const { error } = await supabaseAdmin
                 .from("children")
-                .update({
-                    first_name: formData.firstName,
-                    last_name: formData.lastName,
-                    birth_date: formData.birthDate,
-                    club_name: formData.clubName,
-                    position: formData.position,
-                    category: formData.category,
-                    updated_at: new Date().toISOString(),
-                })
-                .eq("id", existingChild.id);
+                .update(childData)
+                .eq("id", existingChild.id)
+                .eq("parent_id", parent.id);
 
             if (error) throw error;
         } else {
-            // Création
             const { error } = await supabaseAdmin
                 .from("children")
-                .insert({
-                    parent_id: parent.id,
-                    first_name: formData.firstName,
-                    last_name: formData.lastName,
-                    birth_date: formData.birthDate,
-                    club_name: formData.clubName,
-                    position: formData.position,
-                    category: formData.category,
-                });
+                .insert({ parent_id: parent.id, ...childData });
 
             if (error) throw error;
         }
@@ -204,33 +192,19 @@ export async function updateChildProfile(formData: {
     }
 }
 
-export async function getChildById(childId: string) {
+export async function getChildById(childId: string): Promise<Child | null> {
     try {
-        const { userId } = await auth();
-        if (!userId) return null;
-
-        const { data, error } = await supabaseAdmin
-            .from("children")
-            .select("*")
-            .eq("id", childId)
-            .single();
-
-        if (error) {
-            console.error("[GET_CHILD_BY_ID_ERROR]", error);
-            return null;
-        }
-
-        return data;
+        return await requireOwnedChild(childId);
     } catch (error) {
         console.error("[GET_CHILD_BY_ID_FATAL]", error);
         return null;
     }
 }
 
-export async function getChildMatches(childId: string) {
+export async function getChildMatches(childId: string): Promise<MatchRow[]> {
     try {
-        const { userId } = await auth();
-        if (!userId) return [];
+        const child = await requireOwnedChild(childId);
+        if (!child) return [];
 
         const { data, error } = await supabaseAdmin
             .from("matches")
@@ -238,7 +212,7 @@ export async function getChildMatches(childId: string) {
                 *,
                 match_metrics (*)
             `)
-            .eq("child_id", childId)
+            .eq("child_id", child.id)
             .order("match_date", { ascending: false });
 
         if (error) {
@@ -255,20 +229,18 @@ export async function getChildMatches(childId: string) {
 
 export async function getChildStats(childId: string) {
     try {
-        const { userId } = await auth();
-        if (!userId) return null;
+        const child = await requireOwnedChild(childId);
+        if (!child) return { matchCount: 0, wellbeingWeeks: 0 };
 
-        // Nombre de matchs cette saison (simulé par count sur la table matches)
-        const { count: matchCount, error: matchError } = await supabaseAdmin
+        const { count: matchCount } = await supabaseAdmin
             .from("matches")
             .select("*", { count: "exact", head: true })
-            .eq("child_id", childId);
+            .eq("child_id", child.id);
 
-        // Nombre de semaines de suivi (simulé par count distinct de semaines dans child_wellbeing)
-        const { count: wellbeingCount, error: wellbeingError } = await supabaseAdmin
+        const { count: wellbeingCount } = await supabaseAdmin
             .from("child_wellbeing")
             .select("*", { count: "exact", head: true })
-            .eq("child_id", childId);
+            .eq("child_id", child.id);
 
         return {
             matchCount: matchCount || 0,
@@ -280,6 +252,36 @@ export async function getChildStats(childId: string) {
     }
 }
 
+// Entrées bien-être des 7 derniers jours (pour l'indice global et le graphique d'humeur).
+export async function getWellbeingLast7Days(childId: string): Promise<WellbeingRow[]> {
+    try {
+        const child = await requireOwnedChild(childId);
+        if (!child) return [];
+
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+        const { data, error } = await supabaseAdmin
+            .from("child_wellbeing")
+            .select("*")
+            .eq("child_id", child.id)
+            .gte("checkin_date", sevenDaysAgo.toISOString().split("T")[0])
+            .order("checkin_date", { ascending: true });
+
+        if (error) {
+            console.error("[GET_WELLBEING_ERROR]", error);
+            return [];
+        }
+        return data || [];
+    } catch (error) {
+        console.error("[GET_WELLBEING_FATAL]", error);
+        return [];
+    }
+}
+
+// Actions marquées "ko" ou manquées → outcome "fail" dans match_metrics.
+const FAILED_ACTION_TYPES = new Set(["Pko", "Tho", "Dko", "Cko", "Tko", "Dul_ko"]);
+
 export async function saveMatch(matchData: {
     child_id: string;
     opponent: string;
@@ -287,7 +289,7 @@ export async function saveMatch(matchData: {
     date: string;
     minutesPlayed?: number;
     score?: string;
-    result?: 'victoire' | 'défaite' | 'nul';
+    result?: "victoire" | "défaite" | "nul";
     metrics: {
         ovr: number;
         tir: number;
@@ -297,24 +299,22 @@ export async function saveMatch(matchData: {
         phy: number;
         disc: number;
     };
-    events: any[]; // Array of raw match events
+    events: MatchEvent[];
 }) {
     try {
-        const { userId } = await auth();
-        if (!userId) throw new Error("User not authenticated");
+        const child = await requireOwnedChild(matchData.child_id);
+        if (!child) return { success: false, error: "Profil enfant introuvable ou accès refusé." };
 
-        // 1. Insert into matches with all summary stats
         const { data: match, error: matchError } = await supabaseAdmin
             .from("matches")
             .insert({
-                child_id: matchData.child_id,
+                child_id: child.id,
                 opponent: matchData.opponent,
                 match_date: matchData.date,
                 minutes_played: matchData.minutesPlayed || 0,
                 score: matchData.score,
                 result: matchData.result,
                 notes: `Note OVR: ${matchData.metrics.ovr}`,
-                // New summary columns
                 rating_ovr: matchData.metrics.ovr,
                 stat_tir: matchData.metrics.tir,
                 stat_pas: matchData.metrics.pas,
@@ -328,14 +328,13 @@ export async function saveMatch(matchData: {
 
         if (matchError) throw matchError;
 
-        // 2. Insert ALL individual events into match_metrics
         if (matchData.events && matchData.events.length > 0) {
             const eventRows = matchData.events.map(ev => ({
                 match_id: match.id,
-                metric_name: ev.label, // Fallback for old chart compatibility if needed
+                metric_name: ev.label,
                 value: 1,
-                action_type: ev.short, // 'Pok', 'But', etc.
-                outcome: ev.short.endsWith('ko') ? 'fail' : 'success', // Logic heuristic
+                action_type: ev.short,
+                outcome: FAILED_ACTION_TYPES.has(ev.short) ? "fail" : "success",
                 half: ev.half,
                 match_time: ev.elapsed,
             }));
@@ -348,7 +347,7 @@ export async function saveMatch(matchData: {
         }
 
         revalidatePath("/dashboard");
-        revalidatePath(`/profile/${matchData.child_id}`);
+        revalidatePath(`/profile/${child.id}`);
 
         return { success: true, data: match };
     } catch (error) {
@@ -357,33 +356,22 @@ export async function saveMatch(matchData: {
     }
 }
 
-export async function saveWellbeing(data: {
-    child_id: string;
-    mood: number;
-    sleep: number;
-    fatigue: number;
-    muscle_pain: number;
-}) {
+export async function saveWellbeing(data: CheckinAnswers & { child_id: string }) {
     try {
-        const { userId } = await auth();
-        if (!userId) throw new Error("User not authenticated");
+        const child = await requireOwnedChild(data.child_id);
+        if (!child) return { success: false, error: "Profil enfant introuvable ou accès refusé." };
 
-        const normalizedMood = data.mood === 1 ? 1 : data.mood === 2 ? 3 : 5;
-        const normalizedSleep = data.sleep === 4 ? 5 : data.sleep === 3 ? 4 : data.sleep === 2 ? 2 : 1;
-        const normalizedFatigue = data.fatigue === 4 ? 5 : data.fatigue === 3 ? 4 : data.fatigue === 2 ? 2 : 1;
+        const normalized = normalizeCheckin(data);
 
         const { error } = await supabaseAdmin
             .from("child_wellbeing")
             .upsert({
-                child_id: data.child_id,
-                checkin_date: new Date().toISOString().split('T')[0],
-                mood_score: normalizedMood,
-                sleep_quality: normalizedSleep,
-                energy_level: normalizedFatigue,
-                physical_pain: data.muscle_pain < 3,
+                child_id: child.id,
+                checkin_date: todayInParis(),
+                ...normalized,
                 confidence_level: 3,
                 stress_level: 3,
-            }, { onConflict: 'child_id,checkin_date' });
+            }, { onConflict: "child_id,checkin_date" });
 
         if (error) throw error;
 
@@ -398,15 +386,14 @@ export async function saveWellbeing(data: {
 
 export async function getDailyCheckinStatus(childId: string) {
     try {
-        const { userId } = await auth();
-        if (!userId) return { hasCheckedIn: false };
+        const child = await requireOwnedChild(childId);
+        if (!child) return { hasCheckedIn: false };
 
-        const today = new Date().toISOString().split('T')[0];
         const { data, error } = await supabaseAdmin
             .from("child_wellbeing")
             .select("id")
-            .eq("child_id", childId)
-            .eq("checkin_date", today)
+            .eq("child_id", child.id)
+            .eq("checkin_date", todayInParis())
             .maybeSingle();
 
         if (error) throw error;

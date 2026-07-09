@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldAlert, BookOpen, Clock, Heart, AlertTriangle, ArrowRight, X, CheckSquare, XCircle, Search } from 'lucide-react';
+import { ShieldAlert, BookOpen, AlertTriangle, ArrowRight, X, CheckSquare, XCircle, Search } from 'lucide-react';
 
 type Category = 'Tous' | 'Urgence' | 'Avant match' | 'Après match' | 'Motivation';
 

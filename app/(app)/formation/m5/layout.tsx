@@ -1,5 +1,6 @@
 import React from "react";
 import { ModuleSidebar } from "@/components/formation/ui/ModuleSidebar";
+import LessonFooterNav from "@/components/formation/ui/LessonFooterNav";
 
 const MODULE_5_NAV = {
     moduleId: "m5",
@@ -23,6 +24,7 @@ export default function Module5Layout({
             <ModuleSidebar nav={MODULE_5_NAV} />
             <div className="flex-1 w-full max-w-[900px] mx-auto overflow-x-hidden">
                 {children}
+                <LessonFooterNav />
             </div>
         </div>
     );

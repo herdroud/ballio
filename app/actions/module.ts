@@ -12,14 +12,14 @@ export async function getUserPlan(): Promise<string> {
             .from("profiles")
             .select("subscription_status, current_period_end")
             .eq("user_id", userId)
-            .single();
+            .maybeSingle();
 
         const userPlan = profile?.subscription_status || "free";
 
-        // Un plan est valide s'il n'a pas de date de fin OU si la date de fin est dans le futur
+        // Un plan est valide s'il n'a pas de date de fin OU si la date de fin est dans le futur.
         const isActive = profile?.current_period_end
             ? new Date(profile.current_period_end) > new Date()
-            : true; // Par défaut s'il n'a pas de date (comme pour free), c'est true. Mais en prod Stripe met une date pour starter/pro.
+            : true;
 
         return isActive ? userPlan : "free";
     } catch (error) {
@@ -28,15 +28,9 @@ export async function getUserPlan(): Promise<string> {
     }
 }
 
-export async function checkModuleAccess(moduleId: string) {
-    try {
-        const isFree = moduleId === "m0";
-        const effectivePlan = await getUserPlan();
-
-        // Tout utilisateur connecté a désormais accès à tous les modules
-        return { hasAccess: true, effectivePlan: "free" };
-    } catch (error) {
-        console.error("[CHECK_MODULE_ACCESS_ERROR]", error);
-        return { hasAccess: false, effectivePlan: "free" };
-    }
+// L'application est 100 % gratuite : tous les modules sont accessibles aux
+// utilisateurs connectés. Réintroduire une vérification de plan ici le jour
+// où une offre premium est lancée.
+export async function checkModuleAccess(_moduleId: string) {
+    return { hasAccess: true, effectivePlan: "free" };
 }

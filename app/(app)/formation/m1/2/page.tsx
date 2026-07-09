@@ -45,7 +45,7 @@ export default function Module1Lesson2Page() {
 
                 <div className="bg-white border border-gray-100 rounded-[32px] p-8 md:p-12 shadow-sm my-16">
                     <div className="grid grid-cols-7 gap-2 md:gap-4 mb-10">
-                        {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((day, idx) => {
+                        {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((day, _idx) => {
                             const isFoot = day === "Lun" || day === "Sam";
                             return (
                                 <div key={day} className="flex flex-col items-center gap-3">

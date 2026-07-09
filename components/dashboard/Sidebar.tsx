@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useUser, useAuth } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { getChildProfile } from "@/app/actions/child";
 import { APP_VERSION } from "@/lib/version";
+import type { Child } from "@/app/types/db";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -31,7 +32,7 @@ const NAV_TOOLS = [
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useUser();
-  const [child, setChild] = useState<any>(null);
+  const [child, setChild] = useState<Child | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

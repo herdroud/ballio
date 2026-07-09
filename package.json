@@ -1,12 +1,17 @@
 {
-  "name": "ballia",
+  "name": "ballio",
   "version": "0.1.1",
   "private": true,
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.37.3",
@@ -21,7 +26,6 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "sonner": "^2.0.7",
-    "svix": "^1.86.0",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {

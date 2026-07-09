@@ -1,20 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useUser } from "@clerk/nextjs"; // <--- Pour récupérer l'ID du parent connecté
-import { createClient } from "@supabase/supabase-js"; // <--- Pour parler à la base de données
-import { useRouter } from "next/navigation"; // <--- Pour rediriger vers le dashboard
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import Link from "next/link";
-import {  useAuth } from "@clerk/nextjs"; // <--- On ajoute useAuth
-
-// Initialisation simple du client Supabase
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { saveQuizResult } from "@/app/actions/quiz";
 
 // LES QUESTIONS (DATA)
 const questions = [
@@ -42,7 +35,7 @@ const questions = [
       { text: "On y va quand même, c'est ça le haut niveau !", score: 0 }, // Risque burnout
       { text: "Si tu n'y vas pas, tu ne seras jamais pro.", score: 0 }, // Menace
       { text: "Ok, repose-toi aujourd'hui. On verra demain.", score: 10 }, // Écoute
-      { text: "Prends des vitamines et fonce.", score: 2 }, 
+      { text: "Prends des vitamines et fonce.", score: 2 },
     ],
   },
   {
@@ -51,7 +44,7 @@ const questions = [
       { text: "C'est injuste, le coach a ses chouchous.", score: 0 }, // Victimisation
       { text: "Travaille plus dur, tu gagneras ta place.", score: 10 }, // Responsabilisation
       { text: "Je vais aller parler au coach.", score: 0 }, // Ingérence
-      { text: "Ça arrive, profite-en pour observer le jeu.", score: 8 }, 
+      { text: "Ça arrive, profite-en pour observer le jeu.", score: 8 },
     ],
   },
   {
@@ -66,17 +59,16 @@ const questions = [
 ];
 
 export default function QuizPage() {
-  const { user, isLoaded, isSignedIn } = useUser(); // On récupère l'info : est-il connecté ?
+  const { isSignedIn } = useUser();
   const router = useRouter();
-  
+
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
-  const [isSaving, setIsSaving] = useState(false); // Petit état de chargement
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleAnswer = (points: number) => {
-    const newScore = score + points;
-    setScore(newScore);
+    setScore(score + points);
 
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
@@ -87,10 +79,6 @@ export default function QuizPage() {
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 
-
-  const { getToken } = useAuth(); // <--- On récupère la fonction qui génère le token
-
-  // LA NOUVELLE FONCTION DE SAUVEGARDE SÉCURISÉE
   const saveResultAndRedirect = async () => {
     setIsSaving(true);
 
@@ -99,43 +87,23 @@ export default function QuizPage() {
     else if (score >= 20) profileType = "Supporter";
 
     try {
-      if (isSignedIn && user) {
-        // 1. On demande le passeport à Clerk
-        const token = await getToken({ template: 'supabase' });
-
-        // 2. On crée un client Supabase TEMPORAIRE juste pour cette action, avec le passeport
-        const supabaseAuthenticated = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          {
-            global: { headers: { Authorization: `Bearer ${token}` } },
-          }
-        );
-
-        // 3. On écrit dans la base avec ce client authentifié
-        const { error } = await supabaseAuthenticated
-          .from('profiles')
-          .upsert({ 
-            user_id: user.id,
-            email: user.primaryEmailAddress?.emailAddress,
-            quiz_score: score,
-            parent_profile: profileType,
-            updated_at: new Date().toISOString(),
-          }, { onConflict: 'user_id' });
-
-        if (error) throw error;
-        
+      if (isSignedIn) {
+        const result = await saveQuizResult(score, profileType);
+        if (!result.success) {
+          toast.error(result.error || "Impossible de sauvegarder le résultat.");
+          return;
+        }
         router.push("/dashboard");
-
       } else {
-        // Cas non connecté (inchangé)
+        // Non connecté : le résultat est synchronisé après l'inscription
+        // (voir le bootstrap du dashboard).
         localStorage.setItem("tempQuizScore", score.toString());
         localStorage.setItem("tempQuizProfile", profileType);
         router.push("/sign-up");
       }
-    } catch (error: any) { // On ajoute 'any' pour éviter les erreurs TypeScript
+    } catch (error) {
       console.error("Erreur de sauvegarde:", error);
-      alert(`Erreur: ${error.message || "Impossible de sauvegarder"}`);
+      toast.error("Impossible de sauvegarder. Réessayez.");
     } finally {
       setIsSaving(false);
     }
@@ -173,7 +141,7 @@ export default function QuizPage() {
             <p className="text-center text-slate-600 text-lg leading-relaxed">
               {description}
             </p>
-            
+
             <div className="w-full bg-slate-100 p-4 rounded-lg mt-4 border border-slate-200">
               <p className="text-sm font-semibold text-slate-500 uppercase tracking-wide text-center">
                 Score de sérénité
@@ -183,16 +151,15 @@ export default function QuizPage() {
               </p>
             </div>
 
-            {/* Si l'utilisateur n'est pas connecté, le bouton l'invite à s'inscrire pour sauver */}
-            <Button 
-              className="w-full h-12 text-lg mt-4" 
+            <Button
+              className="w-full h-12 text-lg mt-4"
               onClick={saveResultAndRedirect}
               disabled={isSaving}
             >
               {isSaving ? "Sauvegarde en cours..." : "Obtenir mon plan d'action Ballio 👉"}
             </Button>
             <p className="text-xs text-slate-400 text-center">
-              Offre d'essai 14 jours incluse
+              100% gratuit · Aucune carte bancaire requise
             </p>
           </CardContent>
         </Card>
@@ -205,8 +172,8 @@ export default function QuizPage() {
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-slate-50">
       <div className="w-full max-w-lg mb-8">
         <div className="flex justify-between text-sm text-slate-500 mb-2">
-            <span>Question {currentQuestion + 1}/{questions.length}</span>
-            <span>Ballio Diagnostic</span>
+          <span>Question {currentQuestion + 1}/{questions.length}</span>
+          <span>Ballio Diagnostic</span>
         </div>
         <Progress value={progress} className="h-2" />
       </div>

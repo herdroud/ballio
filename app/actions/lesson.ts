@@ -5,6 +5,7 @@ import { LESSONS_DATA, Lesson } from "@/app/lib/lessons-data";
 import { supabaseAdmin } from "@/app/lib/supabase-admin";
 import { revalidatePath } from "next/cache";
 import { getParentProfile } from "./child";
+import type { UserProgressRow } from "@/app/types/db";
 
 export type GetLessonResult =
     | { success: true; lesson: Lesson; isCompleted: boolean }
@@ -21,13 +22,12 @@ export async function getLesson(lessonId: string): Promise<GetLessonResult> {
         const lesson = LESSONS_DATA[lessonId];
         if (!lesson) return { success: false, error: "not_found" };
 
-        // Vérifier si la leçon est terminée (on utilise parent.id qui est le UUID)
         const { data: progress } = await supabaseAdmin
             .from("user_progress")
             .select("completed_at")
             .eq("user_id", parent.id)
             .eq("lesson_id", lessonId)
-            .single();
+            .maybeSingle();
 
         return { success: true, lesson, isCompleted: !!progress };
 
@@ -37,21 +37,21 @@ export async function getLesson(lessonId: string): Promise<GetLessonResult> {
     }
 }
 
+// Bascule l'état de complétion d'une leçon (ids "m0-intro", "m2-3"…).
 export async function toggleLessonCompletion(lessonId: string) {
     try {
         const { userId } = await auth();
-        if (!userId) return;
+        if (!userId) return { success: false, isCompleted: false };
 
         const parent = await getParentProfile();
-        if (!parent) return;
+        if (!parent) return { success: false, isCompleted: false };
 
-        // Check if already completed
         const { data: existing } = await supabaseAdmin
             .from("user_progress")
             .select("lesson_id")
             .eq("user_id", parent.id)
             .eq("lesson_id", lessonId)
-            .single();
+            .maybeSingle();
 
         if (existing) {
             await supabaseAdmin
@@ -62,18 +62,23 @@ export async function toggleLessonCompletion(lessonId: string) {
         } else {
             await supabaseAdmin
                 .from("user_progress")
-                .insert({ user_id: parent.id, lesson_id: lessonId });
+                .upsert(
+                    { user_id: parent.id, lesson_id: lessonId },
+                    { onConflict: "user_id,lesson_id", ignoreDuplicates: true }
+                );
         }
 
-        revalidatePath(`/lessons/${lessonId}`);
         revalidatePath("/formation");
         revalidatePath("/dashboard");
+
+        return { success: true, isCompleted: !existing };
     } catch (error) {
         console.error("[TOGGLE_LESSON_COMPLETION_ERROR]", error);
+        return { success: false, isCompleted: false };
     }
 }
 
-export async function getUserProgress() {
+export async function getUserProgress(): Promise<UserProgressRow[]> {
     try {
         const { userId } = await auth();
         if (!userId) return [];

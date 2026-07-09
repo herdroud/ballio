@@ -1,28 +1,20 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar as CalendarIcon, MapPin, Plus, Clock, MoreVertical, X, Trophy, AlertTriangle, MinusCircle, CheckCircle2 } from 'lucide-react';
+import { Calendar as CalendarIcon, MapPin, Plus, Clock, X, Trophy, AlertTriangle, MinusCircle, CheckCircle2, Settings } from 'lucide-react';
+import { toast } from 'sonner';
+import {
+    getPlannedMatches,
+    addPlannedMatch,
+    updatePlannedMatchStatus,
+    type PlannedMatchStatus,
+} from '@/app/actions/calendar';
+import { getChildProfile } from '@/app/actions/child';
+import type { PlannedMatchRow } from '@/app/types/db';
 
-type MatchStatus = 'upcoming' | 'won' | 'lost' | 'draw' | 'cancelled';
-
-interface MatchEvent {
-    id: string;
-    opponent: string;
-    date: string;
-    time: string;
-    location: 'Domicile' | 'Extérieur';
-    status: MatchStatus;
-}
-
-const INITIAL_MATCHES: MatchEvent[] = [
-    { id: '1', opponent: 'FC Mâcon', date: '2025-05-15', time: '14:00', location: 'Domicile', status: 'won' },
-    { id: '2', opponent: 'AS Lyon', date: '2025-05-22', time: '15:30', location: 'Extérieur', status: 'lost' },
-    { id: '3', opponent: 'ESA Bron', date: new Date().toISOString().split('T')[0], time: '10:00', location: 'Domicile', status: 'upcoming' }, // Today/Upcoming
-    { id: '4', opponent: 'Tassin FC', date: '2025-06-05', time: '14:00', location: 'Extérieur', status: 'upcoming' },
-];
-
-const STATUS_CONFIG: Record<MatchStatus, { label: string, color: string, bg: string, icon: any }> = {
+const STATUS_CONFIG: Record<PlannedMatchStatus, { label: string, color: string, bg: string, icon: React.ComponentType<{ size?: number; className?: string }> }> = {
     upcoming: { label: 'À venir', color: 'text-blue-600', bg: 'bg-blue-50 border-blue-200', icon: Clock },
     won: { label: 'Victoire', color: 'text-loo-green-600', bg: 'bg-loo-green-50 border-loo-green-200', icon: Trophy },
     lost: { label: 'Défaite', color: 'text-red-600', bg: 'bg-red-50 border-red-200', icon: AlertTriangle },
@@ -31,8 +23,11 @@ const STATUS_CONFIG: Record<MatchStatus, { label: string, color: string, bg: str
 };
 
 export default function CalendarPage() {
-    const [matches, setMatches] = useState<MatchEvent[]>(INITIAL_MATCHES);
+    const [matches, setMatches] = useState<PlannedMatchRow[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [hasChild, setHasChild] = useState(true);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const [statusMenuOpenId, setStatusMenuOpenId] = useState<string | null>(null);
 
     // New Match Form State
@@ -41,39 +36,112 @@ export default function CalendarPage() {
     const [newTime, setNewTime] = useState('');
     const [newLocation, setNewLocation] = useState<'Domicile' | 'Extérieur'>('Domicile');
 
-    const upcomingMatches = matches.filter(m => m.status === 'upcoming').sort((a, b) => a.date.localeCompare(b.date));
-    const pastMatches = matches.filter(m => m.status !== 'upcoming').sort((a, b) => b.date.localeCompare(a.date));
+    useEffect(() => {
+        async function loadData() {
+            try {
+                const child = await getChildProfile();
+                if (!child) {
+                    setHasChild(false);
+                    return;
+                }
+                const data = await getPlannedMatches();
+                setMatches(data);
+            } catch (err) {
+                console.error(err);
+                toast.error('Impossible de charger le calendrier.');
+            } finally {
+                setLoading(false);
+            }
+        }
+        loadData();
+    }, []);
 
-    const handleAddMatch = (e: React.FormEvent) => {
+    const upcomingMatches = matches
+        .filter(m => m.status === 'upcoming')
+        .sort((a, b) => a.match_date.localeCompare(b.match_date));
+    const pastMatches = matches
+        .filter(m => m.status !== 'upcoming')
+        .sort((a, b) => b.match_date.localeCompare(a.match_date));
+
+    const handleAddMatch = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newOpponent || !newDate || !newTime) return;
 
-        const newMatch: MatchEvent = {
-            id: Math.random().toString(36).substr(2, 9),
-            opponent: newOpponent,
-            date: newDate,
-            time: newTime,
-            location: newLocation,
-            status: 'upcoming',
-        };
+        setIsSaving(true);
+        try {
+            const result = await addPlannedMatch({
+                opponent: newOpponent,
+                match_date: newDate,
+                match_time: newTime,
+                location: newLocation,
+            });
 
-        setMatches([...matches, newMatch]);
-        setIsAddModalOpen(false);
-        setNewOpponent('');
-        setNewDate('');
-        setNewTime('');
-        setNewLocation('Domicile');
+            if (result.success && result.data) {
+                setMatches(prev => [...prev, result.data]);
+                setIsAddModalOpen(false);
+                setNewOpponent('');
+                setNewDate('');
+                setNewTime('');
+                setNewLocation('Domicile');
+                toast.success('Match ajouté au calendrier !');
+            } else {
+                toast.error(result.error || "Erreur lors de l'ajout du match.");
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error('Une erreur est survenue.');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
-    const updateMatchStatus = (id: string, newStatus: MatchStatus) => {
+    const handleUpdateStatus = async (id: string, newStatus: PlannedMatchStatus) => {
+        const previous = matches;
+        // Mise à jour optimiste, rollback si échec.
         setMatches(matches.map(m => m.id === id ? { ...m, status: newStatus } : m));
         setStatusMenuOpenId(null);
+
+        const result = await updatePlannedMatchStatus(id, newStatus);
+        if (!result.success) {
+            setMatches(previous);
+            toast.error(result.error || 'Erreur lors de la mise à jour.');
+        }
     };
 
     const formatDate = (dateString: string) => {
         const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long' };
-        return new Date(dateString).toLocaleDateString('fr-FR', options);
+        return new Date(`${dateString}T00:00:00`).toLocaleDateString('fr-FR', options);
     };
+
+    if (loading) {
+        return (
+            <div className="max-w-3xl mx-auto space-y-4">
+                <div className="h-16 bg-white rounded-2xl animate-pulse" />
+                <div className="h-24 bg-white rounded-2xl animate-pulse" />
+                <div className="h-24 bg-white rounded-2xl animate-pulse" />
+            </div>
+        );
+    }
+
+    if (!hasChild) {
+        return (
+            <div className="max-w-xl mx-auto">
+                <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-8 text-center">
+                    <div className="text-4xl mb-4">📅</div>
+                    <h1 className="text-xl font-black text-gray-900 mb-2">Calendrier</h1>
+                    <p className="text-gray-500 leading-relaxed mb-6">
+                        Renseignez d&apos;abord le profil de votre enfant pour planifier ses matchs.
+                    </p>
+                    <Link
+                        href="/parametres"
+                        className="inline-flex items-center gap-2 bg-loo-green-500 hover:bg-loo-green-600 text-white font-extrabold px-6 py-3 rounded-2xl transition-colors no-underline"
+                    >
+                        <Settings size={18} /> Configurer le profil
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-3xl mx-auto space-y-6 pb-24 relative">
@@ -81,7 +149,7 @@ export default function CalendarPage() {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-extrabold text-gray-800 tracking-tight">Calendrier</h1>
-                    <p className="text-sm text-gray-500 mt-0.5">Tes matchs à venir et l'historique</p>
+                    <p className="text-sm text-gray-500 mt-0.5">Tes matchs à venir et l&apos;historique</p>
                 </div>
                 <button
                     onClick={() => setIsAddModalOpen(true)}
@@ -109,7 +177,7 @@ export default function CalendarPage() {
                             formatDate={formatDate}
                             statusMenuOpenId={statusMenuOpenId}
                             setStatusMenuOpenId={setStatusMenuOpenId}
-                            updateMatchStatus={updateMatchStatus}
+                            updateMatchStatus={handleUpdateStatus}
                         />
                     ))}
                 </div>
@@ -120,7 +188,7 @@ export default function CalendarPage() {
 
             {pastMatches.length === 0 ? (
                 <div className="bg-gray-50 rounded-2xl p-8 text-center border border-gray-200 border-dashed">
-                    <p className="text-gray-500 font-medium">L'historique est vide.</p>
+                    <p className="text-gray-500 font-medium">L&apos;historique est vide.</p>
                 </div>
             ) : (
                 <div className="space-y-3 opacity-90">
@@ -131,7 +199,7 @@ export default function CalendarPage() {
                             formatDate={formatDate}
                             statusMenuOpenId={statusMenuOpenId}
                             setStatusMenuOpenId={setStatusMenuOpenId}
-                            updateMatchStatus={updateMatchStatus}
+                            updateMatchStatus={handleUpdateStatus}
                         />
                     ))}
                 </div>
@@ -154,7 +222,11 @@ export default function CalendarPage() {
                         >
                             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
                                 <h3 className="text-lg font-bold text-gray-800">Ajouter un match</h3>
-                                <button onClick={() => setIsAddModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-full p-2 transition-colors">
+                                <button
+                                    onClick={() => setIsAddModalOpen(false)}
+                                    aria-label="Fermer"
+                                    className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-full p-2 transition-colors"
+                                >
                                     <X size={20} />
                                 </button>
                             </div>
@@ -218,9 +290,10 @@ export default function CalendarPage() {
                                 <div className="pt-4">
                                     <button
                                         type="submit"
-                                        className="w-full py-4 bg-loo-green-500 hover:bg-loo-green-600 text-white font-extrabold uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-loo-green-500/25"
+                                        disabled={isSaving}
+                                        className="w-full py-4 bg-loo-green-500 hover:bg-loo-green-600 text-white font-extrabold uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-loo-green-500/25 disabled:opacity-60"
                                     >
-                                        Valider le match
+                                        {isSaving ? 'Enregistrement...' : 'Valider le match'}
                                     </button>
                                 </div>
                             </form>
@@ -232,10 +305,17 @@ export default function CalendarPage() {
     );
 }
 
-// Subcomponent for Match Cards to keep things clean
-function MatchCard({ match, formatDate, statusMenuOpenId, setStatusMenuOpenId, updateMatchStatus }: any) {
+interface MatchCardProps {
+    match: PlannedMatchRow;
+    formatDate: (d: string) => string;
+    statusMenuOpenId: string | null;
+    setStatusMenuOpenId: (id: string | null) => void;
+    updateMatchStatus: (id: string, status: PlannedMatchStatus) => void;
+}
+
+function MatchCard({ match, formatDate, statusMenuOpenId, setStatusMenuOpenId, updateMatchStatus }: MatchCardProps) {
     const isMenuOpen = statusMenuOpenId === match.id;
-    const config = STATUS_CONFIG[match.status as MatchStatus];
+    const config = STATUS_CONFIG[match.status];
     const Icon = config.icon;
 
     return (
@@ -246,14 +326,14 @@ function MatchCard({ match, formatDate, statusMenuOpenId, setStatusMenuOpenId, u
                 <div className="flex items-center gap-4">
                     <div className="flex flex-col items-center justify-center p-3 bg-gray-50 rounded-xl border border-gray-100 min-w-[70px]">
                         <span className="text-[10px] uppercase font-bold text-gray-400 mb-0.5 tracking-wider">Heure</span>
-                        <span className="text-lg font-black text-gray-800">{match.time}</span>
+                        <span className="text-lg font-black text-gray-800">{match.match_time || '—'}</span>
                     </div>
                     <div>
                         <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                             vs {match.opponent}
                         </h3>
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-gray-500 font-medium mt-1">
-                            <span className="flex items-center capitalize"><CalendarIcon size={12} className="mr-1" /> {formatDate(match.date)}</span>
+                            <span className="flex items-center capitalize"><CalendarIcon size={12} className="mr-1" /> {formatDate(match.match_date)}</span>
                             <span className="flex items-center"><MapPin size={12} className="mr-1" /> {match.location}</span>
                         </div>
                     </div>
@@ -279,12 +359,12 @@ function MatchCard({ match, formatDate, statusMenuOpenId, setStatusMenuOpenId, u
                                 {/* Invisible backdrop to close menu */}
                                 <div className="fixed inset-0 z-[100]" onClick={() => setStatusMenuOpenId(null)} />
                                 <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 shadow-xl rounded-xl p-1.5 z-[200] flex flex-col">
-                                    {Object.entries(STATUS_CONFIG).map(([statusKey, val]) => {
+                                    {(Object.entries(STATUS_CONFIG) as [PlannedMatchStatus, typeof STATUS_CONFIG[PlannedMatchStatus]][]).map(([statusKey, val]) => {
                                         const ValIcon = val.icon;
                                         return (
                                             <button
                                                 key={statusKey}
-                                                onClick={() => updateMatchStatus(match.id, statusKey as MatchStatus)}
+                                                onClick={() => updateMatchStatus(match.id, statusKey)}
                                                 className={`flex items-center gap-2 p-2 rounded-lg text-sm font-bold text-left transition-colors hover:bg-gray-50 ${match.status === statusKey ? 'bg-gray-50 text-gray-900 pointer-events-none' : 'text-gray-600'}`}
                                             >
                                                 <ValIcon size={14} className={val.color.split(' ')[0]} />

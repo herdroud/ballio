@@ -13,8 +13,8 @@ export default function CheckinBanner({ childName = "Léon" }: CheckinBannerProp
                     Check-in de {childName} en attente
                 </div>
                 <div className="text-[12px] text-amber-800 leading-[1.45]">
-                    Dernier check-in il y a 3 jours. 3 minutes pour prendre le pouls de
-                    son bien-être mental.
+                    Pas encore de check-in aujourd&apos;hui. 3 minutes pour prendre le
+                    pouls de son bien-être mental.
                 </div>
             </div>
             <Link
